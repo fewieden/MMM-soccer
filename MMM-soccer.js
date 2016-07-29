@@ -7,10 +7,10 @@ Module.register("MMM-soccer",{
     start: function() {
         Log.info("Starting module: " + this.name);
         this.leagues = {
-            'GERMANY': 394,
-            'FRANCE': 396,
-            'ENGLAND': 398,
-            'SPAIN': 399,
+            'GERMANY': 430,
+            'FRANCE': 434,
+            'ENGLAND': 426,
+            'SPAIN': 436,
             'ITALY': 401
         };
         this.currentLeague = this.leagues[this.config.show];

@@ -8,20 +8,12 @@ module.exports = NodeHelper.create({
 
     socketNotificationReceived: function(notification, payload) {
         if (notification === "GET_DATA") {
-            var options = {};
+            var options = {
+                url: "http://api.football-data.org/v1/competitions/" + payload.league + "/leagueTable"
+            };
             if(payload.api_key){
-                options = {
-                    url: "http://api.football-data.org/v1/soccerseasons/" + payload.league + "/leagueTable",
-                    headers: {
-                        'X-Auth-Token': payload.api_key
-                    }
-                };
-            } else {
-                options = {
-                    url: "http://api.football-data.org/v1/soccerseasons/" + payload.league + "/leagueTable"
-                };
+                options['headers'] = {'X-Auth-Token': payload.api_key};
             }
-
             this.getData(options);
         }
     },
