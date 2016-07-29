@@ -62,12 +62,12 @@ Module.register("MMM-soccer",{
 
             var points = document.createElement('img');
             points.classList.add('key-icon');
-            points.src = 'icons/points.png';
+            points.src = 'modules/MMM-soccer/icons/points.png';
             details.appendChild(points);
 
             var goals = document.createElement('img');
             goals.classList.add('key-icon');
-            goals.src = 'icons/goal.png';
+            goals.src = 'modules/MMM-soccer/icons/goal.png';
             details.appendChild(goals);
             row.appendChild(details);
             rows.appendChild(row);
