@@ -1,0 +1,22 @@
+{
+  "name": "mmm-soccer",
+  "version": "1.0.0",
+  "description": "European Soccer Standings Module for MagicMirror2",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fewieden/MMM-soccer.git"
+  },
+  "keywords": [
+    "MagicMirror",
+    "soccer standings"
+  ],
+  "author": "fewieden",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fewieden/MMM-soccer/issues"
+  },
+  "homepage": "https://github.com/fewieden/MMM-soccer#readme",
+  "dependencies": {
+    "request": "^2.74.0"
+  }
+}
