@@ -30,8 +30,11 @@ Module.register("MMM-soccer",{
         Log.info("Starting module: " + this.name);
         this.currentLeague = this.config.leagues[this.config.show];
         this.getData();
+
+        this.getData();
+        var self = this; 
         setInterval(function() {
-            this.getData();
+            self.getData();
         }, this.config.api_key ? 300000 : 1800000); // with api_key every 5min without every 30min
     },
 
