@@ -1,6 +1,10 @@
 # MMM-soccer
 European Soccer Standings Module for MagicMirror<sup>2</sup>
 
+## Example
+
+| ![](.github/example_full.png) | ![](.github/example_focused.png) |
+
 ## Dependencies
   * An installation of [MagicMirror<sup>2</sup>](https://github.com/MichMich/MagicMirror)
   * npm
@@ -25,5 +29,8 @@ European Soccer Standings Module for MagicMirror<sup>2</sup>
 ## Config Options
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
-| `api_key` | false | Ability to request data more than 50 times a day. Get a free api key (here)[http://api.football-data.org/register] |
+| `api_key` | false | Either false (limited to 50 requests a day) or an API Key obtained from http://api.football-data.org/register (limited to 50 requests a minute) . |
 | `show` | 'GERMANY' | Which league should be displayed  'GERMANY', 'FRANCE', 'ENGLAND', 'SPAIN' or 'ITALY' |
+| `focus_on` | false | Which team should the standings focus on e.g. 'FC Schalke 04'. Omit this option or set to false to show the full league table. |
+| `max_teams` | false | How many teams should be displayed above and below the focused team. Omit this option or set to false to show the full league table. |
+| `leagues` | `leagues: {"GERMANY":430, "FRANCE": 434, "ENGLAND": 426, "SPAIN": 436, "ITALY": 438}` | A collection of leagues obtained from http://api.football-data.org/v1/competitions |
