@@ -11,8 +11,8 @@ Module.register("MMM-soccer",{
     defaults: {
         api_key: false,
         show: 'GERMANY',
-        focus_on: false,  // false or the name of a team to focus on (used with surrounding_teams)
-        surrounding_teams: false,   // false or the number of teams to show either side of the focused team
+        focus_on: false,  // false or the name of a team to focus on (used with max_teams)
+        max_teams: false,   // false or the number of teams to show either side of the focused team
         leagues: {
             "GERMANY":430,
             "FRANCE": 434,
@@ -120,12 +120,12 @@ Module.register("MMM-soccer",{
             var focusTeamIndex;
             var firstTeam = 0;
             var lastTeam = this.standing.standing.length;
-            if (this.config.surrounding_teams >= 0 && this.config.focus_on) {
+            if (this.config.max_teams >= 0 && this.config.focus_on) {
                 for(var i = 0; i < this.standing.standing.length; i++){
                     if(this.standing.standing[i].teamName === this.config.focus_on){
                         focusTeamIndex = i;
-                        firstTeam = (focusTeamIndex - this.config.surrounding_teams < 0) ? firstTeam : focusTeamIndex - this.config.surrounding_teams;
-                        lastTeam = (focusTeamIndex + this.config.surrounding_teams + 1 > lastTeam) ? lastTeam : focusTeamIndex + this.config.surrounding_teams + 1;
+                        firstTeam = (focusTeamIndex - this.config.max_teams < 0) ? firstTeam : focusTeamIndex - this.config.max_teams;
+                        lastTeam = (focusTeamIndex + this.config.max_teams + 1 > lastTeam) ? lastTeam : focusTeamIndex + this.config.max_teams + 1;
                         break;
                     }
 
@@ -166,10 +166,10 @@ Module.register("MMM-soccer",{
                 row.appendChild(details);
 
                 // Create fade in/out effect.
-                if (this.config.surrounding_teams && focusTeamIndex >= 0) {
+                if (this.config.max_teams && focusTeamIndex >= 0) {
                     if (i != focusTeamIndex) {
                         var currentStep = Math.abs(i - focusTeamIndex);
-                        row.style.opacity = 1 - (1 / this.config.surrounding_teams * currentStep);
+                        row.style.opacity = 1 - (1 / this.config.max_teams * currentStep);
                     }
                 }
 
