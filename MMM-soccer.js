@@ -18,7 +18,7 @@ Module.register("MMM-soccer",{
             "FRANCE": 434,
             "ENGLAND": 426,
             "SPAIN": 436,
-            "ITALY": 438 
+            "ITALY": 438
         }
     },
 
@@ -32,7 +32,7 @@ Module.register("MMM-soccer",{
         this.getData();
 
         this.getData();
-        var self = this; 
+        var self = this;
         setInterval(function() {
             self.getData();
         }, this.config.api_key ? 300000 : 1800000); // with api_key every 5min without every 30min
@@ -117,25 +117,60 @@ Module.register("MMM-soccer",{
             rows.appendChild(row);
 
             // Get First and Last teams to display in standings
-            var focusTeamIndex;
-            var firstTeam = 0;
-            var lastTeam = this.standing.standing.length;
-            if (this.config.max_teams >= 0 && this.config.focus_on) {
-                for(var i = 0; i < this.standing.standing.length; i++){
-                    if(this.standing.standing[i].teamName === this.config.focus_on){
-                        focusTeamIndex = i;
-                        firstTeam = (focusTeamIndex - this.config.max_teams < 0) ? firstTeam : focusTeamIndex - this.config.max_teams;
-                        lastTeam = (focusTeamIndex + this.config.max_teams + 1 > lastTeam) ? lastTeam : focusTeamIndex + this.config.max_teams + 1;
-                        break;
-                    }
+            var focusTeamIndex, firstTeam, lastTeam;
 
+            /* focus_on for current league is set */
+            if(this.config.focus_on && this.config.focus_on.hasOwnProperty(this.config.show)){
+                /* focus_on TOP */
+                if(this.config.focus_on[this.config.show] === 'TOP'){
+                    focusTeamIndex = -1;
+                    firstTeam = 0;
+                    lastTeam = (this.config.max_teams && this.config.max_teams <= this.standing.standing.length) ? this.config.max_teams : this.standing.standing.length;
                 }
+                /* focus_on BOTTOM */
+                else if(this.config.focus_on[this.config.show] === 'BOTTOM'){
+                    focusTeamIndex = -1;
+                    firstTeam = (this.config.max_teams && this.config.max_teams <= this.standing.standing.length) ? this.standing.standing.length - this.config.max_teams : 0;
+                    lastTeam = this.standing.standing.length;
+                }
+                /* focus_on specific team */
+                else {
+                    for(var i = 0; i < this.standing.standing.length; i++){
+                        /* focus_on is teamName */
+                        if(this.standing.standing[i].teamName === this.config.focus_on[this.config.show]){
+                            focusTeamIndex = i;
+                            /* max_teams is set */
+                            if(this.config.max_teams){
+                                var before = parseInt(this.config.max_teams / 2);
+                                firstTeam = focusTeamIndex - before >= 0 ? focusTeamIndex - before : 0;
+                                /* index for lastTeam is in range */
+                                if(firstTeam + this.config.max_teams <= this.standing.standing.length){
+                                    lastTeam =  firstTeam + this.config.max_teams;
+                                } else {
+                                    lastTeam = this.standing.standing.length;
+                                    firstTeam = lastTeam - this.config.max_teams >= 0 ? lastTeam - this.config.max_teams : 0;
+                                }
+                            } else {
+                                firstTeam = 0;
+                                lastTeam = this.standing.standing.length;
+                            }
+                            break;
+                        }
+                    }
+                }
+            } else {
+                focusTeamIndex = -1;
+                firstTeam = 0;
+                lastTeam = this.config.max_teams || this.standing.standing.length;
             }
 
             // Render Team Rows
             for(var i = firstTeam; i < lastTeam; i++){
                 var row = document.createElement('div');
                 row.classList.add('row');
+                if(i === focusTeamIndex){
+                    row.classList.add('bright');
+                }
 
                 var pos = document.createElement('div');
                 pos.classList.add('position');
@@ -144,8 +179,9 @@ Module.register("MMM-soccer",{
 
                 var icon = document.createElement('img');
                 icon.classList.add('icon');
-                if (this.standing.standing[i].crestURI != "null") 
+                if (this.standing.standing[i].crestURI != "null"){
                     icon.src = this.standing.standing[i].crestURI;   // API returns "null" for teams without a crest
+                }
                 row.appendChild(icon);
 
                 var name = document.createElement('div');
