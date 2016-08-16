@@ -56,6 +56,13 @@ Module.register("MMM-soccer",{
         return ["MMM-soccer.css"];
     },
 
+    getTranslations: function() {
+        return {
+            en: "translations/en.json",
+            de: "translations/de.json"
+        };
+    },
+
     // Override dom generator.
     getDom: function() {
         var wrapper = document.createElement("div");
@@ -67,8 +74,8 @@ Module.register("MMM-soccer",{
             wrapper.appendChild(title);
 
             var subtitle = document.createElement("div");
-            subtitle.className = "small dimmed light";
-            subtitle.innerHTML = (this.loading) ? this.translate("LOADING") : "No data available" ;
+            subtitle.classList.add("small", "dimmed", "light");
+            subtitle.innerHTML = (this.loading) ? this.translate("LOADING") : this.translate("NO_DATA_AVAILABLE");
             wrapper.appendChild(subtitle);
 
             return wrapper;
@@ -84,37 +91,43 @@ Module.register("MMM-soccer",{
             // Matchday indicator
             var subtitle = document.createElement("p");
             subtitle.classList.add("xsmall");
-            subtitle.innerHTML = "Matchday: " + this.standing.matchday;
+            subtitle.innerHTML = this.translate("MATCHDAY") + ": " + this.standing.matchday;
             wrapper.appendChild(subtitle);
 
             // Standings container
-            var rows = document.createElement('div');
-            rows.classList.add("xsmall");
+            var table = document.createElement('table');
+            table.classList.add('xsmall', 'table');
 
             // Standings header row
-            var row = document.createElement('div');
-            row.classList.add('row', 'keys');
+            var row = document.createElement('tr');
+            row.classList.add('row');
 
-            var name = document.createElement('div');
+            var position = document.createElement('th');
+            row.appendChild(position);
+
+            var logo = document.createElement('th');
+            row.appendChild(logo);
+
+            var name = document.createElement('th');
             name.classList.add('name');
-            name.innerHTML = 'Team';
+            name.innerHTML = this.translate("TEAM");
             row.appendChild(name);
 
-            var details = document.createElement('div');
-            details.classList.add('details');
+            var pointsLabel = document.createElement('th');
+            pointsLabel.classList.add('centered');
+            var points = document.createElement('i');
+            points.classList.add('fa', 'fa-line-chart');
+            pointsLabel.appendChild(points);
+            row.appendChild(pointsLabel);
 
-            var points = document.createElement('img');
-            points.classList.add('key-icon');
-            points.src = this.file('icons/points.png');
-            details.appendChild(points);
+            var goalsLabel = document.createElement('th');
+            goalsLabel.classList.add('centered');
+            var goals = document.createElement('i');
+            goals.classList.add('fa', 'fa-soccer-ball-o');
+            goalsLabel.appendChild(goals);
+            row.appendChild(goalsLabel);
 
-            var goals = document.createElement('img');
-            goals.classList.add('key-icon');
-            goals.src = this.file('icons/goal.png');
-            details.appendChild(goals);
-            row.appendChild(details);
-
-            rows.appendChild(row);
+            table.appendChild(row);
 
             // Get First and Last teams to display in standings
             var focusTeamIndex, firstTeam, lastTeam;
@@ -166,40 +179,39 @@ Module.register("MMM-soccer",{
 
             // Render Team Rows
             for(var i = firstTeam; i < lastTeam; i++){
-                var row = document.createElement('div');
-                row.classList.add('row');
+                var row = document.createElement('tr');
+                row.classList.add('centered-row');
                 if(i === focusTeamIndex){
                     row.classList.add('bright');
                 }
 
-                var pos = document.createElement('div');
-                pos.classList.add('position');
+                var pos = document.createElement('td');
                 pos.innerHTML = this.standing.standing[i].position;
                 row.appendChild(pos);
 
+                var logo = document.createElement('td');
                 var icon = document.createElement('img');
                 icon.classList.add('icon');
                 if (this.standing.standing[i].crestURI != "null"){
                     icon.src = this.standing.standing[i].crestURI;   // API returns "null" for teams without a crest
                 }
-                row.appendChild(icon);
+                logo.appendChild(icon);
+                row.appendChild(logo);
 
-                var name = document.createElement('div');
+                var name = document.createElement('td');
                 name.classList.add('name');
                 name.innerHTML = this.standing.standing[i].teamName;
                 row.appendChild(name);
 
-                var details = document.createElement('div');
-                details.classList.add('details');
-
-                var points = document.createElement('span');
+                var points = document.createElement('td');
                 points.innerHTML = this.standing.standing[i].points;
-                details.appendChild(points);
+                points.classList.add('centered');
+                row.appendChild(points);
 
-                var goals = document.createElement('span');
+                var goals = document.createElement('td');
                 goals.innerHTML = this.standing.standing[i].goalDifference;
-                details.appendChild(goals);
-                row.appendChild(details);
+                goals.classList.add('centered');
+                row.appendChild(goals);
 
                 // Create fade in/out effect.
                 if (this.config.max_teams && focusTeamIndex >= 0) {
@@ -209,9 +221,9 @@ Module.register("MMM-soccer",{
                     }
                 }
 
-                rows.appendChild(row);
+                table.appendChild(row);
             }
-            wrapper.appendChild(rows);
+            wrapper.appendChild(table);
         }
         return wrapper;
     }
