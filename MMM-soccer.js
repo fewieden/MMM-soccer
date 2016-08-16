@@ -53,7 +53,7 @@ Module.register("MMM-soccer",{
 
     // Subclass getStyles method.
     getStyles: function() {
-        return ["MMM-soccer.css"];
+        return ["font-awesome.css", "MMM-soccer.css"];
     },
 
     getTranslations: function() {
