@@ -2,5 +2,8 @@
   "LOADING": "loading...",
   "NO_DATA_AVAILABLE": "No data available!",
   "MATCHDAY": "Matchday",
-  "TEAM": "Team"
+  "TEAM": "Team",
+  "COMMAND_LIST": "List of all Voice Commands",
+  "MODE": "Mode",
+  "VOICE_COMMANDS": "Voice Commands"
 }
