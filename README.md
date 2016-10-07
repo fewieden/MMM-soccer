@@ -3,7 +3,7 @@ European Soccer Standings Module for MagicMirror<sup>2</sup>
 
 ## Example
 
-| ![](.github/example_full.png) | ![](.github/example_focused.png) |
+| ![](.github/example_full.png) | ![](.github/example_focused.png) | ![](.github/example.jpg) |
 
 ## Dependencies
   * An installation of [MagicMirror<sup>2</sup>](https://github.com/MichMich/MagicMirror)
