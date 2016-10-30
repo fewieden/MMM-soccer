@@ -10,6 +10,7 @@ Module.register("MMM-soccer",{
 
     defaults: {
         api_key: false,
+        colored: false,
         show: "GERMANY",
         focus_on: false,  // false or the name of a team to focus on (used with max_teams)
         max_teams: false,   // false or the number of teams to show either side of the focused team
@@ -281,6 +282,9 @@ Module.register("MMM-soccer",{
         icon.classList.add("icon");
         if (data.crestURI !== "null"){
             icon.src = data.crestURI;   // API returns "null" for teams without a crest
+        }
+        if(!this.config.colored){
+            icon.classList.add("no-color");
         }
         logo.appendChild(icon);
         row.appendChild(logo);

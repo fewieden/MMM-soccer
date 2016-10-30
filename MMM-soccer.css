@@ -1,6 +1,9 @@
 .MMM-soccer .icon {
     width: 24px;
     height: 24px;
+}
+
+.MMM-soccer .no-color {
     -webkit-filter: grayscale(100%);
 }
 

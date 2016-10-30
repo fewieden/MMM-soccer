@@ -31,6 +31,7 @@ European Soccer Standings Module for MagicMirror<sup>2</sup>
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
 | `api_key` | false | Either false (limited to 50 requests a day) or an API Key obtained from http://api.football-data.org/register (limited to 50 requests a minute) . |
+| `colored` | false | Boolean to show club logos in color or not. |
 | `show` | 'GERMANY' | Which league should be displayed  'GERMANY', 'FRANCE', 'ENGLAND', 'SPAIN' or 'ITALY' |
 | `focus_on` | false | Which team should the standings focus on per league e.g. {"GERMANY": "FC Bayern München", "FRANCE": "Olympique Lyonnais"}. Omit this option or set to false to show the full league table. |
 | `max_teams` | false | How many teams should be displayed. Omit this option or set to false to show the full league table. |
