@@ -8,6 +8,13 @@
 
 Module.register("MMM-soccer",{
 
+    icon_fixes: {
+        "1. FC Köln": "http://vignette1.wikia.nocookie.net/fusssballstatistiken/images/a/aa/1_FC_Koeln.svg",
+        "FC Schalke 04": "https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg",
+        "Hertha BSC": "https://upload.wikimedia.org/wikipedia/de/3/38/Hertha_BSC_Logo.svg",
+        "TSG 1899 Hoffenheim": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Logo_TSG_Hoffenheim.svg"
+    },
+
     defaults: {
         api_key: false,
         colored: false,
@@ -282,6 +289,9 @@ Module.register("MMM-soccer",{
         icon.classList.add("icon");
         if (data.crestURI !== "null"){
             icon.src = data.crestURI;   // API returns "null" for teams without a crest
+        }
+        if(this.icon_fixes.hasOwnProperty(data.teamName)){
+            icon.src = this.icon_fixes[data.teamName];
         }
         if(!this.config.colored){
             icon.classList.add("no-color");
