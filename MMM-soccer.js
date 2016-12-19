@@ -13,7 +13,8 @@ Module.register("MMM-soccer",{
         "Bayer Leverkusen": "https://upload.wikimedia.org/wikipedia/de/f/f7/Bayer_Leverkusen_Logo.svg",
         "FC Schalke 04": "https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg",
         "Hertha BSC": "https://upload.wikimedia.org/wikipedia/de/3/38/Hertha_BSC_Logo.svg",
-        "TSG 1899 Hoffenheim": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Logo_TSG_Hoffenheim.svg"
+        "TSG 1899 Hoffenheim": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Logo_TSG_Hoffenheim.svg",
+        "Sheffield Wednesday": "https://upload.wikimedia.org/wikipedia/en/b/b4/SheffieldWednesday2016logo.png"
     },
 
     defaults: {
