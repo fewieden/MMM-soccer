@@ -11,6 +11,8 @@ Module.register("MMM-soccer",{
     icon_fixes: {
         "1. FC Köln": "http://vignette1.wikia.nocookie.net/fusssballstatistiken/images/a/aa/1_FC_Koeln.svg",
         "Bayer Leverkusen": "https://upload.wikimedia.org/wikipedia/de/f/f7/Bayer_Leverkusen_Logo.svg",
+        "FC Augsburg": "https://upload.wikimedia.org/wikipedia/en/c/c5/FC_Augsburg_logo.svg",
+        "FC Ingolstadt 04": "https://upload.wikimedia.org/wikipedia/en/0/0b/FC_Ingolstadt_04_logo.svg",
         "FC Schalke 04": "https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg",
         "Hertha BSC": "https://upload.wikimedia.org/wikipedia/de/3/38/Hertha_BSC_Logo.svg",
         "TSG 1899 Hoffenheim": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Logo_TSG_Hoffenheim.svg",
