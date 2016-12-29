@@ -16,7 +16,14 @@ Module.register("MMM-soccer",{
         "FC Schalke 04": "https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg",
         "Hertha BSC": "https://upload.wikimedia.org/wikipedia/de/3/38/Hertha_BSC_Logo.svg",
         "TSG 1899 Hoffenheim": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Logo_TSG_Hoffenheim.svg",
-        "Sheffield Wednesday": "https://upload.wikimedia.org/wikipedia/en/b/b4/SheffieldWednesday2016logo.png"
+        "Sheffield Wednesday": "https://upload.wikimedia.org/wikipedia/en/b/b4/SheffieldWednesday2016logo.png",
+        "Reading": "https://upload.wikimedia.org/wikipedia/en/1/11/Reading_FC.svg",
+        "Preston North End": "http://vignette1.wikia.nocookie.net/logopedia/images/e/ef/Preston_North_End_FC_logo_(introduced_2014).png",
+        "Brentford FC": "https://upload.wikimedia.org/wikipedia/en/c/c9/Brentford_FC_logo.svg",
+        "Wolverhampton Wanderers FC": "https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg",
+        "Bristol City": "https://upload.wikimedia.org/wikipedia/en/0/00/Bristol_City_FC.svg",
+        "Blackburn Rovers FC": "https://upload.wikimedia.org/wikipedia/en/0/0f/Blackburn_Rovers.svg",
+        "Leeds United": "https://upload.wikimedia.org/wikipedia/de/d/de/Leeds_United.svg"
     },
 
     defaults: {
