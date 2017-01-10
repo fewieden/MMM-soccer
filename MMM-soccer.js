@@ -10,6 +10,7 @@ Module.register("MMM-soccer",{
 
     icon_fixes: {
         "1. FC Köln": "http://vignette1.wikia.nocookie.net/fusssballstatistiken/images/a/aa/1_FC_Koeln.svg",
+        "1. FSV Mainz 05": "https://upload.wikimedia.org/wikipedia/commons/d/d6/FSV_Mainz_05_Logo.png",
         "Bayer Leverkusen": "https://upload.wikimedia.org/wikipedia/de/f/f7/Bayer_Leverkusen_Logo.svg",
         "FC Augsburg": "https://upload.wikimedia.org/wikipedia/en/c/c5/FC_Augsburg_logo.svg",
         "FC Ingolstadt 04": "https://upload.wikimedia.org/wikipedia/en/0/0b/FC_Ingolstadt_04_logo.svg",
