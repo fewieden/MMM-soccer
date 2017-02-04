@@ -2,9 +2,9 @@
   "extends": "airbnb-base",
   "rules": {
     "comma-dangle": 0,
-	"indent": ["error", 4],
-    "max-len": ["error", 120, { "ignoreStrings": true }],
-    "radix": ["error", "as-needed"]
+	"indent": [2, 4],
+    "max-len": [2, 120, { "ignoreStrings": true }],
+    "radix": [2, "as-needed"]
   },
   "settings": {
     "import/core-modules": [ "node_helper" ]
