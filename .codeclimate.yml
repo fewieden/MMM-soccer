@@ -1,0 +1,22 @@
+engines:
+  stylelint:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  markdownlint:
+      enabled: true
+ratings:
+  paths:
+  - "**.css"
+  - "**.js"
+  - "**.md"
+exclude_paths: [
+  "node_modules/**/*"
+]
