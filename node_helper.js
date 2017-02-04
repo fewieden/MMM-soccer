@@ -6,6 +6,8 @@
  * MIT Licensed.
  */
 
+/* eslint-env node */
+
 const request = require('request');
 const NodeHelper = require('node_helper');
 
