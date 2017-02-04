@@ -7,6 +7,7 @@
  */
 
 /* eslint-env node */
+/* eslint-disable no-console */
 
 const request = require('request');
 const NodeHelper = require('node_helper');
