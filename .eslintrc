@@ -3,7 +3,7 @@
   "rules": {
     "comma-dangle": 0,
 	"indent": [2, 4],
-    "max-len": [2, 120, { "ignoreStrings": true }],
+    "max-len": [2, { "ignoreStrings": true }, 120],
     "radix": [2, "as-needed"]
   },
   "settings": {
