@@ -1,22 +1,23 @@
 # MMM-soccer
 
-European Soccer Standings Module for MagicMirror<sup>2</sup>
+European Soccer Standings Module for MagicMirror²
 
 ## Example
 
-| ![](.github/example_full.png) | ![](.github/example_focused.png) | ![](.github/example.jpg) |
+![](.github/example_full.png) ![](.github/example_focused.png)
+![](.github/example.jpg)
 
 ## Dependencies
 
-* An installation of [MagicMirror<sup>2</sup>](https://github.com/MichMich/MagicMirror)
+* An installation of [MagicMirror²](https://github.com/MichMich/MagicMirror)
 * OPTIONAL: [Voice Control](https://github.com/fewieden/MMM-voice)
 * npm
 * [request](https://www.npmjs.com/package/request)
 
 ## Installation
 
-1.  Clone this repo into `~/MagicMirror/modules` directory.
-1.  Configure your `~/MagicMirror/config/config.js`:
+1. Clone this repo into `~/MagicMirror/modules` directory.
+1. Configure your `~/MagicMirror/config/config.js`:
 
     ```
     {
@@ -28,8 +29,8 @@ European Soccer Standings Module for MagicMirror<sup>2</sup>
     }
     ```
 
-1.  Run command `npm install` in `~/MagicMirror/modules/MMM-soccer` directory.
-1.  Optional: Get a free api key [here](http://api.football-data.org/register)
+1. Run command `npm install` in `~/MagicMirror/modules/MMM-soccer` directory.
+1. Optional: Get a free api key [here](http://api.football-data.org/register)
 
 ## Config Options
 
@@ -44,7 +45,10 @@ European Soccer Standings Module for MagicMirror<sup>2</sup>
 
 ## OPTIONAL: Voice Control
 
-This module supports voice control by [MMM-voice](https://github.com/fewieden/MMM-voice). In order to use this feature, it's required to install the voice module. There are no extra config options for voice control needed.
+This module supports voice control by
+[MMM-voice](https://github.com/fewieden/MMM-voice). In order to use this
+feature, it's required to install the voice module. There are no extra config
+options for voice control needed.
 
 ### Mode
 
@@ -54,6 +58,9 @@ The voice control mode for this module is `SOCCER`
 
 * OPEN HELP -> Shows the information from the readme here with mode and all commands.
 * CLOSE HELP -> Hides the help information.
-* SHOW STANDINGS OF COUNTRY NAME -> Switch standings to specific league. Valid country names are (Default: GERMANY, FRANCE, ENGLAND, SPAIN or ITALY) set in config. (Effect stays until your mirror restarts, for permanent change you have to edit the config)
+* SHOW STANDINGS OF COUNTRY NAME -> Switch standings to specific league.
+  Valid country names are (Default: GERMANY, FRANCE, ENGLAND, SPAIN or ITALY)
+  set in config. (Effect stays until your mirror restarts, for permanent change
+  you have to edit the config)
 * EXPAND VIEW -> Expands the standings table and shows all teams.
 * COLLAPSE VIEW -> Collapse the expanded view.
