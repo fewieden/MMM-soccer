@@ -11,10 +11,6 @@
     text-align: left;
 }
 
-.MMM-soccer h4 {
-    margin-bottom: 10px;
-}
-
 .MMM-soccer .table {
     border-spacing: 2px;
 }
@@ -37,6 +33,9 @@
     left: 50%;
     top: 50%;
     -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 .MMM-soccer .modal ul {
