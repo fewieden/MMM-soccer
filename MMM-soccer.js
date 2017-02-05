@@ -45,8 +45,10 @@ Module.register('MMM-soccer', {
         }
     },
 
-    standings: false,
-    help: false,
+    modals: {
+        standings: false,
+        help: false
+    },
 
     voice: {
         mode: 'SOCCER',
@@ -94,8 +96,7 @@ Module.register('MMM-soccer', {
             this.checkCommands(payload);
         } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice'
             && payload.old === this.voice.mode) {
-            this.help = false;
-            this.standings = false;
+            this.closeAllModals();
             this.updateDom(300);
         }
     },
@@ -112,27 +113,36 @@ Module.register('MMM-soccer', {
         };
     },
 
+    handleModals(data, modal, open, close) {
+        if (close.test(data) || (this.modals[modal] && !open.test(data))) {
+            this.closeAllModals();
+        } else if (open.test(data) || (!this.modals[modal] && !close.test(data))) {
+            this.closeAllModals();
+            this.modals[modal] = true;
+        }
+    },
+
+    closeAllModals() {
+        const modals = Object.prototype.keys.call(this.modals);
+        modals.forEach(modal => (this.modals[modal] = false));
+    },
+
+    isModalActive() {
+        const modals = Object.prototype.keys.call(this.modals);
+        return modals.some(modal => this.modals[modal] === true);
+    },
+
     checkCommands(data) {
         if (/(HELP)/g.test(data)) {
-            if (/(CLOSE)/g.test(data) || (this.help && !/(OPEN)/g.test(data))) {
-                this.help = false;
-            } else if (/(OPEN)/g.test(data) || (!this.help && !/(CLOSE)/g.test(data))) {
-                this.standings = false;
-                this.help = true;
-            }
+            this.handleModals(data, 'help', /(OPEN)/g, /(CLOSE)/g);
         } else if (/(VIEW)/g.test(data)) {
-            if (/(COLLAPSE)/g.test(data) || (this.standings && !/(EXPAND)/g.test(data))) {
-                this.standings = false;
-            } else if (/(EXPAND)/g.test(data) || (!this.standings && !/(COLLAPSE)/g.test(data))) {
-                this.help = false;
-                this.standings = true;
-            }
+            this.handleModals(data, 'standings', /(EXPAND)/g, /(COLLAPSE)/g);
         } else if (/(STANDINGS)/g.test(data)) {
             const countrys = Object.keys(this.config.leagues);
             for (let i = 0; i < countrys.length; i += 1) {
                 const regexp = new RegExp(countrys[i], 'g');
                 if (regexp.test(data)) {
-                    this.help = false;
+                    this.closeAllModals();
                     if (this.currentLeague !== this.config.leagues[countrys[i]]) {
                         this.currentLeague = this.config.leagues[countrys[i]];
                         this.getData();
@@ -226,7 +236,7 @@ Module.register('MMM-soccer', {
             const modules = document.querySelectorAll('.module');
             for (let i = 0; i < modules.length; i += 1) {
                 if (!modules[i].classList.contains('MMM-soccer')) {
-                    if (this.standings || this.help) {
+                    if (this.isModalActive()) {
                         modules[i].classList.add('MMM-soccer-blur');
                     } else {
                         modules[i].classList.remove('MMM-soccer-blur');
@@ -234,11 +244,11 @@ Module.register('MMM-soccer', {
                 }
             }
 
-            if (this.standings || this.help) {
+            if (this.isModalActive()) {
                 standings.classList.add('MMM-soccer-blur');
                 const modal = document.createElement('div');
                 modal.classList.add('modal');
-                if (this.standings) {
+                if (this.modals.standings) {
                     const expandedTable = document.createElement('table');
                     expandedTable.classList.add('small', 'table');
                     expandedTable.appendChild(this.createLabelRow());
