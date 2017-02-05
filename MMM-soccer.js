@@ -154,6 +154,10 @@ Module.register('MMM-soccer', {
         this.updateDom(300);
     },
 
+    isMaxTeamsLessAll() {
+        return (this.config.max_teams && this.config.max_teams <= this.standing.standing.length);
+    },
+
     // Override dom generator.
     getDom() {
         const wrapper = document.createElement('div');
@@ -189,12 +193,10 @@ Module.register('MMM-soccer', {
                 if (this.config.focus_on[this.config.show] === 'TOP') {
                     focusTeamIndex = -1;
                     firstTeam = 0;
-                    lastTeam = (this.config.max_teams && this.config.max_teams <= this.standing.standing.length) ?
-                        this.config.max_teams : this.standing.standing.length;
+                    lastTeam = this.isMaxTeamsLessAll() ? this.config.max_teams : this.standing.standing.length;
                 } else if (this.config.focus_on[this.config.show] === 'BOTTOM') {
                     focusTeamIndex = -1;
-                    firstTeam = (this.config.max_teams && this.config.max_teams <= this.standing.standing.length) ?
-                        this.standing.standing.length - this.config.max_teams : 0;
+                    firstTeam = this.isMaxTeamsLessAll() ? this.standing.standing.length - this.config.max_teams : 0;
                     lastTeam = this.standing.standing.length;
                 } else {
                     for (let i = 0; i < this.standing.standing.length; i += 1) {
