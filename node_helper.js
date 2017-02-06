@@ -14,12 +14,10 @@ const NodeHelper = require('node_helper');
 
 module.exports = NodeHelper.create({
 
-    // Subclass start method.
     start() {
         console.log(`Starting module: ${this.name}`);
     },
 
-    // Subclass socketNotificationReceived received.
     socketNotificationReceived(notification, payload) {
         if (notification === 'GET_DATA') {
             const options = {
