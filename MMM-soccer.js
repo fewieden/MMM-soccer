@@ -123,12 +123,12 @@ Module.register('MMM-soccer', {
     },
 
     closeAllModals() {
-        const modals = Object.prototype.keys.call(this.modals);
+        const modals = Object.keys(this.modals);
         modals.forEach(modal => (this.modals[modal] = false));
     },
 
     isModalActive() {
-        const modals = Object.prototype.keys.call(this.modals);
+        const modals = Object.keys(this.modals);
         return modals.some(modal => this.modals[modal] === true);
     },
 
