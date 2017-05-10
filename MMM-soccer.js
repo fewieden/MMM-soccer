@@ -18,7 +18,7 @@ Module.register('MMM-soccer', {
         'FC Ingolstadt 04': 'https://upload.wikimedia.org/wikipedia/en/0/0b/FC_Ingolstadt_04_logo.svg',
         'FC Schalke 04': 'https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg',
         'Hertha BSC': 'https://upload.wikimedia.org/wikipedia/de/3/38/Hertha_BSC_Logo.svg',
-        'Red Bull Leipzig': 'https://upload.wikimedia.org/wikipedia/en/4/49/RB_Leipzig_2014_logo.svg.png',
+        'Red Bull Leipzig': 'https://upload.wikimedia.org/wikipedia/en/0/04/RB_Leipzig_2014_logo.svg',
         'TSG 1899 Hoffenheim': 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Logo_TSG_Hoffenheim.svg',
         'Sheffield Wednesday': 'https://upload.wikimedia.org/wikipedia/en/b/b4/SheffieldWednesday2016logo.png',
         Reading: 'https://upload.wikimedia.org/wikipedia/en/1/11/Reading_FC.svg',
@@ -109,7 +109,8 @@ Module.register('MMM-soccer', {
     getTranslations() {
         return {
             en: 'translations/en.json',
-            de: 'translations/de.json'
+            de: 'translations/de.json',
+            id: 'translations/id.json'
         };
     },
 
