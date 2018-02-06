@@ -1,6 +1,6 @@
 {
   "name": "mmm-soccer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "European Soccer Standings Module for MagicMirror2",
   "repository": {
     "type": "git",
