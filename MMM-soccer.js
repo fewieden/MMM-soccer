@@ -11,23 +11,10 @@
 Module.register('MMM-soccer', {
 
     icon_fixes: {
-        '1. FC Köln': 'http://vignette1.wikia.nocookie.net/fusssballstatistiken/images/a/aa/1_FC_Koeln.svg',
         '1. FSV Mainz 05': 'https://upload.wikimedia.org/wikipedia/commons/d/d6/FSV_Mainz_05_Logo.png',
-        'Bayer Leverkusen': 'https://upload.wikimedia.org/wikipedia/de/f/f7/Bayer_Leverkusen_Logo.svg',
-        'FC Augsburg': 'https://upload.wikimedia.org/wikipedia/en/c/c5/FC_Augsburg_logo.svg',
-        'FC Ingolstadt 04': 'https://upload.wikimedia.org/wikipedia/en/0/0b/FC_Ingolstadt_04_logo.svg',
-        'FC Schalke 04': 'https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg',
-        'Hertha BSC': 'https://upload.wikimedia.org/wikipedia/de/3/38/Hertha_BSC_Logo.svg',
-        'Red Bull Leipzig': 'https://upload.wikimedia.org/wikipedia/en/0/04/RB_Leipzig_2014_logo.svg',
-        'TSG 1899 Hoffenheim': 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Logo_TSG_Hoffenheim.svg',
-        'Sheffield Wednesday': 'https://upload.wikimedia.org/wikipedia/en/b/b4/SheffieldWednesday2016logo.png',
-        Reading: 'https://upload.wikimedia.org/wikipedia/en/1/11/Reading_FC.svg',
-        'Preston North End': 'http://vignette1.wikia.nocookie.net/logopedia/images/e/ef/Preston_North_End_FC_logo_(introduced_2014).png',
-        'Brentford FC': 'https://upload.wikimedia.org/wikipedia/en/c/c9/Brentford_FC_logo.svg',
-        'Wolverhampton Wanderers FC': 'https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg',
-        'Bristol City': 'https://upload.wikimedia.org/wikipedia/en/0/00/Bristol_City_FC.svg',
-        'Blackburn Rovers FC': 'https://upload.wikimedia.org/wikipedia/en/0/0f/Blackburn_Rovers.svg',
-        'Leeds United': 'https://upload.wikimedia.org/wikipedia/de/d/de/Leeds_United.svg'
+		'FC Bayern München': 'https://upload.wikimedia.org/wikipedia/commons/1/1f/Logo_FC_Bayern_M%C3%BCnchen_%282002%E2%80%932017%29.svg',
+		'SPAL Ferrara': 'https://upload.wikimedia.org/wikipedia/de/e/e7/SPAL_Ferrara.svg',
+		'Benevento Calcio': 'https://upload.wikimedia.org/wikipedia/de/4/48/Benevento_Calcio_Logo.svg'
     },
 
     defaults: {
@@ -37,11 +24,11 @@ Module.register('MMM-soccer', {
         focus_on: false,  // false or the name of a team to focus on (used with max_teams)
         max_teams: false,   // false or the number of teams to show either side of the focused team
         leagues: {
-            GERMANY: 430,
-            FRANCE: 434,
-            ENGLAND: 426,
-            SPAIN: 436,
-            ITALY: 438
+            GERMANY: 452,
+            FRANCE: 450,
+            ENGLAND: 445,
+            SPAIN: 455,
+            ITALY: 456
         }
     },
 
