@@ -21,7 +21,7 @@ module.exports = NodeHelper.create({
     socketNotificationReceived(notification, payload) {
         if (notification === 'GET_DATA') {
             const options = {
-                url: `http://api.football-data.org/v1/competitions/${payload.league}/leagueTable`
+                url: `http://api.football-data.org/v2/competitions/${payload.league}/standings`
             };
             if (payload.api_key) {
                 options.headers = { 'X-Auth-Token': payload.api_key };
