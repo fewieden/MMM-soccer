@@ -44,6 +44,19 @@ European Soccer Standings Module for MagicMirror²
 | `leagues` | `{"GERMANY":430, "FRANCE": 434, "ENGLAND": 426, "SPAIN": 436, "ITALY": 438}` | A collection of leagues obtained from <http://api.football-data.org/v1/competitions> |
 | `logos` | `false` | Boolean to show club logos or not. |
 
+## Logos
+
+As the v2 api doesn't provide logos anymore, I developed a club logo downloader. It supports the five major leagues as above named.
+To run the downloader you need to execute the following steps.
+
+1. Go to the module directory `cd ~/MagicMirror/modules/MMM-soccer`.
+1. Execute `node scripts/downloader COUNTRYNAME`.
+1. Run this command for all the leagues you want to display on the mirror.
+1. Don't forget to activate the display of the logos in the config.
+
+If there isn't every club logo, you can also place them manually in the public directory of the module,
+the logos need to be in `svg` format and the name of the file has to match the displayed name.
+
 ## OPTIONAL: Voice Control
 
 This module supports voice control by

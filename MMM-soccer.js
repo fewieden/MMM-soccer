@@ -9,14 +9,6 @@
  */
 
 Module.register('MMM-soccer', {
-
-    icon_fixes: {
-        '1. FSV Mainz 05': 'https://upload.wikimedia.org/wikipedia/commons/d/d6/FSV_Mainz_05_Logo.png',
-		'FC Bayern München': 'https://upload.wikimedia.org/wikipedia/commons/1/1f/Logo_FC_Bayern_M%C3%BCnchen_%282002%E2%80%932017%29.svg',
-		'SPAL Ferrara': 'https://upload.wikimedia.org/wikipedia/de/e/e7/SPAL_Ferrara.svg',
-		'Benevento Calcio': 'https://upload.wikimedia.org/wikipedia/de/4/48/Benevento_Calcio_Logo.svg'
-    },
-
     defaults: {
         api_key: false,
         colored: false,
@@ -314,12 +306,7 @@ Module.register('MMM-soccer', {
 			const logo = document.createElement('td');
 			const icon = document.createElement('img');
 			icon.classList.add('icon');
-			if (data.team.crestURI) {
-				icon.src = data.team.crestURI;
-			}
-			if (Object.prototype.hasOwnProperty.call(this.icon_fixes, data.team.name)) {
-				icon.src = this.icon_fixes[data.team.name];
-			}
+			icon.src = `/MMM-soccer/${data.team.name}.svg`;
 			if (!this.config.colored) {
 				icon.classList.add('no-color');
 			}
