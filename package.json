@@ -16,6 +16,9 @@
     "url": "https://github.com/fewieden/MMM-soccer/issues"
   },
   "homepage": "https://github.com/fewieden/MMM-soccer#readme",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint . && ./node_modules/.bin/stylelint ."
+  },
   "dependencies": {
     "request": "^2.74.0"
   },

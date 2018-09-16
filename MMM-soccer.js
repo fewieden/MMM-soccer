@@ -61,7 +61,6 @@ Module.register('MMM-soccer', {
     // Subclass socketNotificationReceived method.
     socketNotificationReceived(notification, payload) {
         if (notification === 'DATA') {
-            console.log(payload);
             this.standing = payload.standings[0].table;
             this.season = payload.season;
             this.competition = payload.competition;
@@ -108,7 +107,7 @@ Module.register('MMM-soccer', {
 
     closeAllModals() {
         const modals = Object.keys(this.modals);
-        modals.forEach(modal => (this.modals[modal] = false));
+        modals.forEach((modal) => { this.modals[modal] = false; });
     },
 
     isModalActive() {
@@ -265,9 +264,9 @@ Module.register('MMM-soccer', {
         labelRow.appendChild(position);
 
         if (this.config.logos) {
-			const logo = document.createElement('th');
-			labelRow.appendChild(logo);
-		}
+            const logo = document.createElement('th');
+            labelRow.appendChild(logo);
+        }
 
         const name = document.createElement('th');
         name.classList.add('name');
@@ -303,15 +302,15 @@ Module.register('MMM-soccer', {
         row.appendChild(pos);
 
         if (this.config.logos) {
-			const logo = document.createElement('td');
-			const icon = document.createElement('img');
-			icon.classList.add('icon');
-			icon.src = `/MMM-soccer/${data.team.name}.svg`;
-			if (!this.config.colored) {
-				icon.classList.add('no-color');
-			}
-			logo.appendChild(icon);
-			row.appendChild(logo);
+            const logo = document.createElement('td');
+            const icon = document.createElement('img');
+            icon.classList.add('icon');
+            icon.src = `/MMM-soccer/${data.team.name}.svg`;
+            if (!this.config.colored) {
+                icon.classList.add('no-color');
+            }
+            logo.appendChild(icon);
+            row.appendChild(logo);
         }
 
         const name = document.createElement('td');
