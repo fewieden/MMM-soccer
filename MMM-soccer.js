@@ -169,49 +169,59 @@ Module.register('MMM-soccer', {
         return (this.config.max_teams && this.config.max_teams <= this.standing.length);
     },
 
-    calculateTeamDisplayBoundaries() {
+    findFocusTeam() {
         let focusTeamIndex;
         let firstTeam;
         let lastTeam;
 
-        if (this.config.focus_on && Object.prototype.hasOwnProperty.call(this.config.focus_on, this.config.show)) {
-            if (this.config.focus_on[this.config.show] === 'TOP') {
-                focusTeamIndex = -1;
-                firstTeam = 0;
-                lastTeam = this.isMaxTeamsLessAll() ? this.config.max_teams : this.standing.length;
-            } else if (this.config.focus_on[this.config.show] === 'BOTTOM') {
-                focusTeamIndex = -1;
-                firstTeam = this.isMaxTeamsLessAll() ? this.standing.length - this.config.max_teams : 0;
-                lastTeam = this.standing.length;
-            } else {
-                for (let i = 0; i < this.standing.length; i += 1) {
-                    if (this.standing[i].team.name === this.config.focus_on[this.config.show]) {
-                        focusTeamIndex = i;
-                        if (this.config.max_teams) {
-                            const before = parseInt(this.config.max_teams / 2);
-                            firstTeam = focusTeamIndex - before >= 0 ? focusTeamIndex - before : 0;
-                            if (firstTeam + this.config.max_teams <= this.standing.length) {
-                                lastTeam = firstTeam + this.config.max_teams;
-                            } else {
-                                lastTeam = this.standing.length;
-                                firstTeam = lastTeam - this.config.max_teams >= 0 ?
-                                    lastTeam - this.config.max_teams : 0;
-                            }
-                        } else {
-                            firstTeam = 0;
-                            lastTeam = this.standing.length;
-                        }
-                        break;
+        for (let i = 0; i < this.standing.length; i += 1) {
+            if (this.standing[i].team.name === this.config.focus_on[this.config.show]) {
+                focusTeamIndex = i;
+                if (this.config.max_teams) {
+                    const before = parseInt(this.config.max_teams / 2);
+                    firstTeam = focusTeamIndex - before >= 0 ? focusTeamIndex - before : 0;
+                    if (firstTeam + this.config.max_teams <= this.standing.length) {
+                        lastTeam = firstTeam + this.config.max_teams;
+                    } else {
+                        lastTeam = this.standing.length;
+                        firstTeam = lastTeam - this.config.max_teams >= 0 ?
+                            lastTeam - this.config.max_teams : 0;
                     }
+                } else {
+                    firstTeam = 0;
+                    lastTeam = this.standing.length;
                 }
+                break;
             }
-        } else {
-            focusTeamIndex = -1;
-            firstTeam = 0;
-            lastTeam = this.config.max_teams || this.standing.length;
         }
 
         return { focusTeamIndex, firstTeam, lastTeam };
+    },
+
+    calculateTeamDisplayBoundaries() {
+        if (this.config.focus_on && Object.prototype.hasOwnProperty.call(this.config.focus_on, this.config.show)) {
+            if (this.config.focus_on[this.config.show] === 'TOP') {
+                return {
+                    focusTeamIndex: -1,
+                    firstTeam: 0,
+                    lastTeam: this.isMaxTeamsLessAll() ? this.config.max_teams : this.standing.length
+                };
+            } else if (this.config.focus_on[this.config.show] === 'BOTTOM') {
+                return {
+                    focusTeamIndex: -1,
+                    firstTeam: this.isMaxTeamsLessAll() ? this.standing.length - this.config.max_teams : 0,
+                    lastTeam: this.standing.length
+                };
+            }
+
+            return this.findFocusTeam();
+        }
+
+        return {
+            focusTeamIndex: -1,
+            firstTeam: 0,
+            lastTeam: this.config.max_teams || this.standing.length
+        };
     },
 
     addFilters() {
