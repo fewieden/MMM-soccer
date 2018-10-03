@@ -171,31 +171,39 @@ Module.register('MMM-soccer', {
 
     findFocusTeam() {
         let focusTeamIndex;
-        let firstTeam;
-        let lastTeam;
 
         for (let i = 0; i < this.standing.length; i += 1) {
             if (this.standing[i].team.name === this.config.focus_on[this.config.show]) {
                 focusTeamIndex = i;
-                if (this.config.max_teams) {
-                    const before = parseInt(this.config.max_teams / 2);
-                    firstTeam = focusTeamIndex - before >= 0 ? focusTeamIndex - before : 0;
-                    if (firstTeam + this.config.max_teams <= this.standing.length) {
-                        lastTeam = firstTeam + this.config.max_teams;
-                    } else {
-                        lastTeam = this.standing.length;
-                        firstTeam = lastTeam - this.config.max_teams >= 0 ?
-                            lastTeam - this.config.max_teams : 0;
-                    }
-                } else {
-                    firstTeam = 0;
-                    lastTeam = this.standing.length;
-                }
                 break;
             }
         }
 
+        const { firstTeam, lastTeam } = this.getFirstAndLastTeam(focusTeamIndex);
+
         return { focusTeamIndex, firstTeam, lastTeam };
+    },
+
+    getFirstAndLastTeam(index) {
+        let firstTeam;
+        let lastTeam;
+
+        if (this.config.max_teams) {
+            const before = parseInt(this.config.max_teams / 2);
+            firstTeam = index - before >= 0 ? index - before : 0;
+            if (firstTeam + this.config.max_teams <= this.standing.length) {
+                lastTeam = firstTeam + this.config.max_teams;
+            } else {
+                lastTeam = this.standing.length;
+                firstTeam = lastTeam - this.config.max_teams >= 0 ?
+                    lastTeam - this.config.max_teams : 0;
+            }
+        } else {
+            firstTeam = 0;
+            lastTeam = this.standing.length;
+        }
+
+        return { firstTeam, lastTeam };
     },
 
     calculateTeamDisplayBoundaries() {
