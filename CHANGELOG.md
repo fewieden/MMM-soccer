@@ -21,7 +21,6 @@
 * Updated travis-ci config.
 * Disabled markdown lint rules `MD024` and `MD026`
 
-
 ## [1.0.0]
 
 Initial version
