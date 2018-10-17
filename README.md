@@ -1,4 +1,4 @@
-# MMM-soccer [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-soccer/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-soccer.svg?branch=master)](https://travis-ci.org/fewieden/MMM-soccer) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-soccer/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-soccer) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-soccer/badge.svg)](https://snyk.io/test/github/fewieden/mmm-soccer)
+# MMM-soccer [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-soccer/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-soccer.svg?branch=master)](https://travis-ci.org/fewieden/MMM-soccer) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-soccer/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-soccer) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-soccer/badge.svg)](https://snyk.io/test/github/fewieden/mmm-soccer) [![API Doc](https://doclets.io/fewieden/MMM-soccer/master.svg)](https://doclets.io/fewieden/MMM-soccer/master)
 
 European Soccer Standings Module for MagicMirror²
 
@@ -29,7 +29,7 @@ European Soccer Standings Module for MagicMirror²
     }
     ```
 
-1. Run command `npm install` in `~/MagicMirror/modules/MMM-soccer` directory.
+1. Run command `npm i --production` in `~/MagicMirror/modules/MMM-soccer` directory.
 1. Optional: Get a free api key [here](http://api.football-data.org/register)
 
 ## Config Options
@@ -42,6 +42,20 @@ European Soccer Standings Module for MagicMirror²
 | `focus_on` | false | Which team should the standings focus on per league e.g. {"GERMANY": "FC Bayern München", "FRANCE": "Olympique Lyonnais"}. Omit this option or set to false to show the full league table. |
 | `max_teams` | false | How many teams should be displayed. Omit this option or set to false to show the full league table. |
 | `leagues` | `{"GERMANY":430, "FRANCE": 434, "ENGLAND": 426, "SPAIN": 436, "ITALY": 438}` | A collection of leagues obtained from <http://api.football-data.org/v1/competitions> |
+| `logos` | `false` | Boolean to show club logos or not. |
+
+## Logos
+
+As the v2 api doesn't provide logos anymore, I developed a club logo downloader. It supports the five major leagues as above named.
+To run the downloader you need to execute the following steps.
+
+1. Go to the module directory `cd ~/MagicMirror/modules/MMM-soccer`.
+1. Execute `node scripts/downloader COUNTRYNAME`.
+1. Run this command for all the leagues you want to display on the mirror.
+1. Don't forget to activate the display of the logos in the config.
+
+If there isn't every club logo, you can also place them manually in the public directory of the module,
+the logos need to be in `svg` format and the name of the file has to match the displayed name.
 
 ## OPTIONAL: Voice Control
 

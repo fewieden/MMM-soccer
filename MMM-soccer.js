@@ -1,42 +1,73 @@
-/* global Module Log */
-
-/* Magic Mirror
- * Module: MMM-soccer
+/**
+ * @file MMM-soccer.js
  *
- * By fewieden https://github.com/fewieden/MMM-soccer
+ * @author fewieden
+ * @license MIT
  *
- * MIT Licensed.
+ * @see  https://github.com/fewieden/MMM-soccer
  */
 
+/* global Module Log */
+
+/**
+ * @external Module
+ * @see https://github.com/MichMich/MagicMirror/blob/master/js/module.js
+ */
+
+/**
+ * @external Log
+ * @see https://github.com/MichMich/MagicMirror/blob/master/js/logger.js
+ */
+
+/**
+ * @module MMM-soccer
+ * @description Frontend of the MagicMirror² module.
+ *
+ * @requires external:Module
+ * @requires external:Log
+ */
 Module.register('MMM-soccer', {
-
-    icon_fixes: {
-        '1. FSV Mainz 05': 'https://upload.wikimedia.org/wikipedia/commons/d/d6/FSV_Mainz_05_Logo.png',
-		'FC Bayern München': 'https://upload.wikimedia.org/wikipedia/commons/1/1f/Logo_FC_Bayern_M%C3%BCnchen_%282002%E2%80%932017%29.svg',
-		'SPAL Ferrara': 'https://upload.wikimedia.org/wikipedia/de/e/e7/SPAL_Ferrara.svg',
-		'Benevento Calcio': 'https://upload.wikimedia.org/wikipedia/de/4/48/Benevento_Calcio_Logo.svg'
-    },
-
+    /**
+     * @member {Object} defaults - Defines the default config values.
+     * @property {boolean|string} api_key - API acces key for football-data.org.
+     * @property {boolean} colored - Flag to show logos in color or black/white.
+     * @property {string} show - Country name (uppercase) to be shown in module.
+     * @property {boolean|Object} focus_on - Hash of country name -> club name to determine highlighted team per league.
+     * @property {boolean|int} max_teams - Maximium amount of teams to be displayed.
+     * @property {boolean} logos - Flag to show club logos.
+     * @property {Object} leagues - Hash of country name -> league id.
+     */
     defaults: {
         api_key: false,
         colored: false,
         show: 'GERMANY',
-        focus_on: false,  // false or the name of a team to focus on (used with max_teams)
-        max_teams: false,   // false or the number of teams to show either side of the focused team
+        focus_on: false,
+        max_teams: false,
+        logos: false,
         leagues: {
-            GERMANY: 452,
-            FRANCE: 450,
-            ENGLAND: 445,
-            SPAIN: 455,
-            ITALY: 456
+            GERMANY: 'BL1',
+            FRANCE: 'FL1',
+            ENGLAND: 'PL',
+            SPAIN: 'PD',
+            ITALY: 'SA'
         }
     },
 
+    /**
+     * @member {Object} modals - Stores the status of the module's modals.
+     * @property {boolean} standings - Full standings table.
+     * @property {boolean} help - List of voice commands of this module.
+     */
     modals: {
         standings: false,
         help: false
     },
 
+    /**
+     * @member {Object} voice - Defines the default mode and commands of this module.
+     * @property {string} mode - Voice mode of this module.
+     * @property {string[]} sentences - List of voice commands of this module.
+     */
     voice: {
         mode: 'SOCCER',
         sentences: [
@@ -48,12 +79,27 @@ Module.register('MMM-soccer', {
         ]
     },
 
-    // A loading boolean.
+    /**
+     * @member {boolean} loading - Flag to indicate the loading state of the module.
+     */
     loading: true,
+    /**
+     * @member {Object[]} standing - Stores the list of standing table entries of current selected league.
+     */
+    standing: [],
+    /**
+     * @member {Object} competition - Details about the current selected league.
+     */
+    competition: {},
 
-    // Subclass start method.
+    /**
+     * @function start
+     * @description Adds nunjuck filters and requests for league data.
+     * @override
+     */
     start() {
         Log.info(`Starting module: ${this.name}`);
+        this.addFilters();
         this.currentLeague = this.config.leagues[this.config.show];
         this.getData();
         setInterval(() => {
@@ -61,19 +107,41 @@ Module.register('MMM-soccer', {
         }, this.config.api_key ? 300000 : 1800000); // with api_key every 5min without every 30min
     },
 
+    /**
+     * @function start
+     * @description Sends request to the node_helper to fetch data for the current selected league.
+     */
     getData() {
         this.sendSocketNotification('GET_DATA', { league: this.currentLeague, api_key: this.config.api_key });
     },
 
-    // Subclass socketNotificationReceived method.
+    /**
+     * @function socketNotificationReceived
+     * @description Handles incoming messages from node_helper.
+     * @override
+     *
+     * @param {string} notification - Notification name
+     * @param {*} payload - Detailed payload of the notification.
+     */
     socketNotificationReceived(notification, payload) {
         if (notification === 'DATA') {
-            this.standing = payload;
-            this.loading = (!this.standing);
+            this.standing = payload.standings[0].table;
+            this.season = payload.season;
+            this.competition = payload.competition;
+            this.loading = false;
             this.updateDom();
         }
     },
 
+    /**
+     * @function notificationReceived
+     * @description Handles incoming broadcasts from other modules or the MagicMirror² core.
+     * @override
+     *
+     * @param {string} notification - Notification name
+     * @param {*} payload - Detailed payload of the notification.
+     * @param {Object} sender - Module that sent the notification or undefined for MagicMirror² core.
+     */
     notificationReceived(notification, payload, sender) {
         if (notification === 'ALL_MODULES_STARTED') {
             const voice = Object.assign({}, this.voice);
@@ -88,19 +156,69 @@ Module.register('MMM-soccer', {
         }
     },
 
-    // Subclass getStyles method.
+    /**
+     * @function getStyles
+     * @description Style dependencies for this module.
+     * @override
+     *
+     * @returns {string[]} List of the style dependency filepaths.
+     */
     getStyles() {
         return ['font-awesome.css', 'MMM-soccer.css'];
     },
 
+    /**
+     * @function getTranslations
+     * @description Translations for this module.
+     * @override
+     *
+     * @returns {Object.<string, string>} Available translations for this module (key: language code, value: filepath).
+     */
     getTranslations() {
         return {
             en: 'translations/en.json',
             de: 'translations/de.json',
-            id: 'translations/id.json'
+            id: 'translations/id.json',
+            sv: 'translations/sv.json'
         };
     },
 
+    /**
+     * @function getTemplate
+     * @description Nunjuck template.
+     * @override
+     *
+     * @returns {string} Path to nunjuck template.
+     */
+    getTemplate() {
+        return 'MMM-soccer.njk';
+    },
+
+    /**
+     * @function getTemplateData
+     * @description Data that gets rendered in the nunjuck template.
+     * @override
+     *
+     * @returns {string} Data for the nunjuck template.
+     */
+    getTemplateData() {
+        return {
+            boundaries: this.calculateTeamDisplayBoundaries(),
+            competitionName: this.competition.name || this.name,
+            config: this.config,
+            isModalActive: this.isModalActive(),
+            modals: this.modals,
+            season: this.season ?
+                `${this.translate('MATCHDAY')}: ${this.season.currentMatchday || 'N/A'}` : this.translate('LOADING'),
+            standing: this.standing,
+            voice: this.voice
+        };
+    },
+
+    /**
+     * @function handleModals
+     * @description Hide/show modules based on voice commands.
+     */
     handleModals(data, modal, open, close) {
         if (close.test(data) || (this.modals[modal] && !open.test(data))) {
             this.closeAllModals();
@@ -108,18 +226,43 @@ Module.register('MMM-soccer', {
             this.closeAllModals();
             this.modals[modal] = true;
         }
+
+        const modules = document.querySelectorAll('.module');
+        for (let i = 0; i < modules.length; i += 1) {
+            if (!modules[i].classList.contains('MMM-soccer')) {
+                if (this.isModalActive()) {
+                    modules[i].classList.add('MMM-soccer-blur');
+                } else {
+                    modules[i].classList.remove('MMM-soccer-blur');
+                }
+            }
+        }
     },
 
+    /**
+     * @function closeAllModals
+     * @description Close all modals of the module.
+     */
     closeAllModals() {
         const modals = Object.keys(this.modals);
-        modals.forEach(modal => (this.modals[modal] = false));
+        modals.forEach((modal) => { this.modals[modal] = false; });
     },
 
+    /**
+     * @function isModalActive
+     * @description Checks if at least one modal is active.
+     *
+     * @returns {boolean} Flag if there is an active modal.
+     */
     isModalActive() {
         const modals = Object.keys(this.modals);
         return modals.some(modal => this.modals[modal] === true);
     },
 
+    /**
+     * @function checkCommands
+     * @description Voice command handler.
+     */
     checkCommands(data) {
         if (/(HELP)/g.test(data)) {
             this.handleModals(data, 'help', /(OPEN)/g, /(CLOSE)/g);
@@ -142,229 +285,111 @@ Module.register('MMM-soccer', {
         this.updateDom(300);
     },
 
+    /**
+     * @function isMaxTeamsLessAll
+     * @description Are there more entries than the config option specifies.
+     *
+     * @returns {boolean}
+     */
     isMaxTeamsLessAll() {
-        return (this.config.max_teams && this.config.max_teams <= this.standing.standing.length);
+        return (this.config.max_teams && this.config.max_teams <= this.standing.length);
     },
 
-    // Override dom generator.
-    getDom() {
-        const wrapper = document.createElement('div');
-        const standings = document.createElement('div');
+    /**
+     * @function findFocusTeam
+     * @description Helper function to find index of team in standings
+     *
+     * @returns {Object} Index of team, first and last team to display.
+     */
+    findFocusTeam() {
+        let focusTeamIndex;
 
-        const title = document.createElement('header');
-        title.innerHTML = this.standing ? this.standing.leagueCaption : this.name;
-        standings.appendChild(title);
+        for (let i = 0; i < this.standing.length; i += 1) {
+            if (this.standing[i].team.name === this.config.focus_on[this.config.show]) {
+                focusTeamIndex = i;
+                break;
+            }
+        }
 
-        const subtitle = document.createElement('div');
-        subtitle.classList.add('xsmall');
-        subtitle.innerHTML = this.standing ?
-            `${this.translate('MATCHDAY')}: ${this.standing.matchday}` : this.translate('LOADING');
-        standings.appendChild(subtitle);
+        const { firstTeam, lastTeam } = this.getFirstAndLastTeam(focusTeamIndex);
 
-        // Generate Standings Table
-        if (this.standing) {
-            // Standings container
-            const table = document.createElement('table');
-            table.classList.add('xsmall', 'table');
+        return { focusTeamIndex, firstTeam, lastTeam };
+    },
 
-            // Standings header row
-            table.appendChild(this.createLabelRow());
+    /**
+     * @function getFirstAndLastTeam
+     * @description Helper function to get the boundaries of the teams that should be displayed.
+     *
+     * @returns {Object} Index of the first and the last team.
+     */
+    getFirstAndLastTeam(index) {
+        let firstTeam;
+        let lastTeam;
 
-            // Get First and Last teams to display in standings
-            let focusTeamIndex;
-            let firstTeam;
-            let lastTeam;
-
-            /* focus_on for current league is set */
-            if (this.config.focus_on && Object.prototype.hasOwnProperty.call(this.config.focus_on, this.config.show)) {
-                /* focus_on TOP */
-                if (this.config.focus_on[this.config.show] === 'TOP') {
-                    focusTeamIndex = -1;
-                    firstTeam = 0;
-                    lastTeam = this.isMaxTeamsLessAll() ? this.config.max_teams : this.standing.standing.length;
-                } else if (this.config.focus_on[this.config.show] === 'BOTTOM') {
-                    focusTeamIndex = -1;
-                    firstTeam = this.isMaxTeamsLessAll() ? this.standing.standing.length - this.config.max_teams : 0;
-                    lastTeam = this.standing.standing.length;
-                } else {
-                    for (let i = 0; i < this.standing.standing.length; i += 1) {
-                        /* focus_on is teamName */
-                        if (this.standing.standing[i].teamName === this.config.focus_on[this.config.show]) {
-                            focusTeamIndex = i;
-                            /* max_teams is set */
-                            if (this.config.max_teams) {
-                                const before = parseInt(this.config.max_teams / 2);
-                                firstTeam = focusTeamIndex - before >= 0 ? focusTeamIndex - before : 0;
-                                /* index for lastTeam is in range */
-                                if (firstTeam + this.config.max_teams <= this.standing.standing.length) {
-                                    lastTeam = firstTeam + this.config.max_teams;
-                                } else {
-                                    lastTeam = this.standing.standing.length;
-                                    firstTeam = lastTeam - this.config.max_teams >= 0 ?
-                                        lastTeam - this.config.max_teams : 0;
-                                }
-                            } else {
-                                firstTeam = 0;
-                                lastTeam = this.standing.standing.length;
-                            }
-                            break;
-                        }
-                    }
-                }
+        if (this.config.max_teams) {
+            const before = parseInt(this.config.max_teams / 2);
+            firstTeam = index - before >= 0 ? index - before : 0;
+            if (firstTeam + this.config.max_teams <= this.standing.length) {
+                lastTeam = firstTeam + this.config.max_teams;
             } else {
-                focusTeamIndex = -1;
-                firstTeam = 0;
-                lastTeam = this.config.max_teams || this.standing.standing.length;
+                lastTeam = this.standing.length;
+                firstTeam = lastTeam - this.config.max_teams >= 0 ?
+                    lastTeam - this.config.max_teams : 0;
+            }
+        } else {
+            firstTeam = 0;
+            lastTeam = this.standing.length;
+        }
+
+        return { firstTeam, lastTeam };
+    },
+
+    /**
+     * @function calculateTeamDisplayBoundaries
+     * @description Calculates the boundaries of teams based on the config.
+     *
+     * @returns {Object} Index of team, first and last team to display.
+     */
+    calculateTeamDisplayBoundaries() {
+        if (this.config.focus_on && Object.prototype.hasOwnProperty.call(this.config.focus_on, this.config.show)) {
+            if (this.config.focus_on[this.config.show] === 'TOP') {
+                return {
+                    focusTeamIndex: -1,
+                    firstTeam: 0,
+                    lastTeam: this.isMaxTeamsLessAll() ? this.config.max_teams : this.standing.length
+                };
+            } else if (this.config.focus_on[this.config.show] === 'BOTTOM') {
+                return {
+                    focusTeamIndex: -1,
+                    firstTeam: this.isMaxTeamsLessAll() ? this.standing.length - this.config.max_teams : 0,
+                    lastTeam: this.standing.length
+                };
             }
 
-            // Render Team Rows
-            for (let i = firstTeam; i < lastTeam; i += 1) {
-                table.appendChild(this.createDataRow(this.standing.standing[i], i, focusTeamIndex, false));
-            }
-            standings.appendChild(table);
+            return this.findFocusTeam();
+        }
 
-            const modules = document.querySelectorAll('.module');
-            for (let i = 0; i < modules.length; i += 1) {
-                if (!modules[i].classList.contains('MMM-soccer')) {
-                    if (this.isModalActive()) {
-                        modules[i].classList.add('MMM-soccer-blur');
-                    } else {
-                        modules[i].classList.remove('MMM-soccer-blur');
-                    }
+        return {
+            focusTeamIndex: -1,
+            firstTeam: 0,
+            lastTeam: this.config.max_teams || this.standing.length
+        };
+    },
+
+    /**
+     * @function addFilters
+     * @description Adds the filter used by the nunjuck template.
+     */
+    addFilters() {
+        this.nunjucksEnvironment().addFilter('fade', (index, focus) => {
+            if (this.config.max_teams && focus >= 0) {
+                if (index !== focus) {
+                    const currentStep = Math.abs(index - focus);
+                    return `opacity: ${1 - ((1 / this.config.max_teams) * currentStep)}`;
                 }
             }
 
-            if (this.isModalActive()) {
-                standings.classList.add('MMM-soccer-blur');
-                const modal = document.createElement('div');
-                modal.classList.add('modal');
-                if (this.modals.standings) {
-                    const expandedTable = document.createElement('table');
-                    expandedTable.classList.add('small', 'table');
-                    expandedTable.appendChild(this.createLabelRow());
-
-                    for (let i = 0; i < this.standing.standing.length; i += 1) {
-                        expandedTable.appendChild(
-                            this.createDataRow(this.standing.standing[i], i, focusTeamIndex, true)
-                        );
-                    }
-                    modal.appendChild(expandedTable);
-                } else {
-                    this.appendHelp(modal);
-                }
-                wrapper.appendChild(modal);
-            }
-        }
-
-        wrapper.appendChild(standings);
-
-        return wrapper;
-    },
-
-    createLabelRow() {
-        const labelRow = document.createElement('tr');
-        labelRow.classList.add('row');
-
-        const position = document.createElement('th');
-        labelRow.appendChild(position);
-
-        const logo = document.createElement('th');
-        labelRow.appendChild(logo);
-
-        const name = document.createElement('th');
-        name.classList.add('name');
-        name.innerHTML = this.translate('TEAM');
-        labelRow.appendChild(name);
-
-        const pointsLabel = document.createElement('th');
-        pointsLabel.classList.add('centered');
-        const points = document.createElement('i');
-        points.classList.add('fa', 'fa-line-chart');
-        pointsLabel.appendChild(points);
-        labelRow.appendChild(pointsLabel);
-
-        const goalsLabel = document.createElement('th');
-        goalsLabel.classList.add('centered');
-        const goals = document.createElement('i');
-        goals.classList.add('fa', 'fa-soccer-ball-o');
-        goalsLabel.appendChild(goals);
-        labelRow.appendChild(goalsLabel);
-
-        return labelRow;
-    },
-
-    createDataRow(data, index, focus, expand) {
-        const row = document.createElement('tr');
-        row.classList.add('centered-row');
-        if (index === focus) {
-            row.classList.add('bright');
-        }
-
-        const pos = document.createElement('td');
-        pos.innerHTML = data.position;
-        row.appendChild(pos);
-
-        const logo = document.createElement('td');
-        const icon = document.createElement('img');
-        icon.classList.add('icon');
-        if (data.crestURI !== 'null') {
-            icon.src = data.crestURI;   // API returns 'null' for teams without a crest
-        }
-        if (Object.prototype.hasOwnProperty.call(this.icon_fixes, data.teamName)) {
-            icon.src = this.icon_fixes[data.teamName];
-        }
-        if (!this.config.colored) {
-            icon.classList.add('no-color');
-        }
-        logo.appendChild(icon);
-        row.appendChild(logo);
-
-        const name = document.createElement('td');
-        name.classList.add('name');
-        name.innerHTML = data.teamName;
-        row.appendChild(name);
-
-        const points = document.createElement('td');
-        points.innerHTML = data.points;
-        points.classList.add('centered');
-        row.appendChild(points);
-
-        const goals = document.createElement('td');
-        goals.innerHTML = data.goalDifference;
-        goals.classList.add('centered');
-        row.appendChild(goals);
-
-        // Create fade in/out effect.
-        if (!expand && this.config.max_teams && focus >= 0) {
-            if (index !== focus) {
-                const currentStep = Math.abs(index - focus);
-                row.style.opacity = 1 - ((1 / this.config.max_teams) * currentStep);
-            }
-        }
-
-        return row;
-    },
-
-    appendHelp(appendTo) {
-        const title = document.createElement('h1');
-        title.classList.add('medium');
-        title.innerHTML = `${this.name} - ${this.translate('COMMAND_LIST')}`;
-        appendTo.appendChild(title);
-
-        const mode = document.createElement('div');
-        mode.innerHTML = `${this.translate('MODE')}: ${this.voice.mode}`;
-        appendTo.appendChild(mode);
-
-        const listLabel = document.createElement('div');
-        listLabel.innerHTML = `${this.translate('VOICE_COMMANDS')}:`;
-        appendTo.appendChild(listLabel);
-
-        const list = document.createElement('ul');
-        for (let i = 0; i < this.voice.sentences.length; i += 1) {
-            const item = document.createElement('li');
-            item.innerHTML = this.voice.sentences[i];
-            list.appendChild(item);
-        }
-        appendTo.appendChild(list);
+            return '';
+        });
     }
 });
