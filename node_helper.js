@@ -1,23 +1,53 @@
-/* MMM-soccer
- * Node Helper
+/**
+ * @file node_helper.js
  *
- * By fewieden https://github.com/fewieden/MMM-soccer
+ * @author fewieden
+ * @license MIT
  *
- * MIT Licensed.
+ * @see  https://github.com/fewieden/MMM-soccer
  */
 
 /* eslint-env node */
 /* eslint-disable no-console */
 
+/**
+ * @external request
+ * @see https://www.npmjs.com/package/request
+ */
 const request = require('request');
+
+/**
+ * @external node_helper
+ * @see https://github.com/MichMich/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
+ */
 const NodeHelper = require('node_helper');
 
+/**
+ * @module node_helper
+ * @description Backend for the module to query data from the API provider.
+ *
+ * @requires external:request
+ * @requires external:node_helper
+ */
 module.exports = NodeHelper.create({
 
+    /**
+     * @function start
+     * @description Logs a start message to the console.
+     * @override
+     */
     start() {
         console.log(`Starting module: ${this.name}`);
     },
 
+    /**
+     * @function socketNotificationReceived
+     * @description Receives socket notifications from the module.
+     * @override
+     *
+     * @param {string} notification - Notification name
+     * @param {*} payload - Detailed payload of the notification.
+     */
     socketNotificationReceived(notification, payload) {
         if (notification === 'GET_DATA') {
             const options = {
@@ -31,9 +61,11 @@ module.exports = NodeHelper.create({
     },
 
     /**
-    * getData
-    * Request data from the supplied URL and broadcast it to the MagicMirror module if it's received.
-    */
+     * @function getData
+     * @description Request data from the supplied URL and broadcast it to the MagicMirror module if it's received.
+     *
+     * @param {Object} options - request optionsthe notification.
+     */
     getData(options) {
         console.log(`Get league table for url ${options.url}`);
         request(options, (error, response, body) => {

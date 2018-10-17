@@ -1,14 +1,42 @@
-/* global Module Log */
-
-/* Magic Mirror
- * Module: MMM-soccer
+/**
+ * @file MMM-soccer.js
  *
- * By fewieden https://github.com/fewieden/MMM-soccer
+ * @author fewieden
+ * @license MIT
  *
- * MIT Licensed.
+ * @see  https://github.com/fewieden/MMM-soccer
  */
 
+/* global Module Log */
+
+/**
+ * @external Module
+ * @see https://github.com/MichMich/MagicMirror/blob/master/js/module.js
+ */
+
+/**
+ * @external Log
+ * @see https://github.com/MichMich/MagicMirror/blob/master/js/logger.js
+ */
+
+/**
+ * @module MMM-soccer
+ * @description Frontend of the MagicMirror² module.
+ *
+ * @requires external:Module
+ * @requires external:Log
+ */
 Module.register('MMM-soccer', {
+    /**
+     * @member {Object} defaults - Defines the default config values.
+     * @property {boolean|string} api_key - API acces key for football-data.org.
+     * @property {boolean} colored - Flag to show logos in color or black/white.
+     * @property {string} show - Country name (uppercase) to be shown in module.
+     * @property {boolean|Object} focus_on - Hash of country name -> club name to determine highlighted team per league.
+     * @property {boolean|int} max_teams - Maximium amount of teams to be displayed.
+     * @property {boolean} logos - Flag to show club logos.
+     * @property {Object} leagues - Hash of country name -> league id.
+     */
     defaults: {
         api_key: false,
         colored: false,
@@ -17,19 +45,29 @@ Module.register('MMM-soccer', {
         max_teams: false,
         logos: false,
         leagues: {
-            GERMANY: 2002,
-            FRANCE: 2015,
-            ENGLAND: 2021,
-            SPAIN: 2014,
-            ITALY: 2019
+            GERMANY: 'BL1',
+            FRANCE: 'FL1',
+            ENGLAND: 'PL',
+            SPAIN: 'PD',
+            ITALY: 'SA'
         }
     },
 
+    /**
+     * @member {Object} modals - Stores the status of the module's modals.
+     * @property {boolean} standings - Full standings table.
+     * @property {boolean} help - List of voice commands of this module.
+     */
     modals: {
         standings: false,
         help: false
     },
 
+    /**
+     * @member {Object} voice - Defines the default mode and commands of this module.
+     * @property {string} mode - Voice mode of this module.
+     * @property {string[]} sentences - List of voice commands of this module.
+     */
     voice: {
         mode: 'SOCCER',
         sentences: [
@@ -41,10 +79,24 @@ Module.register('MMM-soccer', {
         ]
     },
 
+    /**
+     * @member {boolean} loading - Flag to indicate the loading state of the module.
+     */
     loading: true,
+    /**
+     * @member {Object[]} standing - Stores the list of standing table entries of current selected league.
+     */
     standing: [],
+    /**
+     * @member {Object} competition - Details about the current selected league.
+     */
     competition: {},
 
+    /**
+     * @function start
+     * @description Adds nunjuck filters and requests for league data.
+     * @override
+     */
     start() {
         Log.info(`Starting module: ${this.name}`);
         this.addFilters();
@@ -55,10 +107,22 @@ Module.register('MMM-soccer', {
         }, this.config.api_key ? 300000 : 1800000); // with api_key every 5min without every 30min
     },
 
+    /**
+     * @function start
+     * @description Sends request to the node_helper to fetch data for the current selected league.
+     */
     getData() {
         this.sendSocketNotification('GET_DATA', { league: this.currentLeague, api_key: this.config.api_key });
     },
 
+    /**
+     * @function socketNotificationReceived
+     * @description Handles incoming messages from node_helper.
+     * @override
+     *
+     * @param {string} notification - Notification name
+     * @param {*} payload - Detailed payload of the notification.
+     */
     socketNotificationReceived(notification, payload) {
         if (notification === 'DATA') {
             this.standing = payload.standings[0].table;
@@ -69,6 +133,15 @@ Module.register('MMM-soccer', {
         }
     },
 
+    /**
+     * @function notificationReceived
+     * @description Handles incoming broadcasts from other modules or the MagicMirror² core.
+     * @override
+     *
+     * @param {string} notification - Notification name
+     * @param {*} payload - Detailed payload of the notification.
+     * @param {Object} sender - Module that sent the notification or undefined for MagicMirror² core.
+     */
     notificationReceived(notification, payload, sender) {
         if (notification === 'ALL_MODULES_STARTED') {
             const voice = Object.assign({}, this.voice);
@@ -83,10 +156,24 @@ Module.register('MMM-soccer', {
         }
     },
 
+    /**
+     * @function getStyles
+     * @description Style dependencies for this module.
+     * @override
+     *
+     * @returns {string[]} List of the style dependency filepaths.
+     */
     getStyles() {
         return ['font-awesome.css', 'MMM-soccer.css'];
     },
 
+    /**
+     * @function getTranslations
+     * @description Translations for this module.
+     * @override
+     *
+     * @returns {Object.<string, string>} Available translations for this module (key: language code, value: filepath).
+     */
     getTranslations() {
         return {
             en: 'translations/en.json',
@@ -95,10 +182,24 @@ Module.register('MMM-soccer', {
         };
     },
 
+    /**
+     * @function getTemplate
+     * @description Nunjuck template.
+     * @override
+     *
+     * @returns {string} Path to nunjuck template.
+     */
     getTemplate() {
         return 'MMM-soccer.njk';
     },
 
+    /**
+     * @function getTemplateData
+     * @description Data that gets rendered in the nunjuck template.
+     * @override
+     *
+     * @returns {string} Data for the nunjuck template.
+     */
     getTemplateData() {
         return {
             boundaries: this.calculateTeamDisplayBoundaries(),
@@ -113,6 +214,10 @@ Module.register('MMM-soccer', {
         };
     },
 
+    /**
+     * @function handleModals
+     * @description Hide/show modules based on voice commands.
+     */
     handleModals(data, modal, open, close) {
         if (close.test(data) || (this.modals[modal] && !open.test(data))) {
             this.closeAllModals();
@@ -133,16 +238,30 @@ Module.register('MMM-soccer', {
         }
     },
 
+    /**
+     * @function closeAllModals
+     * @description Close all modals of the module.
+     */
     closeAllModals() {
         const modals = Object.keys(this.modals);
         modals.forEach((modal) => { this.modals[modal] = false; });
     },
 
+    /**
+     * @function isModalActive
+     * @description Checks if at least one modal is active.
+     *
+     * @returns {boolean} Flag if there is an active modal.
+     */
     isModalActive() {
         const modals = Object.keys(this.modals);
         return modals.some(modal => this.modals[modal] === true);
     },
 
+    /**
+     * @function checkCommands
+     * @description Voice command handler.
+     */
     checkCommands(data) {
         if (/(HELP)/g.test(data)) {
             this.handleModals(data, 'help', /(OPEN)/g, /(CLOSE)/g);
@@ -165,10 +284,22 @@ Module.register('MMM-soccer', {
         this.updateDom(300);
     },
 
+    /**
+     * @function isMaxTeamsLessAll
+     * @description Are there more entries than the config option specifies.
+     *
+     * @returns {boolean}
+     */
     isMaxTeamsLessAll() {
         return (this.config.max_teams && this.config.max_teams <= this.standing.length);
     },
 
+    /**
+     * @function findFocusTeam
+     * @description Helper function to find index of team in standings
+     *
+     * @returns {Object} Index of team, first and last team to display.
+     */
     findFocusTeam() {
         let focusTeamIndex;
 
@@ -184,6 +315,12 @@ Module.register('MMM-soccer', {
         return { focusTeamIndex, firstTeam, lastTeam };
     },
 
+    /**
+     * @function getFirstAndLastTeam
+     * @description Helper function to get the boundaries of the teams that should be displayed.
+     *
+     * @returns {Object} Index of the first and the last team.
+     */
     getFirstAndLastTeam(index) {
         let firstTeam;
         let lastTeam;
@@ -206,6 +343,12 @@ Module.register('MMM-soccer', {
         return { firstTeam, lastTeam };
     },
 
+    /**
+     * @function calculateTeamDisplayBoundaries
+     * @description Calculates the boundaries of teams based on the config.
+     *
+     * @returns {Object} Index of team, first and last team to display.
+     */
     calculateTeamDisplayBoundaries() {
         if (this.config.focus_on && Object.prototype.hasOwnProperty.call(this.config.focus_on, this.config.show)) {
             if (this.config.focus_on[this.config.show] === 'TOP') {
@@ -232,6 +375,10 @@ Module.register('MMM-soccer', {
         };
     },
 
+    /**
+     * @function addFilters
+     * @description Adds the filter used by the nunjuck template.
+     */
     addFilters() {
         this.nunjucksEnvironment().addFilter('fade', (index, focus) => {
             if (this.config.max_teams && focus >= 0) {
