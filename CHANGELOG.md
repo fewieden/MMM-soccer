@@ -6,6 +6,7 @@
 
 * Club logo downloader
 * New config option `logos`.
+* Swedish translations
 * Documentation
 * [Doclets.io](https://doclets.io/fewieden/MMM-soccer/master) integration
 * Contributing guidelines
