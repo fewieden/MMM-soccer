@@ -7,6 +7,8 @@
  * @see  https://github.com/fewieden/MMM-soccer
  */
 
+/* jshint esversion: 6 */
+
 /* global Module Log */
 
 /**
@@ -45,7 +47,7 @@ Module.register('MMM-soccer', {
         max_teams: false,
         logos: false,
         leagues: {
-            GERMANY: 'BL1',
+            GERMANY: 'DFB',
             FRANCE: 'FL1',
             ENGLAND: 'PL',
             SPAIN: 'PD',
@@ -97,7 +99,7 @@ Module.register('MMM-soccer', {
      * @description Adds nunjuck filters and requests for league data.
      * @override
      */
-    start() {
+    start: function() {
         Log.info(`Starting module: ${this.name}`);
         this.addFilters();
         this.currentLeague = this.config.leagues[this.config.show];
@@ -111,7 +113,7 @@ Module.register('MMM-soccer', {
      * @function start
      * @description Sends request to the node_helper to fetch data for the current selected league.
      */
-    getData() {
+    getData: function() {
         this.sendSocketNotification('GET_DATA', { league: this.currentLeague, api_key: this.config.api_key });
     },
 
@@ -123,7 +125,7 @@ Module.register('MMM-soccer', {
      * @param {string} notification - Notification name
      * @param {*} payload - Detailed payload of the notification.
      */
-    socketNotificationReceived(notification, payload) {
+    socketNotificationReceived: function(notification, payload) {
         if (notification === 'DATA') {
             this.standing = payload.standings[0].table;
             this.season = payload.season;
@@ -142,39 +144,24 @@ Module.register('MMM-soccer', {
      * @param {*} payload - Detailed payload of the notification.
      * @param {Object} sender - Module that sent the notification or undefined for MagicMirror² core.
      */
-    notificationReceived(notification, payload, sender) {
+    notificationReceived: function(notification, payload, sender) {
         if (notification === 'ALL_MODULES_STARTED') {
             const voice = Object.assign({}, this.voice);
             voice.sentences.push(Object.keys(this.config.leagues).join(' '));
             this.sendNotification('REGISTER_VOICE_MODULE', voice);
         } else if (notification === 'VOICE_SOCCER' && sender.name === 'MMM-voice') {
             this.checkCommands(payload);
-        } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice'
-            && payload.old === this.voice.mode) {
+        } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice' && payload.old === this.voice.mode) {
             this.closeAllModals();
             this.updateDom(300);
         }
     },
 
-    /**
-     * @function getStyles
-     * @description Style dependencies for this module.
-     * @override
-     *
-     * @returns {string[]} List of the style dependency filepaths.
-     */
-    getStyles() {
+    getStyles: function() {
         return ['font-awesome.css', 'MMM-soccer.css'];
     },
 
-    /**
-     * @function getTranslations
-     * @description Translations for this module.
-     * @override
-     *
-     * @returns {Object.<string, string>} Available translations for this module (key: language code, value: filepath).
-     */
-    getTranslations() {
+    getTranslations: function() {
         return {
             en: 'translations/en.json',
             de: 'translations/de.json',
@@ -183,14 +170,7 @@ Module.register('MMM-soccer', {
         };
     },
 
-    /**
-     * @function getTemplate
-     * @description Nunjuck template.
-     * @override
-     *
-     * @returns {string} Path to nunjuck template.
-     */
-    getTemplate() {
+    getTemplate: function() {
         return 'MMM-soccer.njk';
     },
 
@@ -201,7 +181,7 @@ Module.register('MMM-soccer', {
      *
      * @returns {string} Data for the nunjuck template.
      */
-    getTemplateData() {
+    getTemplateData: function() {
         return {
             boundaries: this.calculateTeamDisplayBoundaries(),
             competitionName: this.competition.name || this.name,
@@ -219,7 +199,7 @@ Module.register('MMM-soccer', {
      * @function handleModals
      * @description Hide/show modules based on voice commands.
      */
-    handleModals(data, modal, open, close) {
+    handleModals: function(data, modal, open, close) {
         if (close.test(data) || (this.modals[modal] && !open.test(data))) {
             this.closeAllModals();
         } else if (open.test(data) || (!this.modals[modal] && !close.test(data))) {
@@ -243,7 +223,7 @@ Module.register('MMM-soccer', {
      * @function closeAllModals
      * @description Close all modals of the module.
      */
-    closeAllModals() {
+    closeAllModals: function() {
         const modals = Object.keys(this.modals);
         modals.forEach((modal) => { this.modals[modal] = false; });
     },
@@ -254,7 +234,7 @@ Module.register('MMM-soccer', {
      *
      * @returns {boolean} Flag if there is an active modal.
      */
-    isModalActive() {
+    isModalActive: function() {
         const modals = Object.keys(this.modals);
         return modals.some(modal => this.modals[modal] === true);
     },
