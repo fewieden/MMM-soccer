@@ -33,25 +33,30 @@ Module.register('MMM-soccer', {
      * @member {Object} defaults - Defines the default config values.
      * @property {boolean|string} api_key - API acces key for football-data.org.
      * @property {boolean} colored - Flag to show logos in color or black/white.
-     * @property {string} show - Country name (uppercase) to be shown in module.
+     * @property {array} show - League names to be filtered for showing tables and games.
      * @property {boolean|Object} focus_on - Hash of country name -> club name to determine highlighted team per league.
-     * @property {boolean|int} max_teams - Maximium amount of teams to be displayed.
+     * @property {boolean|int} max_teams - Maximum amount of teams to be displayed.
      * @property {boolean} logos - Flag to show club logos.
      * @property {Object} leagues - Hash of country name -> league id.
      */
     defaults: {
         api_key: false,
         colored: false,
-        show: 'GERMANY',
+        show: ['BL1', 'CL', 'PL'],
         focus_on: false,
         max_teams: false,
-        logos: false,
+        logos: true, 
+        showTable: true,
+        showGames: true,
+        gameType: 'daily',
         leagues: {
-            GERMANY: 'DFB',
+            GERMANY: 'BL1',
             FRANCE: 'FL1',
             ENGLAND: 'PL',
             SPAIN: 'PD',
-            ITALY: 'SA'
+            ITALY: 'SA',
+            CHAMPIONS_LEAGUE: 'CL',
+            NETHERLANDS: 'DED',
         }
     },
 
@@ -86,13 +91,15 @@ Module.register('MMM-soccer', {
      */
     loading: true,
     /**
-     * @member {Object[]} standing - Stores the list of standing table entries of current selected league.
+     * @member {Object[]} tables - Stores the list of tables of current selected leagues.
+     * @member {Object[]} matches - Stores the list of matches of current selected leagues. 
      */
-    standing: [],
+    tables: {}, 
+	matches: {},
     /**
-     * @member {Object} competition - Details about the current selected league.
+     * @member {Object} competition - The currently selected league.
      */
-    competition: {},
+    competition: "BL1",
 
     /**
      * @function start
@@ -102,11 +109,12 @@ Module.register('MMM-soccer', {
     start: function() {
         Log.info(`Starting module: ${this.name}`);
         this.addFilters();
-        this.currentLeague = this.config.leagues[this.config.show];
+        this.competition = this.config.show[0];
         this.getData();
-        setInterval(() => {
+        /*setInterval(() => {
             this.getData();
-        }, this.config.api_key ? 300000 : 1800000); // with api_key every 5min without every 30min
+        }, this.config.api_key ? 60000 : 1800000); // with api_key every 5min without every 30min
+        */
     },
 
     /**
@@ -114,7 +122,10 @@ Module.register('MMM-soccer', {
      * @description Sends request to the node_helper to fetch data for the current selected league.
      */
     getData: function() {
-        this.sendSocketNotification('GET_DATA', { league: this.currentLeague, api_key: this.config.api_key });
+        //this.sendSocketNotification('GET_TODAYS_MATCHES', { leagues: this.config.show, api_key: this.config.api_key });
+        this.sendSocketNotification('GET_TABLES', { leagues: this.config.show, api_key: this.config.api_key });
+		this.sendSocketNotification('GET_MATCHES', { leagues: this.config.show, api_key: this.config.api_key });
+
     },
 
     /**
@@ -126,13 +137,18 @@ Module.register('MMM-soccer', {
      * @param {*} payload - Detailed payload of the notification.
      */
     socketNotificationReceived: function(notification, payload) {
-        if (notification === 'DATA') {
-            this.standing = payload.standings[0].table;
-            this.season = payload.season;
-            this.competition = payload.competition;
-            this.loading = false;
-            this.updateDom();
+		console.log("MMM-soccer received a Socket Notification: " + notification + ", payload: "+payload);
+        if (notification === 'TABLES') {
+			this.tables = payload;
+			this.standing = this.tables[0].standings[0].table;
+        } else if (notification === 'MATCHES') {
+			this.matches = payload;
+			console.log(this.matches[0].matches.filter(match => { return match.matchday === this.tables[0].season.currentMatchday }));
         }
+		if (this.tables.length && this.matches.length) { 
+			this.loading = false; 
+			this.updateDom();
+		}
     },
 
     /**
@@ -158,7 +174,7 @@ Module.register('MMM-soccer', {
     },
 
     getStyles: function() {
-        return ['font-awesome.css', 'MMM-soccer.css'];
+        return ['MMM-soccer.css'];
     },
 
     getTranslations: function() {
@@ -183,14 +199,15 @@ Module.register('MMM-soccer', {
      */
     getTemplateData: function() {
         return {
-            boundaries: this.calculateTeamDisplayBoundaries(),
-            competitionName: this.competition.name || this.name,
+            boundaries: (this.tables.length) ? this.calculateTeamDisplayBoundaries(this.competition) : {},
+            competitionName: (this.tables.length) ? this.tables[0].competition.name : "",
             config: this.config,
             isModalActive: this.isModalActive(),
             modals: this.modals,
-            season: this.season ?
-                `${this.translate('MATCHDAY')}: ${this.season.currentMatchday || 'N/A'}` : this.translate('LOADING'),
-            standing: this.standing,
+            season: (this.tables.length) ? 
+                `${this.translate('MATCHDAY')}: ${this.tables[0].season.currentMatchday || 'N/A'}` : this.translate('LOADING'),
+            standings: (this.tables.length) ? this.tables[0].standings : "",
+			matches: (this.matches.length) ? this.matches[0].matches.filter(match => { return match.matchday === this.tables[0].season.currentMatchday }) : "",
             voice: this.voice
         };
     },
@@ -283,9 +300,9 @@ Module.register('MMM-soccer', {
      */
     findFocusTeam() {
         let focusTeamIndex;
-
-        for (let i = 0; i < this.standing.length; i += 1) {
-            if (this.standing[i].team.name === this.config.focus_on[this.config.show]) {
+		var table = this.standing;
+        for (let i = 0; i < table.length; i += 1) {
+            if (table[i].team.name === this.config.focus_on[this.competition]) {
                 focusTeamIndex = i;
                 break;
             }
@@ -294,7 +311,7 @@ Module.register('MMM-soccer', {
         const { firstTeam, lastTeam } = this.getFirstAndLastTeam(focusTeamIndex);
 
         return { focusTeamIndex, firstTeam, lastTeam };
-    },
+    },   
 
     /**
      * @function getFirstAndLastTeam
@@ -330,9 +347,9 @@ Module.register('MMM-soccer', {
      *
      * @returns {Object} Index of team, first and last team to display.
      */
-    calculateTeamDisplayBoundaries() {
-        if (this.config.focus_on && Object.prototype.hasOwnProperty.call(this.config.focus_on, this.config.show)) {
-            if (this.config.focus_on[this.config.show] === 'TOP') {
+    calculateTeamDisplayBoundaries(competition) {
+        if (this.config.focus_on && this.config.focus_on.hasOwnProperty(competition)) {
+            if (this.config.focus_on[competition] === 'TOP') {
                 return {
                     focusTeamIndex: -1,
                     firstTeam: 0,

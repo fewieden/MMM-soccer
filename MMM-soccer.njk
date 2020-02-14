@@ -5,6 +5,27 @@
         {% else %}
             <header>{{competitionName}}</header>
             <div class="xsmall">{{season}}</div>
+			<table class="xsmall games">
+                <tbody>
+                    {% for index in range(0, matches.length) %}
+                    <tr class="centered-row">
+                            <td class="name">{{matches[index].homeTeam.name}}</td>
+                            {% if config.logos %}
+                                <td><img class="icon {% if not config.colored %}no-color{% endif %}" src=""/></td>
+                            {% endif %}
+                            <td>
+								{% if matches[index].status == "ACTIVE" %}{{matches[index].score.fullTime.homeTeam}} - {{matches[index].score.fullTime.awayTeam}}
+								{% else %}0 - 0
+								{% endif %}
+							</td>
+							{% if config.logos %}
+                                <td><img class="icon {% if not config.colored %}no-color{% endif %}" src=""/></td>
+                            {% endif %}
+                            <td class="name">{{matches[index].awayTeam.name}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             <table class="xsmall table">
                 <thead>
                     <tr class="row">
@@ -13,27 +34,29 @@
                             <th></th>
                         {% endif %}
                         <th class="name">{{'TEAM' | translate}}</th>
-                        <th class="centered"><i class="fa fa-line-chart"/></th>
-                        <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
+                        <th class="centered"><i class="fas fa-chart-line"/></th>
+                        <th class="centered"><i class="fas fa-futbol"/></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for index in range(boundaries.firstTeam, boundaries.lastTeam) %}
                         <tr class="centered-row {% if index === boundaries.focusTeamIndex %}bright{% endif %}" style="{{loop.index | fade(boundaries.focusTeamIndex)}}">
-                            <td>{{standing[index].position}}</td>
+                            <td>{{standings[0].table[index].position}}</td>
                             {% if config.logos %}
-                                <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="/MMM-soccer/{{standing[index].team.name}}.svg"/></td>
+                                <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{standings[0].table[index].team.crestUrl}}"/></td>
                             {% endif %}
-                            <td class="name">{{standing[index].team.name}}</td>
-                            <td class="centered">{{standing[index].points}}</td>
-                            <td class="centered">{{standing[index].goalDifference}}</td>
+                            <td class="name">{{standings[0].table[index].team.name}}</td>
+                            <td class="centered">{{standings[0].table[index].points}}</td>
+                            <td class="centered">{{standings[0].table[index].goalDifference}}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% endif %}
     </div>
-    {% if isModalActive %}
+ 
+
+   {% if isModalActive %}
         <div class="modal">
             {% if modal.standings %}
                 <table class="small table">
@@ -44,16 +67,16 @@
                                 <th></th>
                             {% endif %}
                             <th class="name">{{'TEAM' | translate}}</th>
-                            <th class="centered"><i class="fa fa-line-chart"/></th>
-                            <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
+                            <th class="centered"><i class="fas fa-chart-line"/></th>
+                            <th class="centered"><i class="fas fa-futbol"/></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for entry in standing %}
+                        {% for entry in standings[0].table %}
                             <tr class="centered-row {% if loop.index === boundaries.focusTeamIndex %}bright{% endif %}">
                                 <td>{{entry.position}}</td>
                                 {% if config.logos %}
-                                    <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="/MMM-soccer/{{entry.team.name}}.svg"/></td>
+                                    <td><img class="icon {% if not config.colored %}no-color{% endif %}" src={{entry.team.crestUrl}}/></td>
                                 {% endif %}
                                 <td class="name">{{entry.team.name}}</td>
                                 <td class="centered">{{entry.points}}</td>
