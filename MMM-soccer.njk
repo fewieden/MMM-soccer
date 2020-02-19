@@ -1,77 +1,97 @@
-<div>
-    <div class="{% if isModalActive %}MMM-soccer-blur{% endif %}">
-        {% if loading %}
-            {{'LOADING' | translate}}
-        {% else %}
-            <header>{{competitionName}}</header>
-            <div class="xsmall">{{season}}</div>
-            <table class="xsmall table">
-                <thead>
-                    <tr class="row">
-                        <th></th>
-                        {% if config.logos %}
-                            <th></th>
-                        {% endif %}
-                        <th class="name">{{'TEAM' | translate}}</th>
-                        <th class="centered"><i class="fa fa-line-chart"/></th>
-                        <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for index in range(boundaries.firstTeam, boundaries.lastTeam) %}
-                        <tr class="centered-row {% if index === boundaries.focusTeamIndex %}bright{% endif %}" style="{{loop.index | fade(boundaries.focusTeamIndex)}}">
-                            <td>{{standing[index].position}}</td>
-                            {% if config.logos %}
-                                <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="/MMM-soccer/{{standing[index].team.name}}.svg"/></td>
-                            {% endif %}
-                            <td class="name">{{standing[index].team.name}}</td>
-                            <td class="centered">{{standing[index].points}}</td>
-                            <td class="centered">{{standing[index].goalDifference}}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-    </div>
-    {% if isModalActive %}
-        <div class="modal">
-            {% if modal.standings %}
-                <table class="small table">
-                    <thead>
-                        <tr class="row">
-                            <th></th>
-                            {% if config.logos %}
-                                <th></th>
-                            {% endif %}
-                            <th class="name">{{'TEAM' | translate}}</th>
-                            <th class="centered"><i class="fa fa-line-chart"/></th>
-                            <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for entry in standing %}
-                            <tr class="centered-row {% if loop.index === boundaries.focusTeamIndex %}bright{% endif %}">
-                                <td>{{entry.position}}</td>
-                                {% if config.logos %}
-                                    <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="/MMM-soccer/{{entry.team.name}}.svg"/></td>
-                                {% endif %}
-                                <td class="name">{{entry.team.name}}</td>
-                                <td class="centered">{{entry.points}}</td>
-                                <td class="centered">{{entry.goalDifference}}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <h1 class="medium">{{competitionName}} - {{'COMMAND_LIST' | translate}}</h1>
-                <div>{{'MODE' | translate}}: {{voice.mode}}</div>
-                <div>{{'VOICE_COMMANDS' | translate}}</div>
-                <ul>
-                    {% for sentence in voice.sentences %}
-                        <li>{{sentence}}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-    {% endif %}
+<div class="{% if isModalActive %}MMM-soccer-blur{% endif %}" style="width: {{config.width}}px">
+	{% if loading %}
+		{{'LOADING' | translate}}
+	{% else %}
+		<header>{{competitionName}}</header>
+		<div class="small matchDay">{{season}}</div>
+            <table class="xsmall games">
+				<tbody>
+				{% for i in range(0, matches.length) %}
+					<tr class="centered-row {% if matches[i].focused %}bright{% endif %} {{ matches[i].status }}">
+						<td class="name matchName homeTeam">{{matches[i].homeTeam.name | replace}}</td>
+						{% if config.logos %}
+							<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[matches[i].homeTeam.id].crestUrl}}"/></td>
+						{% endif %}
+						<td class="status">{{ matches[i].state }}
+						</td>
+						{% if config.logos %}
+							<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[matches[i].awayTeam.id].crestUrl}}"/></td>
+						{% endif %}
+						<td class="name matchName awayTeam">{{matches[i].awayTeam.name | replace}}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% if showTable %}
+			<table class="small table">
+				<thead>
+					<tr class="row">
+						<th></th>
+						{% if config.logos %}
+							<th></th>
+						{% endif %}
+						<th class="name">{{'TEAM' | translate}}</th>
+						<th class="centered"><i class="fas fa-chart-line"/></th>
+						<th class="centered"><i class="fas fa-futbol"/></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for i in range(boundaries.firstTeam, boundaries.lastTeam) %}
+						<tr class="centered-row {% if i === boundaries.focusTeamIndex %}bright{% endif %}" style="{{i | fade(boundaries.focusTeamIndex)}}">
+							<td>{{table[i].position}}</td>
+							{% if config.logos %}
+								<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{table[i].team.crestUrl}}"/></td>
+							{% endif %}
+							<td class="name">{{table[i].team.name | replace}}</td>
+							<td class="centered">{{table[i].points}}</td>
+							<td class="centered">{{table[i].goalDifference}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% endif %}
+	{% endif %}
 </div>
+
+
+{% if isModalActive %}
+		{% if modal.standings %}
+	<div class="modal">
+			<table class="small table">
+				<thead>
+					<tr class="row">
+						<th></th>
+						{% if config.logos %}
+							<th></th>
+						{% endif %}
+						<th class="name">{{'TEAM' | translate}}</th>
+						<th class="centered"><i class="fas fa-chart-line"/></th>
+						<th class="centered"><i class="fas fa-futbol"/></th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for entry in table %}
+						<tr class="centered-row {% if index === boundaries.focusTeamIndex %}bright{% endif %}">
+							<td>{{entry.position}}</td>
+							{% if config.logos %}
+								<td><img class="icon {% if not config.colored %}no-color{% endif %}" src={{entry.team.crestUrl}}/></td>
+							{% endif %}
+							<td class="name">{{entry.team.name}}</td>
+							<td class="centered">{{entry.points}}</td>
+							<td class="centered">{{entry.goalDifference}}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<h1 class="medium">{{competitionName}} - {{'COMMAND_LIST' | translate}}</h1>
+			<div>{{'MODE' | translate}}: {{voice.mode}}</div>
+			<div>{{'VOICE_COMMANDS' | translate}}</div>
+			<ul>
+				{% for sentence in voice.sentences %}
+					<li>{{sentence}}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+	</div>
+{% endif %}
