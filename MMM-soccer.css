@@ -11,8 +11,34 @@
     text-align: left;
 }
 
-.MMM-soccer .table {
-    border-spacing: 2px;
+.MMM-soccer .matchDay {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.MMM-soccer table {
+    margin-bottom: 30px;
+}
+
+.MMM-soccer .games {
+    table-layout: fixed;
+}
+
+.MMM-soccer .games .status {
+    padding: 5px;
+    border: 4px solid black;
+    background-color: grey;
+    color: black;
+    border-radius: 10px;
+    text-align: center;
+	font-size: 100%;
+    width: 50px;
+}
+
+.MMM-soccer .logo {
+    width: 25px;
+	padding: 0px 3px;
+	vertical-align: middle;
 }
 
 .MMM-soccer .centered-row {
@@ -21,6 +47,14 @@
 
 .MMM-soccer .centered {
     text-align: center;
+}
+
+.MMM-soccer .focused {
+    font-weight: bold;
+}
+
+.MMM-soccer .active {
+    color: yellow;
 }
 
 .MMM-soccer-blur {
@@ -40,4 +74,15 @@
 
 .MMM-soccer .modal ul {
     margin: 0;
+}
+
+.MMM-soccer .homeTeam {
+    text-align: right;
+}
+
+.MMM-soccer .matchName {
+    max-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

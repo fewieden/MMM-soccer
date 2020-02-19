@@ -5,5 +5,9 @@
   "TEAM": "Team",
   "COMMAND_LIST": "List of all Voice Commands",
   "MODE": "Mode",
-  "VOICE_COMMANDS": "Voice Commands"
+  "VOICE_COMMANDS": "Voice Commands",
+  "ROUND_OF_16": "Round of 16",
+  "ROUND_OF_8": "Round of 8",
+  "ROUND_OF_4": "Semi Finals",
+  "FINAL": "Finals"
 }

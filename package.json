@@ -21,8 +21,7 @@
     "docs": "./node_modules/.bin/jsdoc -c jsdoc.json ."
   },
   "dependencies": {
-    "axios": "^0.19.2",
-    "request": "^2.74.0"
+    "axios": "^0.19.2"
   },
   "devDependencies": {
     "eslint": "^3.14.1",

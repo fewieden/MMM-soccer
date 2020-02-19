@@ -5,5 +5,9 @@
   "TEAM": "Mannschaft",
   "COMMAND_LIST": "Liste aller Sprachbefehle",
   "MODE": "Modus",
-  "VOICE_COMMANDS": "Sprachbefehle"
+  "VOICE_COMMANDS": "Sprachbefehle",
+  "ROUND_OF_16": "Achtelfinale",
+  "ROUND_OF_8": "Viertelfinale",
+  "ROUND_OF_4": "Halbfinale",
+  "FINAL": "Finale"
 }

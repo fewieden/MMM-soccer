@@ -42,11 +42,13 @@ Module.register('MMM-soccer', {
     defaults: {
         api_key: false,
         colored: false,
+      	width: 400,
         show: ['BL1', 'CL', 'PL'],
+        updateInterval: 60 * 1000,
         focus_on: false,
         max_teams: false,
-        logos: true, 
-        showTable: true,
+        logos: true,
+        showTables: true,
         showGames: true,
         gameType: 'daily',
         leagues: {
@@ -57,6 +59,13 @@ Module.register('MMM-soccer', {
             ITALY: 'SA',
             CHAMPIONS_LEAGUE: 'CL',
             NETHERLANDS: 'DED',
+        },
+        replace: {
+            'BV Borussia 09 Dortmund': 'Borussia Dortmund',
+			'1. FC Union Berlin': 'Union Berlin',
+			'TSV Fortuna 95 Düsseldorf': 'Fortuna Düsseldorf',
+			'SC Paderborn 07': 'SC Paderborn',
+			'Manchester City FC': 'Manchester City',
         }
     },
 
@@ -92,14 +101,18 @@ Module.register('MMM-soccer', {
     loading: true,
     /**
      * @member {Object[]} tables - Stores the list of tables of current selected leagues.
-     * @member {Object[]} matches - Stores the list of matches of current selected leagues. 
+     * @member {Object[]} matches - Stores the list of matches of current selected leagues.
+     * @member {Object[]} teams - Stores infomration about all collected teams (important for logo).
      */
-    tables: {}, 
-	matches: {},
+    tables: {},
+   	matches: {},
+    teams: {},
+	matchDay: "",
+	showTable: true,
     /**
      * @member {Object} competition - The currently selected league.
      */
-    competition: "BL1",
+    competition: 'BL1',
 
     /**
      * @function start
@@ -110,11 +123,19 @@ Module.register('MMM-soccer', {
         Log.info(`Starting module: ${this.name}`);
         this.addFilters();
         this.competition = this.config.show[0];
+		this.showTable = this.config.showTables;
         this.getData();
-        /*setInterval(() => {
-            this.getData();
-        }, this.config.api_key ? 60000 : 1800000); // with api_key every 5min without every 30min
-        */
+        _this = this;
+        var count = 0;
+        const comps = this.config.show.length;
+        setInterval(() => {
+            count = (count === comps - 1) ? 0 : count + 1;
+            _this.competition = _this.config.show[count];
+            console.log(_this.competition);
+            _this.standing = _this.tables[_this.competition].standings[0].table;
+            console.log("Updating...");
+            _this.updateDom(500);
+        }, this.config.updateInterval);
     },
 
     /**
@@ -123,8 +144,8 @@ Module.register('MMM-soccer', {
      */
     getData: function() {
         //this.sendSocketNotification('GET_TODAYS_MATCHES', { leagues: this.config.show, api_key: this.config.api_key });
-        this.sendSocketNotification('GET_TABLES', { leagues: this.config.show, api_key: this.config.api_key });
-		this.sendSocketNotification('GET_MATCHES', { leagues: this.config.show, api_key: this.config.api_key });
+        this.sendSocketNotification('GET_TABLES', this.config);
+        this.sendSocketNotification('GET_MATCHES', this.config);
 
     },
 
@@ -137,18 +158,21 @@ Module.register('MMM-soccer', {
      * @param {*} payload - Detailed payload of the notification.
      */
     socketNotificationReceived: function(notification, payload) {
-		console.log("MMM-soccer received a Socket Notification: " + notification + ", payload: "+payload);
+        console.log("MMM-soccer received a Socket Notification: " + notification + ", payload: "+payload);
         if (notification === 'TABLES') {
-			this.tables = payload;
-			this.standing = this.tables[0].standings[0].table;
+            this.tables = payload;
+            this.standing = this.filterTables(this.tables[this.competition], this.config.focus_on[this.competition]);
+			console.log(this.standing);
         } else if (notification === 'MATCHES') {
-			this.matches = payload;
-			console.log(this.matches[0].matches.filter(match => { return match.matchday === this.tables[0].season.currentMatchday }));
+            this.matches = payload;
+        } else if (notification === 'TEAMS') {
+            this.teams = payload;
         }
-		if (this.tables.length && this.matches.length) { 
-			this.loading = false; 
-			this.updateDom();
-		}
+        if (this.tables.hasOwnProperty(this.competition) && this.matches.hasOwnProperty(this.competition)) {
+            //console.log(this.matches['BL1'].matches.filter(match => { return match.matchday === this.tables['BL1'].season.currentMatchday; }));
+            this.loading = false;
+            this.updateDom(500);
+        }
     },
 
     /**
@@ -169,7 +193,7 @@ Module.register('MMM-soccer', {
             this.checkCommands(payload);
         } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice' && payload.old === this.voice.mode) {
             this.closeAllModals();
-            this.updateDom(300);
+            this.updateDom(500);
         }
     },
 
@@ -199,15 +223,17 @@ Module.register('MMM-soccer', {
      */
     getTemplateData: function() {
         return {
-            boundaries: (this.tables.length) ? this.calculateTeamDisplayBoundaries(this.competition) : {},
-            competitionName: (this.tables.length) ? this.tables[0].competition.name : "",
+            boundaries: (this.tables.hasOwnProperty(this.competition)) ? this.calculateTeamDisplayBoundaries(this.competition) : {},
+            competitionName: (Object.keys(this.tables).length > 0) ? this.tables[this.competition].competition.name : "",
             config: this.config,
             isModalActive: this.isModalActive(),
             modals: this.modals,
-            season: (this.tables.length) ? 
-                `${this.translate('MATCHDAY')}: ${this.tables[0].season.currentMatchday || 'N/A'}` : this.translate('LOADING'),
-            standings: (this.tables.length) ? this.tables[0].standings : "",
-			matches: (this.matches.length) ? this.matches[0].matches.filter(match => { return match.matchday === this.tables[0].season.currentMatchday }) : "",
+            season: (Object.keys(this.tables).length > 0) ?
+                `${this.translate('MATCHDAY')}: ${this.translate(this.matchDay)}` : this.translate('LOADING'),
+            table: this.standing,
+			matches: (Object.keys(this.matches).length > 0) ? this.prepareMatches(this.matches[this.competition].matches, this.config.focus_on[this.competition]) : "",
+            showTable: this.showTable,
+            teams: (Object.keys(this.tables).length > 0) ? this.teams : {},
             voice: this.voice
         };
     },
@@ -292,6 +318,69 @@ Module.register('MMM-soccer', {
         return (this.config.max_teams && this.config.max_teams <= this.standing.length);
     },
 
+
+    /**
+     * @function filterMatches
+     * @description Filters matches to show only one matchday. Also focuses on focused team
+     *
+     * @returns {Object} matches
+     */
+    prepareMatches(matches, focusTeam) {
+        var diff = 0;
+        var minDiff = Math.abs(moment().diff(matches[0].utcDate));
+        for (var m = 0; m < matches.length; m++) {
+            if (!matches[m].matchday) {matches[m].matchday = matches[m].stage; }  //for cup modes, copy stage to matchday property
+            diff = Math.abs(moment().diff(matches[m].utcDate));
+            if (diff < minDiff) {
+                minDiff = diff;
+                this.matchDay = matches[m].matchday;
+            }
+        }
+		console.log(this.matchDay);
+		this.showTable = (!isNaN(this.matchDay))
+        
+
+        matches = matches.filter(match => {
+            return match.matchday == this.matchDay;
+        });
+        matches.forEach(match => {
+            match.focused = (match.homeTeam.name === focusTeam) ? true : (match.awayTeam.name === focusTeam) ? true : false;
+			if (match.status == "SCHEDULED") {
+                match.state = (moment(match.utcDate).diff(moment(), 'hours') > 23) ? moment(match.utcDate).format("D/M") : moment(match.utcDate).format("LT");
+            } else {
+                match.state = match.score.fullTime.homeTeam + " - " + match.score.fullTime.awayTeam;
+            }
+        });
+        //console.log(matches);
+        return matches;
+    },
+
+    /**
+     * @function filterTables
+     * @description Filters tables to show one table per competition. For leagues mode "home" and "away" tables are filtered out.
+     *  For cups only the table including the focused team is extracted
+     *
+     * @returns {Object} Object including current matchday and array of teams.
+     */
+    filterTables(tables, focusTeam) {
+        //filtering out "home" and "away" tables
+        tableArray = tables.standings.filter(table => {
+            return table.type === "TOTAL";
+        });
+        if (tableArray[0].group === "GROUP_A" && this.config.focus_on.hasOwnProperty(tables.competition.code)) {			//cup mode
+            for (var t = 0; t < tableArray.length; t++) {
+                for (var n = 0; n < tableArray[t].table.length; n++) {
+                    if (tableArray[t].table[n].team.name === focusTeam) {
+                        table = tableArray[t].table;
+                    }
+                }
+            }
+        } else {
+            table = tableArray[0].table;
+        }
+        return table;
+    },
+
     /**
      * @function findFocusTeam
      * @description Helper function to find index of team in standings
@@ -299,19 +388,30 @@ Module.register('MMM-soccer', {
      * @returns {Object} Index of team, first and last team to display.
      */
     findFocusTeam() {
+        console.log("Finding focus team...");
         let focusTeamIndex;
-		var table = this.standing;
+        var table = this.standing;
         for (let i = 0; i < table.length; i += 1) {
             if (table[i].team.name === this.config.focus_on[this.competition]) {
                 focusTeamIndex = i;
+                console.log("Focus Team found: " + table[i].team.name);
                 break;
             }
         }
 
-        const { firstTeam, lastTeam } = this.getFirstAndLastTeam(focusTeamIndex);
-
-        return { focusTeamIndex, firstTeam, lastTeam };
-    },   
+        if (!focusTeamIndex) {
+            console.log("No Focus Team found! Please check your entry!");
+            return {
+                focusTeamIndex: -1,
+                firstTeam: 0,
+                lastTeam: this.config.max_teams || this.standing.length
+            };
+        } else {
+            const { firstTeam, lastTeam } = this.getFirstAndLastTeam(focusTeamIndex);
+            //console.log(focusTeamIndex, firstTeam, lastTeam);
+            return { focusTeamIndex, firstTeam, lastTeam };
+        }
+    },
 
     /**
      * @function getFirstAndLastTeam
@@ -330,14 +430,13 @@ Module.register('MMM-soccer', {
                 lastTeam = firstTeam + this.config.max_teams;
             } else {
                 lastTeam = this.standing.length;
-                firstTeam = lastTeam - this.config.max_teams >= 0 ?
-                    lastTeam - this.config.max_teams : 0;
+                /*firstTeam = lastTeam - this.config.max_teams >= 0 ?
+                    lastTeam - this.config.max_teams : 0;*/
             }
         } else {
             firstTeam = 0;
             lastTeam = this.standing.length;
         }
-
         return { firstTeam, lastTeam };
     },
 
@@ -348,21 +447,23 @@ Module.register('MMM-soccer', {
      * @returns {Object} Index of team, first and last team to display.
      */
     calculateTeamDisplayBoundaries(competition) {
+        console.log("Calculating Team Display Boundaries");
         if (this.config.focus_on && this.config.focus_on.hasOwnProperty(competition)) {
             if (this.config.focus_on[competition] === 'TOP') {
+                console.log("Focus on TOP");
                 return {
                     focusTeamIndex: -1,
                     firstTeam: 0,
                     lastTeam: this.isMaxTeamsLessAll() ? this.config.max_teams : this.standing.length
                 };
             } else if (this.config.focus_on[this.config.show] === 'BOTTOM') {
+                console.log("Focus on BOTTOM");
                 return {
                     focusTeamIndex: -1,
                     firstTeam: this.isMaxTeamsLessAll() ? this.standing.length - this.config.max_teams : 0,
                     lastTeam: this.standing.length
                 };
             }
-
             return this.findFocusTeam();
         }
 
@@ -378,7 +479,8 @@ Module.register('MMM-soccer', {
      * @description Adds the filter used by the nunjuck template.
      */
     addFilters() {
-        this.nunjucksEnvironment().addFilter('fade', (index, focus) => {
+        njEnv = this.nunjucksEnvironment();
+        njEnv.addFilter('fade', (index, focus) => {
             if (this.config.max_teams && focus >= 0) {
                 if (index !== focus) {
                     const currentStep = Math.abs(index - focus);
@@ -388,5 +490,13 @@ Module.register('MMM-soccer', {
 
             return '';
         });
-    }
+
+        njEnv.addFilter('replace', (team) => {
+            if (this.config.replace.hasOwnProperty(team)) {
+                return this.config.replace[team];
+            } else {
+                return team;
+            }
+        });
+    },
 });
