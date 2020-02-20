@@ -4,7 +4,7 @@ A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](ht
 
 ## Examples
 
-![](.github/example1.jpg) ![](.github/example2.jpg)
+![](.github/example1.JPG) ![](.github/example2.JPG)
 
 ## Dependencies
 
