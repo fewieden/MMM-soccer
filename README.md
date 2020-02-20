@@ -41,15 +41,28 @@ A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](ht
 | `width` | `400` | Width of match and standings table. The module has a flexible design aligning matches and table vertically or horizontically as space allows. |
 | `api_key` | false | Either false (limited to 50 requests a day) or an API Key obtained from <http://api.football-data.org/register> (limited to 10 requests a minute) . |
 | `colored` | true | Boolean to show club logos in color or not. |
-| `show` | ['BL1', 'PL', 'CL'] | An array of league codes to be displayed. With activated touch mode (see below) |
+| `show` | ['BL1', 'PL', 'CL'] | An array of league codes to be displayed. In normal mode, the leagues revolve using below update cycle. With activated touch mode (see below), you can choose one of the leagues via a button (planned) |
+| `updateInterval` | 60 | The time frame for each league to be shown in seconds. |
 | `showMatches` | true | Show matches of current league |
-| `showTables` | true | Show table of current league. Remark: For cups like Champions league, this will be set to false in knockout mode. |
-| `focus_on` | false | Which team should the standings focus on per league e.g. {'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'. Leave out any league you do not want to have a focus for any team. Omit this option or set to false to show the full league tables. |
+| `showTables` | true | Show table of current league.*Remark*: For cups like Champions league, this will be set to false in knockout mode. |
+| `focus_on` | null | Which team should to focus on per league. This needs to be an object. {'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}. See description below. |
 | `max_teams` | false | How many teams should be displayed when focus is activated. Omit this option or set to false to show the full league table. |
-| `logos` | false | Boolean to show club logos or not. |
+| `logos` | true | Boolean to show club logos. |
 | `liveMode` | true | Activates live mode when games are in play. (see below, not active yet) |
 | `touchMode` | false | Activates touch mode with touch options (see below, not active yet) |
 | `debug` | false | Debug mode: additional output on server side (console) and client side (browser) |
+
+
+## Focus
+
+You can focus on one time per league/cup using the focus_on method. This variable needs to be an object. 
+An example is below:
+```{'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}```
+Please take care to include all quotation marks and use the league code (find below) for any league you have included in the "show" array. The team name needs to correspond to the name of the team as shown on your mirror.
+
+Omitting a league code from 'show' in this array will show the full league table and not include any focus.
+Any league included here need to be included in 'show' as well to show the league on your mirror.
+
 
 ## Live Mode (planned)
 
@@ -89,9 +102,10 @@ The voice control mode for this module is `SOCCER`
 * EXPAND VIEW -> Expands the standings table and shows all teams.
 * COLLAPSE VIEW -> Collapse the expanded view.
 
-## List of available leagues (for the FREE API):
 
-As per [Football-data API Docs](https://www.football-data.org/documentation/api#league-codes):
+## List of available leagues (for the free API):
+
+As per the [Football-data API Docs](https://www.football-data.org/documentation/api#league-codes):
 
 | **League** | **code** |
 | (Europe) Champions League | 'CL1' |
