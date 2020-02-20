@@ -40,9 +40,10 @@ module.exports = NodeHelper.create({
      * @param {*} payload - Detailed payload of the notification.
      */
     socketNotificationReceived(notification, payload) {
-        console.log("Socket notification received: "+notification+" Payload: "+JSON.stringify(payload));
+        this.log("Socket notification received: "+notification+" Payload: "+JSON.stringify(payload));
         this.headers = payload.api_key ? { 'X-Auth-Token': payload.api_key } : {};
         this.config = payload;
+        self = this;
         /*this.options = {
             standings: {
                 url: `http://api.football-data.org/v2/competitions/${payload.league}/standings`,
@@ -60,9 +61,9 @@ module.exports = NodeHelper.create({
         };*/
 
         if (notification === 'GET_TABLES') {
-        this.getTables(payload.show);
+            this.getTables(payload.show);
         } else if (notification === 'GET_MATCHES') {
-        this.getMatches(payload.show);
+            this.getMatches(payload.show);
         } /*else if (notification === 'GET_TODAYS_MATCHES') {
             this.getMatches(this.options.currentMatches, payload.show);
         }*/
@@ -76,9 +77,9 @@ module.exports = NodeHelper.create({
      */
     getTables(leagues) {
         self = this;
-        console.log("Collecting league tables for leagues: "+leagues);
+        this.log("Collecting league tables for leagues: "+leagues);
         var urlArray = leagues.map(league => { return `http://api.football-data.org/v2/competitions/${league}/standings`; });
-        //console.log(urlArray);
+        //this.log(urlArray);
         Promise.all(urlArray.map(url => {
             return axios.get(url, { headers: self.headers })
             .then(function (response) {
@@ -88,7 +89,7 @@ module.exports = NodeHelper.create({
                         season: tableData.season,
                         standings: tableData.standings,
                     };
-                    //console.log(JSON.stringify(tables));
+                    //this.log(tables);
                     return(tables);
         		})
     	      .catch(function (err) {
@@ -105,9 +106,9 @@ module.exports = NodeHelper.create({
                 });
                 self.tables[tables.competition.code] = tables;
             });
-            //console.log(JSON.stringify(self.tables));
-            //console.log(JSON.stringify(self.teams));
-            //console.log("TableArray: "+JSON.stringify(tableArray));
+            //this.log("Collected tables: "+self.tables);
+            this.log("Collected Teams: "+self.teams);
+            //this.log("TableArray: "tableArray);
             self.sendSocketNotification("TABLES", self.tables);
             self.sendSocketNotification("TEAMS", self.teams);
         });
@@ -126,7 +127,7 @@ module.exports = NodeHelper.create({
                     delete match.referees;
                     //match.focused = (match.homeTeam.name === self.config.focus_on[league]) ? true : (match.awayTeam.name === self.config.focus_on[league]) ? true : false;
                 });
-                //console.log(JSON.stringify(matchesData));
+                //this.log(matchesData);
                 return(matchesData);
             })
             .catch(function (err) {
@@ -138,8 +139,14 @@ module.exports = NodeHelper.create({
             matchesArray.forEach(comp => {
                 self.matches[comp.competition.code] = comp;
             });
-            //console.log(JSON.stringify(self.matches));
+            //this.log("Collected Matches: "+self.matches);
             self.sendSocketNotification("MATCHES", self.matches);
         });
+    },
+	
+	log: function (msg) {
+        if (this.config && this.config.debug) {
+            console.log(this.name + ":", JSON.stringify(msg));
+        }
     },
 });

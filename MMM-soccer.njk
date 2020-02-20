@@ -1,27 +1,29 @@
-<div class="{% if isModalActive %}MMM-soccer-blur{% endif %}" style="width: {{config.width}}px">
+<div class="soccerWrapper {% if isModalActive %}MMM-soccer-blur{% endif %}" style="width: {{config.width}}px">
 	{% if loading %}
 		{{'LOADING' | translate}}
 	{% else %}
-		<header>{{competitionName}}</header>
-		<div class="small matchDay">{{season}}</div>
-            <table class="xsmall games">
-				<tbody>
+	<header>{{competitionName}}</header>
+		<div class="xsmall matchDay bold">{{season}}</div>
+	{% if config.showMatches %}
+		<table class="xsmall games">
+			<tbody>
 				{% for i in range(0, matches.length) %}
-					<tr class="centered-row {% if matches[i].focused %}bright{% endif %} {{ matches[i].status }}">
-						<td class="name matchName homeTeam">{{matches[i].homeTeam.name | replace}}</td>
-						{% if config.logos %}
-							<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[matches[i].homeTeam.id].crestUrl}}"/></td>
-						{% endif %}
-						<td class="status">{{ matches[i].state }}
-						</td>
-						{% if config.logos %}
-							<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[matches[i].awayTeam.id].crestUrl}}"/></td>
-						{% endif %}
-						<td class="name matchName awayTeam">{{matches[i].awayTeam.name | replace}}</td>
+				<tr class="centered-row {% if matches[i].focused %}bright{% endif %} {{ matches[i].status }}">
+					<td class="name matchName homeTeam">{{matches[i].homeTeam.name | replace}}</td>
+					{% if config.logos %}
+						<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[matches[i].homeTeam.id].crestUrl}}"/></td>
+					{% endif %}
+					<td class="status bold">{{ matches[i].state }}
+					</td>
+					{% if config.logos %}
+						<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[matches[i].awayTeam.id].crestUrl}}"/></td>
+					{% endif %}
+					<td class="name matchName awayTeam">{{matches[i].awayTeam.name | replace}}</td>
 				</tr>
 				{% endfor %}
 			</tbody>
 		</table>
+    {% endif %}
 		{% if showTable %}
 			<table class="small table">
 				<thead>
