@@ -1,11 +1,10 @@
 # MMM-soccer [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-soccer/master/LICENSE)
 
-A Soccer Standings Module for MagicMirror², based on @fewiedens [!MMM-soccer](https://github.com/fewieden/MMM-soccer)
+A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](https://github.com/fewieden/MMM-soccer)
 
 ## Examples
 
-![](.github/example_full.png) ![](.github/example_focused.png)
-![](.github/example.jpg)
+![](.github/example1.jpg) ![](.github/example2.jpg)
 
 ## Dependencies
 
