@@ -44,8 +44,8 @@ A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](ht
 | `show` | ['BL1', 'PL', 'CL'] | An array of league codes to be displayed. In normal mode, the leagues revolve using below update cycle. With activated touch mode (see below), you can choose one of the leagues via a button (planned) |
 | `updateInterval` | 60 | The time frame for each league to be shown in seconds. |
 | `showMatches` | true | Show matches of current league |
-| `showTables` | true | Show table of current league.*Remark*: For cups like Champions league, this will be set to false in knockout mode. |
-| `focus_on` | null | Which team should to focus on per league. This needs to be an object. {'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}. See description below. |
+| `showTables` | true | Show table of current league. *Remark*: For cups like Champions league, this will be set to false in knockout mode. |
+| `focus_on` | null | Which team should to focus on per league. This needs to be an object, e.g. {'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}. See description below. |
 | `max_teams` | false | How many teams should be displayed when focus is activated. Omit this option or set to false to show the full league table. |
 | `logos` | true | Boolean to show club logos. |
 | `liveMode` | true | Activates live mode when games are in play. (see below, not active yet) |
@@ -57,8 +57,13 @@ A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](ht
 
 You can focus on one time per league/cup using the focus_on method. This variable needs to be an object. 
 An example is below:
-```{'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}```
-Please take care to include all quotation marks and use the league code (find below) for any league you have included in the "show" array. The team name needs to correspond to the name of the team as shown on your mirror.
+```
+{'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}
+```
+Please take care to include all quotation marks, separate with commata, and use the same league codes (find below) you have included in the 'show' array. 
+
+The team name needs to correspond to the original name of the team as provided by the API.
+Have a look into the ```replace``` object in the config to see if the team name is replaced with a shorter one on the mirror. If that is the case, take the original one (the one on the left for each replace property).
 
 Omitting a league code from 'show' in this array will show the full league table and not include any focus.
 Any league included here need to be included in 'show' as well to show the league on your mirror.
@@ -81,6 +86,7 @@ Touch mode will create buttons to choose between leagues.
 It is also planned to include more detailed information like scorers per league and scorers per game.
 
 Can be switched off in config
+
 
 ## OPTIONAL: Voice Control
 
@@ -107,7 +113,9 @@ The voice control mode for this module is `SOCCER`
 
 As per the [Football-data API Docs](https://www.football-data.org/documentation/api#league-codes):
 
-| **League** | **code** |
+
+| **League** | **Code** |
+| --- | --- |
 | (Europe) Champions League | 'CL1' |
 | (Europe) European Championships 2020 | 'EC' |
 | (English) Premier League | 'PL' |
@@ -118,4 +126,17 @@ As per the [Football-data API Docs](https://www.football-data.org/documentation/
 | (Spain) La Liga | 'PD' |
 | (Portugal) Primiera Liga | 'PPL' |
 | (Netherlands) Eredivisie | 'DED' |
-| (Brazil) Serie A | --- |
+| (Brazil) Serie A | '' |
+
+
+### TODOs
+
+- [ ] Include live mode
+- [ ] Include option to replace team names with 3-letter-codes (very slim module)
+- [ ] Include option to show scorers for each match
+- [ ] Current top scorer list per league
+- [ ] Touch mode
+- [ ] Tap additional API (presumably API-football) for further competitions (e.g. DFB cup)
+Add team specific data, e.g. 
+- [ ] next matches
+- [ ] current squad / line-up

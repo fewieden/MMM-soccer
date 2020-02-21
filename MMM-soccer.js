@@ -52,16 +52,6 @@ Module.register('MMM-soccer', {
         showTables: true,
         showMatches: true,
         gameType: 'daily',
-        leagues: {
-            GERMANY: 'BL1',
-            FRANCE: 'FL1',
-            ENGLAND: 'PL',
-            SPAIN: 'PD',
-            ITALY: 'SA',
-            CHAMPIONS_LEAGUE: 'CL',
-            NETHERLANDS: 'DED',
-            EUROPEAN_CHAMPIONSHIP_2020:'EC'
-        },
 		debug: true,
         replace: {
             'BV Borussia 09 Dortmund': 'Borussia Dortmund',
