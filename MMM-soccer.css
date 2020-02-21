@@ -1,3 +1,7 @@
+.MMM-soccer .soccerWrapper {
+    #display: flex;
+}
+
 .MMM-soccer .icon {
     width: 24px;
     height: 24px;
@@ -53,7 +57,7 @@
     font-weight: bold;
 }
 
-.MMM-soccer .active {
+.MMM-soccer .IN_PLAY {
     color: yellow;
 }
 

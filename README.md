@@ -1,68 +1,97 @@
-# MMM-soccer [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-soccer/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-soccer.svg?branch=master)](https://travis-ci.org/fewieden/MMM-soccer) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-soccer/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-soccer) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-soccer/badge.svg)](https://snyk.io/test/github/fewieden/mmm-soccer) [![API Doc](https://doclets.io/fewieden/MMM-soccer/master.svg)](https://doclets.io/fewieden/MMM-soccer/master)
+# MMM-soccer [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-soccer/master/LICENSE)
 
-European Soccer Standings Module for MagicMirror²
+A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](https://github.com/fewieden/MMM-soccer)
 
-## Example
+## Examples
 
-![](.github/example_full.png) ![](.github/example_focused.png)
-![](.github/example.jpg)
+![](.github/example1.JPG) ![](.github/example2.JPG)
 
 ## Dependencies
 
 * An installation of [MagicMirror²](https://github.com/MichMich/MagicMirror)
 * OPTIONAL: [Voice Control](https://github.com/fewieden/MMM-voice)
 * npm
-* [request](https://www.npmjs.com/package/request)
+* [axios](https://www.npmjs.com/package/axios)
 
 ## Installation
 
-1. Clone this repo into `~/MagicMirror/modules` directory.
-1. Configure your `~/MagicMirror/config/config.js`:
+1. Clone this repo into your `~/MagicMirror/modules` directory.
+```git clone https://github.com/lavolp3/MMM-soccer```
+2. Run command `npm install` in `~/MagicMirror/modules/MMM-soccer` directory.
+3. Configure your `~/MagicMirror/config/config.js`:
 
     ```
     {
         module: 'MMM-soccer',
-        position: 'bottom_right',
+        position: 'bottom_left',
         config: {
             ...
         }
     }
     ```
 
-1. Run command `npm i --production` in `~/MagicMirror/modules/MMM-soccer` directory.
-1. Optional: Get a free api key [here](http://api.football-data.org/register)
+
+4. Optional: Get a free api key [here](http://api.football-data.org/register) (highly recommended)
+
 
 ## Config Options
 
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
-| `api_key` | false | Either false (limited to 50 requests a day) or an API Key obtained from <http://api.football-data.org/register> (limited to 50 requests a minute) . |
-| `colored` | false | Boolean to show club logos in color or not. |
-| `show` | 'GERMANY' | Which league should be displayed  'GERMANY', 'FRANCE', 'ENGLAND', 'SPAIN' or 'ITALY' |
-| `focus_on` | false | Which team should the standings focus on per league e.g. {"GERMANY": "FC Bayern München", "FRANCE": "Olympique Lyonnais"}. Omit this option or set to false to show the full league table. |
-| `max_teams` | false | How many teams should be displayed. Omit this option or set to false to show the full league table. |
-| `leagues` | `{"GERMANY": "BL1", "FRANCE": "FL1", "ENGLAND": "PL", "SPAIN": "PD", "ITALY": "SA"}` | A collection of leagues obtained from <http://api.football-data.org/v2/competitions> |
-| `logos` | `false` | Boolean to show club logos or not. |
+| `width` | `400` | Width of match and standings table. The module has a flexible design aligning matches and table vertically or horizontically as space allows. |
+| `api_key` | false | Either false (limited to 50 requests a day) or an API Key obtained from <http://api.football-data.org/register> (limited to 10 requests a minute) . |
+| `colored` | true | Boolean to show club logos in color or not. |
+| `show` | ['BL1', 'PL', 'CL'] | An array of league codes to be displayed. In normal mode, the leagues revolve using below update cycle. With activated touch mode (see below), you can choose one of the leagues via a button (planned) |
+| `updateInterval` | 60 | The time frame for each league to be shown in seconds. |
+| `showMatches` | true | Show matches of current league |
+| `showTables` | true | Show table of current league. *Remark*: For cups like Champions league, this will be set to false in knockout mode. |
+| `focus_on` | null | Which team should to focus on per league. This needs to be an object, e.g. {'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}. See description below. |
+| `max_teams` | false | How many teams should be displayed when focus is activated. Omit this option or set to false to show the full league table. |
+| `logos` | true | Boolean to show club logos. |
+| `liveMode` | true | Activates live mode when games are in play. (see below, not active yet) |
+| `touchMode` | false | Activates touch mode with touch options (see below, not active yet) |
+| `debug` | false | Debug mode: additional output on server side (console) and client side (browser) |
 
-## Logos
 
-As the v2 api doesn't provide logos anymore, I developed a club logo downloader. It supports the five major leagues as above named.
-To run the downloader you need to execute the following steps.
+## Focus
 
-1. Go to the module directory `cd ~/MagicMirror/modules/MMM-soccer`.
-1. Execute `node scripts/downloader COUNTRYNAME`.
-1. Run this command for all the leagues you want to display on the mirror.
-1. Don't forget to activate the display of the logos in the config.
+You can focus on one time per league/cup using the focus_on method. This variable needs to be an object. 
+An example is below:
+```
+{'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}
+```
+Please take care to include all quotation marks, separate with commata, and use the same league codes (find below) you have included in the 'show' array. 
 
-If there isn't every club logo, you can also place them manually in the public directory of the module,
-the logos need to be in `svg` format and the name of the file has to match the displayed name.
+The team name needs to correspond to the original name of the team as provided by the API.
+Have a look into the ```replace``` object in the config to see if the team name is replaced with a shorter one on the mirror. If that is the case, take the original one (the one on the left for each replace property).
+
+Omitting a league code from 'show' in this array will show the full league table and not include any focus.
+Any league included here need to be included in 'show' as well to show the league on your mirror.
+
+
+## Live Mode (planned)
+
+The modules calls all requested matches every 5 minutes. Whenever one or more matches are scheduled in less than 5 minutes, a Live Mode will activate.
+All matches currently played will be included in an array and requested for updates as regularly as the free api (10 calls per minute) allows.
+Additional informations like game minute and scorers will be provided for these games.
+Also, only the leagues with current matches will be shown (does not count for touch mode)
+When no game is active, the module will return back to normal mode. 
+
+Can be switched off in config
+
+
+## Touch mode (planned)
+
+Touch mode will create buttons to choose between leagues.
+It is also planned to include more detailed information like scorers per league and scorers per game.
+
+Can be switched off in config
+
 
 ## OPTIONAL: Voice Control
 
-This module supports voice control by
-[MMM-voice](https://github.com/fewieden/MMM-voice). In order to use this
-feature, it's required to install the voice module. There are no extra config
-options for voice control needed.
+This module supports voice control by @fewiedens [MMM-voice](https://github.com/fewieden/MMM-voice). In order to use this feature, it's required to install the voice module. There are no extra config options for voice control needed.
+
 
 ### Mode
 
@@ -78,3 +107,36 @@ The voice control mode for this module is `SOCCER`
   you have to edit the config)
 * EXPAND VIEW -> Expands the standings table and shows all teams.
 * COLLAPSE VIEW -> Collapse the expanded view.
+
+
+## List of available leagues (for the free API):
+
+As per the [Football-data API Docs](https://www.football-data.org/documentation/api#league-codes):
+
+
+| **League** | **Code** |
+| --- | --- |
+| (Europe) Champions League | 'CL1' |
+| (Europe) European Championships 2020 | 'EC' |
+| (English) Premier League | 'PL' |
+| (English) Championship | 'ELC' |
+| (German) Bundesliga | 'BL1' |
+| (Italian) Serie A | 'PD' |
+| (French) Ligue 1 | 'FL1' |
+| (Spain) La Liga | 'PD' |
+| (Portugal) Primiera Liga | 'PPL' |
+| (Netherlands) Eredivisie | 'DED' |
+| (Brazil) Serie A | '' |
+
+
+### TODOs
+
+- [ ] Include live mode
+- [ ] Include option to replace team names with 3-letter-codes (very slim module)
+- [ ] Include option to show scorers for each match
+- [ ] Current top scorer list per league
+- [ ] Touch mode
+- [ ] Tap additional API (presumably API-football) for further competitions (e.g. DFB cup)
+Add team specific data, e.g. 
+- [ ] next matches
+- [ ] current squad / line-up
