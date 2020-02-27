@@ -2,23 +2,24 @@
 	{% if loading %}
 		{{'LOADING' | translate}}
 	{% else %}
-	<header>{{competitionName}}</header>
-		<div class="xsmall matchDay bold">{{season}}</div>
+	<header>{{this.name}}</header>
+    <div class="small matchDay bold">{{competitionName}}</div>
+		<div class="small matchDay bold">{{season}}</div>
 	{% if config.showMatches %}
 		<table class="xsmall games">
 			<tbody>
 				{% for i in range(0, matches.length) %}
-				<tr class="centered-row {% if matches[i].focused %}bright{% endif %} {{ matches[i].status }}">
-					<td class="name matchName homeTeam">{{matches[i].homeTeam.name | replace}}</td>
+				<tr class="centered-row {% if matches[i].focused %}bright{% endif %}">
+					<td class="name matchName homeTeam {{matches[i].status}}">{{matches[i].homeTeam.name | replace}}</td>
 					{% if config.logos %}
 						<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[matches[i].homeTeam.id].crestUrl}}"/></td>
 					{% endif %}
-					<td class="status bold">{{ matches[i].state }}
+					<td class="status bold {{matches[i].status}}">{{ matches[i].state }}
 					</td>
 					{% if config.logos %}
 						<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[matches[i].awayTeam.id].crestUrl}}"/></td>
 					{% endif %}
-					<td class="name matchName awayTeam">{{matches[i].awayTeam.name | replace}}</td>
+					<td class="name matchName awayTeam {{matches[i].status}}">{{matches[i].awayTeam.name | replace}}</td>
 				</tr>
 				{% endfor %}
 			</tbody>

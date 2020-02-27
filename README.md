@@ -23,11 +23,19 @@ A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](ht
     ```
     {
         module: 'MMM-soccer',
-        position: 'bottom_left',
+        position: 'top_left',
         config: {
-            ...
+            api_key: '',
+            show: ['CL', 'BL1', 'PL'],
+            colored: true,
+            updateInterval: 60,
+            focus_on: {
+                null
+            },
+            max_teams: 5,
+            matchType: 'league'
         }
-    }
+    },
     ```
 
 
@@ -43,41 +51,49 @@ A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](ht
 | `colored` | true | Boolean to show club logos in color or not. |
 | `show` | ['BL1', 'PL', 'CL'] | An array of league codes to be displayed. In normal mode, the leagues revolve using below update cycle. With activated touch mode (see below), you can choose one of the leagues via a button (planned) |
 | `updateInterval` | 60 | The time frame for each league to be shown in seconds. |
+| `apiCallInterval` | 10 | The time frame for API calls in normal mode. |
 | `showMatches` | true | Show matches of current league |
 | `showTables` | true | Show table of current league. *Remark*: For cups like Champions league, this will be set to false in knockout mode. |
 | `focus_on` | null | Which team should to focus on per league. This needs to be an object, e.g. {'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}. See description below. |
+| `fadeFocus` | true | Includes fading the teams out if one is focused. |
 | `max_teams` | false | How many teams should be displayed when focus is activated. Omit this option or set to false to show the full league table. |
+| `replace` | 'default' | Choose between 'default' for a default replacement of original club names or 'short' for a 3-Letter-Code of the teams. Choose anything else (like '') for original team names from the API. See below for further information |
 | `logos` | true | Boolean to show club logos. |
 | `liveMode` | true | Activates live mode when games are in play. (see below, not active yet) |
+| `matchType` | 'league' | Choose between the following: 'league' for showing the current matchday of selected leagues (in `show`), 'next' for showing the next matches of all your focused clubs (in `focus_on`), 'daily' for showing all of todays matches for selected leagues. |
 | `touchMode` | false | Activates touch mode with touch options (see below, not active yet) |
 | `debug` | false | Debug mode: additional output on server side (console) and client side (browser) |
 
 
 ## Focus
 
-You can focus on one time per league/cup using the focus_on method. This variable needs to be an object. 
+You can focus on one time per league/cup using the focus_on method. This variable needs to be an object.
 An example is below:
 ```
-{'BL1': 'FC Bayern München', 'CL': 'Liverpool FC'}
+focus_on: {
+    'BL1': 'FC Bayern München',
+    'CL': 'Liverpool FC'
+},
 ```
-Please take care to include all quotation marks, separate with commata, and use the same league codes (find below) you have included in the 'show' array. 
-
-The team name needs to correspond to the original name of the team as provided by the API.
+Please take care to include all quotation marks, separate with commata, and use the same league codes (find below) you have included in the 'show' array.  
+The team name needs to correspond to the original name of the team as provided by the API.  
 Have a look into the ```replace``` object in the config to see if the team name is replaced with a shorter one on the mirror. If that is the case, take the original one (the one on the left for each replace property).
 
 Omitting a league code from 'show' in this array will show the full league table and not include any focus.
 Any league included here need to be included in 'show' as well to show the league on your mirror.
 
+##replacements
+There is a `replacements.json` file in the directory including all teams of the free plan. By default, the default replacement for the original team name will be used in the module. YOu can choose between 'default' mode or 'short' mode showing the 3-letter ID code for the team for a super slim module.
 
-## Live Mode (planned)
+## Live Mode
 
-The modules calls all requested matches every 5 minutes. Whenever one or more matches are scheduled in less than 5 minutes, a Live Mode will activate.
+The module calls all requested matches every X minutes (see config option apiCallInterval). Whenever one or more matches are scheduled in less than this interval, a Live Mode will activate.
 All matches currently played will be included in an array and requested for updates as regularly as the free api (10 calls per minute) allows.
-Additional informations like game minute and scorers will be provided for these games.
-Also, only the leagues with current matches will be shown (does not count for touch mode)
-When no game is active, the module will return back to normal mode. 
+~Additional informations like game minute and scorers will be provided for these games.~ (another API is needed for this)
+Also, only the leagues with current matches will be shown (not in touch mode)
+When no game is active, the module will return back to normal mode.
 
-Can be switched off in config
+Can be switched off in config.
 
 
 ## Touch mode (planned)
@@ -85,10 +101,10 @@ Can be switched off in config
 Touch mode will create buttons to choose between leagues.
 It is also planned to include more detailed information like scorers per league and scorers per game.
 
-Can be switched off in config
+Can be switched off in config.
 
 
-## OPTIONAL: Voice Control
+## OPTIONAL: Voice Control (may be buggy!)
 
 This module supports voice control by @fewiedens [MMM-voice](https://github.com/fewieden/MMM-voice). In order to use this feature, it's required to install the voice module. There are no extra config options for voice control needed.
 
@@ -121,7 +137,7 @@ As per the [Football-data API Docs](https://www.football-data.org/documentation/
 | (English) Premier League | 'PL' |
 | (English) Championship | 'ELC' |
 | (German) Bundesliga | 'BL1' |
-| (Italian) Serie A | 'PD' |
+| (Italian) Serie A | 'SA' |
 | (French) Ligue 1 | 'FL1' |
 | (Spain) La Liga | 'PD' |
 | (Portugal) Primiera Liga | 'PPL' |
@@ -131,12 +147,14 @@ As per the [Football-data API Docs](https://www.football-data.org/documentation/
 
 ### TODOs
 
-- [ ] Include live mode
-- [ ] Include option to replace team names with 3-letter-codes (very slim module)
-- [ ] Include option to show scorers for each match
 - [ ] Current top scorer list per league
 - [ ] Touch mode
 - [ ] Tap additional API (presumably API-football) for further competitions (e.g. DFB cup)
-Add team specific data, e.g. 
+- [ ] Option to show fixed table head with focus on.
+- [ ] Highlight currently playing teams in table.
+
+
+Add team specific data, e.g.
 - [ ] next matches
-- [ ] current squad / line-up
+- [ ] ~current squad / line-up~ not available in free plan!
+- [ ] ~Include option to show scorers for each match~ not available in free plan!
