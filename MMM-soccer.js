@@ -268,7 +268,6 @@ Module.register('MMM-soccer', {
         if (this.config.matchType === 'league') {
             var diff = 0;
             var matches = allMatches[this.competition].matches;
-			console.log(matches);
             var minDiff = Math.abs(moment().diff(matches[0].utcDate));
             for (var m = 0; m < matches.length; m++) {
                 if (!matches[m].matchday) {matches[m].matchday = matches[m].stage; }  //for cup modes, copy stage to matchday property
