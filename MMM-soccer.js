@@ -253,6 +253,7 @@ Module.register('MMM-soccer', {
                 `${this.translate('MATCHDAY')}: ${this.translate(this.matchDay)}` : this.translate('LOADING'),
             showTable: this.showTable,
             teams: (Object.keys(this.tables).length > 0) ? this.teams : {},
+			showMatchDay: (this.config.matchType == "league"),
             voice: this.voice
         };
     },
@@ -264,9 +265,9 @@ Module.register('MMM-soccer', {
      * @returns {Object} matches
      */
     prepareMatches: function(allMatches, focusTeam) {
-        if (this.config.matchType === "league") {
+        if (this.config.matchType === 'league') {
             var diff = 0;
-            var matches = allMatches[this.competition];
+            var matches = allMatches[this.competition].matches;
             var minDiff = Math.abs(moment().diff(matches[0].utcDate));
             for (var m = 0; m < matches.length; m++) {
                 if (!matches[m].matchday) {matches[m].matchday = matches[m].stage; }  //for cup modes, copy stage to matchday property
