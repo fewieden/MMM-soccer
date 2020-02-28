@@ -1,10 +1,13 @@
 <div class="soccerWrapper {% if isModalActive %}MMM-soccer-blur{% endif %}" style="width: {{config.width}}px">
+	<header>MMM-Soccer</header>
 	{% if loading %}
 		{{'LOADING' | translate}}
 	{% else %}
-	<header>{{this.name}}</header>
-    <div class="small matchDay bold">{{competitionName}}</div>
+	    
+    {% if showMatchDay %}
+		<div class="small matchDay bold">{{competitionName}}</div>
 		<div class="small matchDay bold">{{season}}</div>
+	{% endif %}
 	{% if config.showMatches %}
 		<table class="xsmall games">
 			<tbody>
