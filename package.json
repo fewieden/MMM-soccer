@@ -1,21 +1,24 @@
 {
-  "name": "mmm-soccer",
-  "version": "1.0.1",
+  "name": "mmm-soccer v2",
+  "version": "1.0.0",
   "description": "European Soccer Standings Module for MagicMirror2",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fewieden/MMM-soccer.git"
+    "url": "git+https://github.com/lavolp3/MMM-soccer.git"
   },
   "keywords": [
     "MagicMirror",
-    "soccer standings"
+    "soccer standings",
+    "soccer",
+    "tables"
+    "football"
   ],
-  "author": "fewieden",
+  "author": "lavolp3",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fewieden/MMM-soccer/issues"
+    "url": "https://github.com/lavolp3/MMM-soccer/issues"
   },
-  "homepage": "https://github.com/fewieden/MMM-soccer#readme",
+  "homepage": "https://github.com/lavolp3/MMM-soccer#readme",
   "scripts": {
     "lint": "./node_modules/.bin/eslint . && ./node_modules/.bin/stylelint .",
     "docs": "./node_modules/.bin/jsdoc -c jsdoc.json ."
