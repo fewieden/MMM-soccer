@@ -52,7 +52,7 @@ Module.register('MMM-soccer', {
         logos: true,
         showTables: true,
         showMatches: true,
-        matchType: 'next',    //choose 'next', 'daily', or 'league'
+        matchType: 'league',    //choose 'next', 'daily', or 'league'
         leagues: {
             GERMANY: 'BL1',
             FRANCE: 'FL1',
@@ -60,8 +60,8 @@ Module.register('MMM-soccer', {
             SPAIN: 'PD',
             ITALY: 'SA'
         },
-        debug: false,
         replace: 'default',     //choose 'default', 'short' or '' for original names
+        debug: false,
     },
 
     /**
@@ -114,7 +114,7 @@ Module.register('MMM-soccer', {
 		    var self = this;
 		    this.replacers = this.loadReplacements(response => {
             self.replacements = JSON.parse(response);
-            self.log(self.replacements);
+            //self.log(self.replacements);
         });
         this.sendSocketNotification('GET_SOCCER_DATA', this.config);
         this.scheduleDOMUpdates();
@@ -136,10 +136,6 @@ Module.register('MMM-soccer', {
     },
 
 
-    /**
-       * @function scheduleDOMUpdates
-       * @description Schedules updates for displaying leagues.
-       */
     scheduleDOMUpdates: function () {
         var count = 0;
         var _this = this;
@@ -163,14 +159,7 @@ Module.register('MMM-soccer', {
         }
     },
 
-    /**
-     * @function socketNotificationReceived
-     * @description Handles incoming messages from node_helper.
-     * @override
-     *
-     * @param {string} notification - Notification name
-     * @param {*} payload - Detailed payload of the notification.
-     */
+
     socketNotificationReceived: function(notification, payload) {
         this.log("received a Socket Notification: " + notification + ", payload: "+payload);
         if (notification === 'TABLES') {
@@ -194,15 +183,7 @@ Module.register('MMM-soccer', {
         }
     },
 
-    /**
-     * @function notificationReceived
-     * @description Handles incoming broadcasts from other modules or the MagicMirror² core.
-     * @override
-     *
-     * @param {string} notification - Notification name
-     * @param {*} payload - Detailed payload of the notification.
-     * @param {Object} sender - Module that sent the notification or undefined for MagicMirror² core.
-     */
+
     notificationReceived: function(notification, payload, sender) {
         if (notification === 'ALL_MODULES_STARTED') {
             const voice = Object.assign({}, this.voice);
@@ -233,13 +214,7 @@ Module.register('MMM-soccer', {
         return 'MMM-soccer.njk';
     },
 
-    /**
-     * @function getTemplateData
-     * @description Data that gets rendered in the nunjuck template.
-     * @override
-     *
-     * @returns {string} Data for the nunjuck template.
-     */
+
     getTemplateData: function() {
         return {
             boundaries: (this.tables.hasOwnProperty(this.competition)) ? this.calculateTeamDisplayBoundaries(this.competition) : {},
@@ -258,12 +233,7 @@ Module.register('MMM-soccer', {
         };
     },
 
-    /**
-     * @function prepareMatches
-     * @description Filters matches to show only one matchday. Also focuses on focused team(s)
-     *
-     * @returns {Object} matches
-     */
+
     prepareMatches: function(allMatches, focusTeam) {
         if (this.config.matchType === 'league') {
             var diff = 0;
@@ -318,13 +288,6 @@ Module.register('MMM-soccer', {
     },
 
 
-    /**
-     * @function filterTables
-     * @description Filters tables to show one table per competition. For leagues mode "home" and "away" tables are filtered out.
-     *  For cups only the table including the focused team is extracted
-     *
-     * @returns {Object} Object including current matchday and array of teams.
-     */
     filterTables: function(tables, focusTeam) {
         //filtering out "home" and "away" tables
         if (!tables.standings) return "";
@@ -345,12 +308,7 @@ Module.register('MMM-soccer', {
         return table;
     },
 
-    /**
-     * @function findFocusTeam
-     * @description Helper function to find index of team in standings
-     *
-     * @returns {Object} Index of team, first and last team to display.
-     */
+
     findFocusTeam: function() {
         this.log("Finding focus team for table...");
         let focusTeamIndex;
@@ -376,12 +334,7 @@ Module.register('MMM-soccer', {
         }
     },
 
-    /**
-     * @function getFirstAndLastTeam
-     * @description Helper function to get the boundaries of the teams that should be displayed.
-     *
-     * @returns {Object} Index of the first and the last team.
-     */
+
     getFirstAndLastTeam: function(index) {
         let firstTeam;
         let lastTeam;
@@ -403,13 +356,8 @@ Module.register('MMM-soccer', {
         return { firstTeam, lastTeam };
     },
 
-    /**
-     * @function calculateTeamDisplayBoundaries
-     * @description Calculates the boundaries of teams based on the config.
-     *
-     * @returns {Object} Index of team, first and last team to display.
-     */
-    calculateTeamDisplayBoundaries(competition) {
+
+    calculateTeamDisplayBoundaries: function(competition) {
         this.log("Calculating Team Display Boundaries");
         if (this.config.focus_on && this.config.focus_on.hasOwnProperty(competition)) {
             if (this.config.focus_on[competition] === 'TOP') {
@@ -438,20 +386,13 @@ Module.register('MMM-soccer', {
         };
     },
 
-    /**
-     * @function isMaxTeamsLessAll
-     * @description Are there more entries than the config option specifies.
-     *
-     * @returns {boolean}
-     */
+
+
     isMaxTeamsLessAll: function() {
         return (this.config.max_teams && this.config.max_teams <= this.standing.length);
     },
 
-    /**
-     * @function handleModals
-     * @description Hide/show modules based on voice commands.
-     */
+
     handleModals: function(data, modal, open, close) {
         if (close.test(data) || (this.modals[modal] && !open.test(data))) {
             this.closeAllModals();
@@ -472,30 +413,19 @@ Module.register('MMM-soccer', {
         }
     },
 
-    /**
-     * @function closeAllModals
-     * @description Close all modals of the module.
-     */
+
     closeAllModals: function() {
         const modals = Object.keys(this.modals);
         modals.forEach((modal) => { this.modals[modal] = false; });
     },
 
-    /**
-     * @function isModalActive
-     * @description Checks if at least one modal is active.
-     *
-     * @returns {boolean} Flag if there is an active modal.
-     */
+
     isModalActive: function() {
         const modals = Object.keys(this.modals);
         return modals.some(modal => this.modals[modal] === true);
     },
 
-    /**
-     * @function checkCommands
-     * @description Voice command handler.
-     */
+
     checkCommands: function(data) {
         if (/(HELP)/g.test(data)) {
             this.handleModals(data, 'help', /(OPEN)/g, /(CLOSE)/g);
@@ -518,10 +448,7 @@ Module.register('MMM-soccer', {
         this.updateDom(300);
     },
 
-    /**
-     * @function addFilters
-     * @description Adds the filter used by the nunjuck template.
-     */
+
     addFilters: function () {
         njEnv = this.nunjucksEnvironment();
         njEnv.addFilter('fade', (index, focus) => {

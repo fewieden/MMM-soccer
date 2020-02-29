@@ -31,7 +31,7 @@ module.exports = NodeHelper.create({
     liveMatches: [],
     liveLeagues: [],
 
-    start() {
+    start: function() {
         console.log(`Starting module: ${this.name}`);
     },
 
@@ -43,11 +43,10 @@ module.exports = NodeHelper.create({
      * @param {string} notification - Notification name
      * @param {*} payload - Detailed payload of the notification.
      */
-    socketNotificationReceived(notification, payload) {
+    socketNotificationReceived: function(notification, payload) {
         this.log("Socket notification received: "+notification+" Payload: "+JSON.stringify(payload));
         this.headers = payload.api_key ? { 'X-Auth-Token': payload.api_key } : {};
         this.config = payload;
-        self = this;
         if (notification === 'GET_SOCCER_DATA') {
             this.config = payload;
             this.scheduleAPICalls(false);
@@ -92,8 +91,8 @@ module.exports = NodeHelper.create({
      *
      * @param {Object} options - request optionsthe notification.
      */
-    getTables(leagues) {
-        self = this;
+    getTables: function(leagues) {
+        var self = this;
         this.log("Collecting league tables for leagues: "+leagues);
         var urlArray = leagues.map(league => { return `http://api.football-data.org/v2/competitions/${league}/standings`; });
         //this.log(urlArray);
@@ -131,11 +130,14 @@ module.exports = NodeHelper.create({
             //self.log("TableArray: " + tableArray);
             self.sendSocketNotification("TABLES", self.tables);
             self.sendSocketNotification("TEAMS", self.teams);
+        })
+        .catch(function(error) {
+            console.error("[MMM-soccer] ERROR occured while fetching tables: " + error);
         });
     },
 
-    getMatches(leagues) {
-        self = this;
+    getMatches: function(leagues) {
+        var self = this;
         this.log("Collecting matches for leagues: "+leagues);
         var urlArray = leagues.map(league => { return `http://api.football-data.org/v2/competitions/${league}/matches`; });
         Promise.all(urlArray.map(url => {
@@ -173,12 +175,15 @@ module.exports = NodeHelper.create({
             //self.log("Collected Matches: "+self.matches);
             self.log("Live matches: "+JSON.stringify(self.liveMatches));
             self.sendSocketNotification("MATCHES", self.matches);
+        })
+        .catch(function(error) {
+            console.error("[MMM-soccer] ERROR occured while fetching matches: " + error);
         });
     },
 
 
-    getMatchDetails(matches) {
-        self = this;
+    getMatchDetails: function (matches) {
+        var self = this;
         this.log("Getting match details for matches: " + matches);
         var urlArray = matches.map(match => { return `http://api.football-data.org/v2/matches/${match}`; });
         Promise.all(urlArray.map(url => {
@@ -232,7 +237,6 @@ module.exports = NodeHelper.create({
             this.scheduleAPICalls(false);
         }
     },
-
 
     log: function (msg) {
         if (this.config && this.config.debug) {
