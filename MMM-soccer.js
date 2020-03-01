@@ -97,6 +97,7 @@ Module.register('MMM-soccer', {
     matchDay: "",
   	showTable: true,
     leagues: [],
+    liveMode: false,
   	liveMatches: [],
   	liveLeagues: [],
     replacements: {
@@ -139,24 +140,14 @@ Module.register('MMM-soccer', {
     scheduleDOMUpdates: function () {
         var count = 0;
         var _this = this;
-        const comps = this.leagues.length;
         setInterval(() => {
+            const comps = _this.leagues.length;
             count = (count === comps - 1) ? 0 : count + 1;
             _this.competition = _this.leagues[count];
             _this.log("Showing competition: "+_this.competition);
             _this.standing = _this.filterTables(_this.tables[_this.competition], _this.config.focus_on[_this.competition]);
-            _this.updateDom(800);
+            _this.updateDom(500);
         }, this.config.updateInterval * 1000);
-    },
-
-
-    liveMode: function (isLive) {
-        if (isLive) {
-            //clearInterval(this.mainInterval);
-            this.log("Live Mode activated, main Interval stopped.");
-        } else {
-            this.scheduleAPICalls();
-        }
     },
 
 
@@ -171,10 +162,11 @@ Module.register('MMM-soccer', {
             //this.log(this.matches);
         } else if (notification === 'TEAMS') {
             this.teams = payload;
-        } else if (notification === 'LIVE_MATCHES') {
-            var matches = payload;
+        /*} else if (notification === 'LIVE_MATCHES') {
+            var matches = payload;*/
         } else if (notification === 'LIVE') {
-            this.liveLeagues = payload.leagues;
+            this.liveMode = payload.live;
+            this.leagues = (payload.leagues.length > 0) ? payload.leagues : this.config.show;
             this.liveMatches = payload.matches;
         }
         if (this.loading === true && this.tables.hasOwnProperty(this.competition) && this.matches.hasOwnProperty(this.competition)) {
@@ -182,7 +174,6 @@ Module.register('MMM-soccer', {
             this.updateDom();
         }
     },
-
 
     notificationReceived: function(notification, payload, sender) {
         if (notification === 'ALL_MODULES_STARTED') {
@@ -228,7 +219,7 @@ Module.register('MMM-soccer', {
                 `${this.translate('MATCHDAY')}: ${this.translate(this.matchDay)}` : this.translate('LOADING'),
             showTable: this.showTable,
             teams: (Object.keys(this.tables).length > 0) ? this.teams : {},
-			showMatchDay: (this.config.matchType == "league"),
+            showMatchDay: (this.config.matchType == "league"),
             voice: this.voice
         };
     },

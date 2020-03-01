@@ -49,6 +49,8 @@ module.exports = NodeHelper.create({
         this.config = payload;
         if (notification === 'GET_SOCCER_DATA') {
             this.config = payload;
+            this.getTables(this.config.show);
+            this.getMatches(this.config.show);
             this.scheduleAPICalls(false);
         }
     },
@@ -58,8 +60,6 @@ module.exports = NodeHelper.create({
      * @description Sends request to the node_helper to fetch data for the current selected leagues.
      */
     scheduleAPICalls: function(live) {
-        this.getTables(this.config.show);
-        this.getMatches(this.config.show);
         var self = this;
         if (live === false) {
             this.mainInterval = setInterval(() => {
@@ -67,7 +67,7 @@ module.exports = NodeHelper.create({
                     self.toggleLiveMode(true);
                 } else {
                     self.getTables(self.config.show);
-                    //self.getMatches(self.config.show);
+                    self.getMatches(self.config.show);
                 }
             }, this.config.apiCallInterval * 1000);
         } else {
@@ -77,8 +77,8 @@ module.exports = NodeHelper.create({
                 if (self.liveMatches.length == 0) {
                     self.toggleLiveMode(false);
                 } else {
-                    //self.getTables(self.config.show);
-                    //self.getMatches(self.config.show);
+                    self.getTables(self.config.show);
+                    self.getMatches(self.config.show);
                     //self.getMatchDetails(self.liveMatches);
                 }
             }, liveUpdateInterval);
@@ -138,6 +138,7 @@ module.exports = NodeHelper.create({
 
     getMatches: function(leagues) {
         var self = this;
+        var now = moment().subtract(9, 'hours');
         this.log("Collecting matches for leagues: "+leagues);
         var urlArray = leagues.map(league => { return `http://api.football-data.org/v2/competitions/${league}/matches`; });
         Promise.all(urlArray.map(url => {
@@ -148,7 +149,7 @@ module.exports = NodeHelper.create({
                 matchesData.matches.forEach(match => {
                     delete match.referees;
                     //check for live matches
-                    if (moment(match.utcDate).add(90, 'minutes').diff(moment()) > 0 && moment(match.utcDate).diff(moment(), 'seconds') < self.config.apiCallInterval) {
+                    if (moment(match.utcDate).add(90, 'minutes').diff(now) > 0 && moment(match.utcDate).diff(now, 'seconds') < self.config.apiCallInterval) {
                         if (self.liveMatches.indexOf(match.id) === -1) {
                             console.log(`Live match detected starting at ${moment(match.utcDate).format("HH:mm")}, Home Team: ${match.homeTeam.name}`);
                             self.liveMatches.push(match.id);
@@ -174,6 +175,7 @@ module.exports = NodeHelper.create({
             });
             //self.log("Collected Matches: "+self.matches);
             self.log("Live matches: "+JSON.stringify(self.liveMatches));
+            self.log("Live leagues: "+JSON.stringify(self.liveLeagues));
             self.sendSocketNotification("MATCHES", self.matches);
         })
         .catch(function(error) {
@@ -228,12 +230,12 @@ module.exports = NodeHelper.create({
         if (isLive) {
             clearInterval(this.mainInterval);
             this.log("Live Mode activated, main interval stopped.");
-            this.sendSocketNotification("LIVE", { matches: this.liveMatches, leagues: this.liveLeagues });
+            this.sendSocketNotification("LIVE", { live: true, matches: this.liveMatches, leagues: this.liveLeagues });
             this.scheduleAPICalls(true);
         } else {
             clearInterval(this.liveInterval);
             this.log("Live Mode deactivated, back to main interval.");
-            this.sendSocketNotification("LIVE", { matches: this.liveMatches, leagues: this.liveLeagues });
+            this.sendSocketNotification("LIVE", { live: false, matches: this.liveMatches, leagues: this.liveLeagues });
             this.scheduleAPICalls(false);
         }
     },
