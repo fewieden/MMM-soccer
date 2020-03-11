@@ -61,6 +61,7 @@ A Soccer Standings Module for MagicMirror², based on @fewiedens [MMM-soccer](ht
 | `logos` | true | Boolean to show club logos. |
 | `liveMode` | true | Activates live mode when games are in play. (see below, not active yet) |
 | `matchType` | 'league' | Choose between the following: 'league' for showing the current matchday of selected leagues (in `show`), 'next' for showing the next matches of all your focused clubs (in `focus_on`), 'daily' for showing all of todays matches for selected leagues. |
+| `numberOfNextMatches` | 8 | Defines number of next matches of all focused clubs for matchType `next` |
 | `touchMode` | false | Activates touch mode with touch options (see below, not active yet) |
 | `debug` | false | Debug mode: additional output on server side (console) and client side (browser) |
 

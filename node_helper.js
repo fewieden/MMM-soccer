@@ -33,43 +33,30 @@ module.exports = NodeHelper.create({
         console.log(`Starting module: ${this.name}`);
     },
 
-   
+
     socketNotificationReceived: function(notification, payload) {
         this.log("Socket notification received: "+notification+" Payload: "+JSON.stringify(payload));
         this.headers = payload.api_key ? { 'X-Auth-Token': payload.api_key } : {};
         this.config = payload;
+        this.leagues = this.config.show;
         if (notification === 'GET_SOCCER_DATA') {
             this.config = payload;
-            this.getTables(this.config.show);
-            this.getMatches(this.config.show);
+            this.getTables(this.leagues);
+            this.getMatches(this.leagues);
+            this.liveMode = false;
             this.scheduleAPICalls(false);
         }
     },
 
     scheduleAPICalls: function(live) {
         var self = this;
-        if (live === false) {
-            this.mainInterval = setInterval(() => {
-                if (self.liveMatches.length > 0) {
-                    self.toggleLiveMode(true);
-                } else {
-                    self.getTables(self.config.show);
-                    self.getMatches(self.config.show);
-                }
-            }, this.config.apiCallInterval * 1000);
-        } else {
-            var liveUpdateInterval = Math.max(Math.floor(10/(this.liveLeagues.length * 2)), 1) * 1000;
-            console.log("Live update interval: "+liveUpdateInterval);
-            this.liveInterval = setInterval(() => {
-                if (self.liveMatches.length == 0) {
-                    self.toggleLiveMode(false);
-                } else {
-                    self.getTables(self.config.show);
-                    self.getMatches(self.config.show);
-                    //self.getMatchDetails(self.liveMatches);
-                }
-            }, liveUpdateInterval);
-        }
+        //var updateInterval = (this.liveLeagues.length > 0) ? (60/(Math.floor(5/this.liveLeagues.length))) * 1000 : this.config.apiCallInterval * 1000;
+        var updateInterval = (this.liveLeagues.length > 0) ? 60 * 1000 : this.config.apiCallInterval * 1000;
+        this.callInterval = setInterval(() => {
+            self.getTables(self.leagues);
+            self.getMatches(self.leagues);
+            //self.getMatchDetails(self.liveMatches);
+        }, updateInterval);
     },
 
    getTables: function(leagues) {
@@ -119,9 +106,10 @@ module.exports = NodeHelper.create({
 
     getMatches: function(leagues) {
         var self = this;
-        var now = moment();
+        var now = moment().subtract(0, "hours");
         this.log("Collecting matches for leagues: "+leagues);
         var urlArray = leagues.map(league => { return `http://api.football-data.org/v2/competitions/${league}/matches`; });
+        this.liveLeagues = [];
         Promise.all(urlArray.map(url => {
             return axios.get(url, { headers: self.headers })
             .then(function (response) {
@@ -130,14 +118,20 @@ module.exports = NodeHelper.create({
                 matchesData.matches.forEach(match => {
                     delete match.referees;
                     //check for live matches
-                    if (moment(match.utcDate).add(90, 'minutes').diff(now) > 0 && moment(match.utcDate).diff(now, 'seconds') < self.config.apiCallInterval) {
+                    if (match.status == "IN_PLAY" || Math.abs(moment(match.utcDate).diff(now, 'seconds')) < self.config.apiCallInterval * 10) {
+                        self.log(`Live match detected starting at ${moment(match.utcDate).format("HH:mm")}, Home Team: ${match.homeTeam.name}`);
                         if (self.liveMatches.indexOf(match.id) === -1) {
-                            console.log(`Live match detected starting at ${moment(match.utcDate).format("HH:mm")}, Home Team: ${match.homeTeam.name}`);
+                            //self.log(`Live match ${match.id} added at ${moment().format("HH:mm")}`);
                             self.liveMatches.push(match.id);
                         }
                         if (self.liveLeagues.indexOf(league) === -1) {
                             self.log(`Live league ${league} added at ${moment().format("HH:mm")}`);
                             self.liveLeagues.push(league);
+                        }
+                    } else {
+                        if (self.liveMatches.indexOf(match.id)!= -1) {
+                            self.log("Live match finished");
+                            self.liveMatches.splice(self.liveMatches.indexOf(comp.matches[m].id), 1);
                         }
                     }
                 });
@@ -158,6 +152,7 @@ module.exports = NodeHelper.create({
             self.log("Live matches: "+JSON.stringify(self.liveMatches));
             self.log("Live leagues: "+JSON.stringify(self.liveLeagues));
             self.sendSocketNotification("MATCHES", self.matches);
+            self.toggleLiveMode(self.liveMatches.length > 0);
         })
         .catch(function(error) {
             console.error("[MMM-soccer] ERROR occured while fetching matches: " + error);
@@ -195,7 +190,7 @@ module.exports = NodeHelper.create({
     },
 
     handleErrors: function(error, url) {
-        console.log("An error occured while requesting the API for Data:");
+        console.log("An error occured while requesting the API for Data: "+error);
         console.log("URL: "+url);
         if (error.response.status === 429) {
             console.log(error.response.status + ": API Request Quota of 10 calls per minute exceeded. Try selecting less leagues.");
@@ -208,16 +203,20 @@ module.exports = NodeHelper.create({
     },
 
     toggleLiveMode: function (isLive) {
-        if (isLive) {
-            clearInterval(this.mainInterval);
-            this.log("Live Mode activated, main interval stopped.");
-            this.sendSocketNotification("LIVE", { live: true, matches: this.liveMatches, leagues: this.liveLeagues });
-            this.scheduleAPICalls(true);
-        } else {
-            clearInterval(this.liveInterval);
-            this.log("Live Mode deactivated, back to main interval.");
-            this.sendSocketNotification("LIVE", { live: false, matches: this.liveMatches, leagues: this.liveLeagues });
-            this.scheduleAPICalls(false);
+        if (isLive != this.liveMode) {
+            clearInterval(this.callInterval);
+            if (isLive) {
+                this.log("Live Mode activate!");
+                //this.leagues = this.liveLeagues;
+                this.sendSocketNotification("LIVE", { live: true, matches: this.liveMatches, leagues: this.liveLeagues });
+                this.scheduleAPICalls(true);
+            } else {
+                this.log("Usual mode active!");
+                //this.leagues = this.config.show;
+                this.sendSocketNotification("LIVE", { live: false, matches: this.liveMatches, leagues: this.liveLeagues });
+                this.scheduleAPICalls(false);
+            }
+            this.liveMode = isLive;
         }
     },
 

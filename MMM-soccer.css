@@ -39,9 +39,13 @@
     width: 50px;
 }
 
-.MMM-soccer .games .status .IN_PLAY {
-  background-color: #fdfd96;
+.MMM-soccer .games .IN_PLAY {
+    color: #fdfd96;
+}
 
+.MMM-soccer .games .status.IN_PLAY {
+    background-color: #fdfd96;
+    color: black;
 }
 
 .MMM-soccer .logo {
