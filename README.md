@@ -83,16 +83,16 @@ Have a look into the ```replace``` object in the config to see if the team name 
 Omitting a league code from 'show' in this array will show the full league table and not include any focus.
 Any league included here need to be included in 'show' as well to show the league on your mirror.
 
-##replacements
-There is a `replacements.json` file in the directory including all teams of the free plan. By default, the default replacement for the original team name will be used in the module. YOu can choose between 'default' mode or 'short' mode showing the 3-letter ID code for the team for a super slim module.
+## Replacements
+There is a `replacements.json` file in the directory including all teams of the free plan. By default, the default replacement for the original team name will be used in the module. You can choose between 'default' mode or 'short' mode showing the 3-letter ID code for the team for a super slim module.
 
 ## Live Mode
 
 The module calls all requested matches every X minutes (see config option apiCallInterval). Whenever one or more matches are scheduled in less than this interval, a Live Mode will activate.
-All matches currently played will be included in an array and requested for updates as regularly as the free api (10 calls per minute) allows.
+All matches currently played will be included in an array and requested every minute.
 ~Additional informations like game minute and scorers will be provided for these games.~ (another API is needed for this)
-Also, only the leagues with current matches will be shown (not in touch mode)
-When no game is active, the module will return back to normal mode.
+Also, only the leagues with current matches will be shown.
+When no game is live, the module will return back to normal mode.
 
 Can be switched off in config.
 
