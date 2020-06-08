@@ -1,44 +1,18 @@
 /**
  * @file MMM-soccer.js
  *
- * @author fewieden
+ * @author lavolp3/fewieden
  * @license MIT
  *
- * @see  https://github.com/fewieden/MMM-soccer
+ * @see  https://github.com/lavolp3/MMM-soccer
  */
 
 /* jshint esversion: 6 */
 
 /* global Module Log */
 
-/**
- * @external Module
- * @see https://github.com/MichMich/MagicMirror/blob/master/js/module.js
- */
-
-/**
- * @external Log
- * @see https://github.com/MichMich/MagicMirror/blob/master/js/logger.js
- */
-
-/**
- * @module MMM-soccer
- * @description Frontend of the MagicMirror² module.
- *
- * @requires external:Module
- * @requires external:Log
- */
 Module.register('MMM-soccer', {
-    /**
-     * @member {Object} defaults - Defines the default config values.
-     * @property {boolean|string} api_key - API acces key for football-data.org.
-     * @property {boolean} colored - Flag to show logos in color or black/white.
-     * @property {array} show - League names to be filtered for showing tables and games.
-     * @property {boolean|Object} focus_on - Hash of country name -> club name to determine highlighted team per league.
-     * @property {boolean|int} max_teams - Maximum amount of teams to be displayed.
-     * @property {boolean} logos - Flag to show club logos.
-     * @property {Object} leagues - Hash of country name -> league id.
-     */
+    
     defaults: {
         api_key: false,
         colored: false,
@@ -65,21 +39,11 @@ Module.register('MMM-soccer', {
         debug: false,
     },
 
-    /**
-     * @member {Object} modals - Stores the status of the module's modals.
-     * @property {boolean} standings - Full standings table.
-     * @property {boolean} help - List of voice commands of this module.
-     */
     modals: {
         standings: false,
         help: false
     },
 
-    /**
-     * @member {Object} voice - Defines the default mode and commands of this module.
-     * @property {string} mode - Voice mode of this module.
-     * @property {string[]} sentences - List of voice commands of this module.
-     */
     voice: {
         mode: 'SOCCER',
         sentences: [
@@ -113,8 +77,8 @@ Module.register('MMM-soccer', {
         this.leagues = this.config.show;
         this.competition = this.leagues[0];
         this.showTable = this.config.showTables;
-		    var self = this;
-		    this.replacers = this.loadReplacements(response => {
+		var self = this;
+		this.replacers = this.loadReplacements(response => {
             self.replacements = JSON.parse(response);
             //self.log(self.replacements);
         });

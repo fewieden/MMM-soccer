@@ -1,7 +1,7 @@
 /**
  * @file node_helper.js
  *
- * @author lavolp3
+ * @author lavolp3 / fewieden (original module)
  * @license MIT
  *
  * @see  https://github.com/lavolp3/MMM-soccer
@@ -13,13 +13,6 @@ const axios = require('axios');
 const NodeHelper = require('node_helper');
 const moment = require('moment');
 
-/**
- * @module node_helper
- * @description Backend for the module to query data from the API provider.
- *
- * @requires external:request
- * @requires external:node_helper
- */
 module.exports = NodeHelper.create({
 
     matches: {},
@@ -35,12 +28,12 @@ module.exports = NodeHelper.create({
 
 
     socketNotificationReceived: function(notification, payload) {
-        this.log("Socket notification received: "+notification+" Payload: "+JSON.stringify(payload));
-        this.headers = payload.api_key ? { 'X-Auth-Token': payload.api_key } : {};
-        this.config = payload;
-        this.leagues = this.config.show;
         if (notification === 'GET_SOCCER_DATA') {
+            this.log("Socket notification received: " + notification + " Payload: " + JSON.stringify(payload));
+            this.log("Starting API call cycle");
             this.config = payload;
+            this.headers = payload.api_key ? { 'X-Auth-Token': payload.api_key } : {};
+            this.leagues = this.config.show;    
             this.getTables(this.leagues);
             this.getMatches(this.leagues);
             this.liveMode = false;
@@ -59,14 +52,14 @@ module.exports = NodeHelper.create({
         }, updateInterval);
     },
 
-   getTables: function(leagues) {
+    getTables: function(leagues) {
         var self = this;
         this.log("Collecting league tables for leagues: "+leagues);
         var urlArray = leagues.map(league => { return `http://api.football-data.org/v2/competitions/${league}/standings`; });
-        //this.log(urlArray);
         Promise.all(urlArray.map(url => {
             return axios.get(url, { headers: self.headers })
             .then(function (response) {
+                console.log("Requests available: " + response.headers["x-requests-available-minute"]);
                 var tableData = response.data;
                 var tables = {
                     competition: tableData.competition,
@@ -99,39 +92,41 @@ module.exports = NodeHelper.create({
             self.sendSocketNotification("TABLES", self.tables);
             self.sendSocketNotification("TEAMS", self.teams);
         })
-        .catch(function(error) {
+        /*.catch(function(error) {
             console.error("[MMM-soccer] ERROR occured while fetching tables: " + error);
-        });
+        });*/
     },
 
     getMatches: function(leagues) {
-        var self = this;
-        var now = moment().subtract(0, "hours");
-        this.log("Collecting matches for leagues: "+leagues);
+        var now = moment().subtract(0, "minutes");
+        this.log("Collecting matches for leagues: " + leagues);
         var urlArray = leagues.map(league => { return `http://api.football-data.org/v2/competitions/${league}/matches`; });
         this.liveLeagues = [];
+        var self = this;
         Promise.all(urlArray.map(url => {
             return axios.get(url, { headers: self.headers })
             .then(function (response) {
+                //console.log("Requests available: " + response.headers["x-requests-available-minute"]);
                 var matchesData = response.data;
-                var league = matchesData.competition.code;
+                var currentLeague = matchesData.competition.code;
                 matchesData.matches.forEach(match => {
                     delete match.referees;
+                    
                     //check for live matches
-                    if (match.status == "IN_PLAY" || Math.abs(moment(match.utcDate).diff(now, 'seconds')) < self.config.apiCallInterval * 10) {
-                        self.log(`Live match detected starting at ${moment(match.utcDate).format("HH:mm")}, Home Team: ${match.homeTeam.name}`);
+                    if (match.status == "IN_PLAY" || Math.abs(moment(match.utcDate).diff(now, 'seconds')) < self.config.apiCallInterval * 2) {
                         if (self.liveMatches.indexOf(match.id) === -1) {
-                            //self.log(`Live match ${match.id} added at ${moment().format("HH:mm")}`);
+                            self.log(`Live match detected starting at ${moment(match.utcDate).format("HH:mm")}, Home Team: ${match.homeTeam.name}`);
+                            self.log(`Live match ${match.id} added at ${moment().format("HH:mm")}`);
                             self.liveMatches.push(match.id);
                         }
-                        if (self.liveLeagues.indexOf(league) === -1) {
-                            self.log(`Live league ${league} added at ${moment().format("HH:mm")}`);
-                            self.liveLeagues.push(league);
+                        if (self.liveLeagues.indexOf(currentLeague) === -1) {
+                            self.log(`Live league ${currentLeague} added at ${moment().format("HH:mm")}`);
+                            self.liveLeagues.push(currentLeague);
                         }
                     } else {
                         if (self.liveMatches.indexOf(match.id)!= -1) {
-                            self.log("Live match finished");
-                            self.liveMatches.splice(self.liveMatches.indexOf(comp.matches[m].id), 1);
+                            self.log("Live match finished!");
+                            self.liveMatches.splice(self.liveMatches.indexOf(match.id), 1);
                         }
                     }
                 });
@@ -167,6 +162,7 @@ module.exports = NodeHelper.create({
         Promise.all(urlArray.map(url => {
             return axios.get(url, { headers: self.headers })
             .then(function (response) {
+                console.log("Requests available: " + response.headers["x-requests-available-minute"]);
                 var matchData = response.data;
                 self.log(matchData);
                 if (matchData.match.status != "IN_PLAY" && self.liveMatches.indexOf(matchData.match.id)!= -1) {
@@ -192,13 +188,13 @@ module.exports = NodeHelper.create({
     handleErrors: function(error, url) {
         console.log("An error occured while requesting the API for Data: "+error);
         console.log("URL: "+url);
-        if (error.response.status === 429) {
+        if (error.response && error.response.status === 429) {
             console.log(error.response.status + ": API Request Quota of 10 calls per minute exceeded. Try selecting less leagues.");
         } else if (error.request) {
             console.log(error.request);
         } else {
             // Something happened in setting up the request that triggered an Error
-            console.log('Error ', error.message);
+            console.log('Error: ', error.message);
         }
     },
 
@@ -206,7 +202,7 @@ module.exports = NodeHelper.create({
         if (isLive != this.liveMode) {
             clearInterval(this.callInterval);
             if (isLive) {
-                this.log("Live Mode activate!");
+                this.log("Live Mode activated!");
                 //this.leagues = this.liveLeagues;
                 this.sendSocketNotification("LIVE", { live: true, matches: this.liveMatches, leagues: this.liveLeagues });
                 this.scheduleAPICalls(true);
