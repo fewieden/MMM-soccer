@@ -144,9 +144,11 @@ Module.register('MMM-soccer', {
      */
     notificationReceived(notification, payload, sender) {
         if (notification === 'ALL_MODULES_STARTED') {
-            const voice = Object.assign({}, this.voice);
-            voice.sentences.push(Object.keys(this.config.leagues).join(' '));
-            this.sendNotification('REGISTER_VOICE_MODULE', voice);
+            const leagues = Object.keys(this.config.leagues).join(' ');
+            this.sendNotification('REGISTER_VOICE_MODULE', {
+                mode: this.voice.mode,
+                sentences: [...this.voice.sentences, leagues]
+            });
         } else if (notification === 'VOICE_SOCCER' && sender.name === 'MMM-voice') {
             this.checkCommands(payload);
         } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice'
@@ -192,7 +194,7 @@ Module.register('MMM-soccer', {
      * @returns {string} Path to nunjuck template.
      */
     getTemplate() {
-        return 'MMM-soccer.njk';
+        return 'templates/MMM-soccer.njk';
     },
 
     /**
@@ -268,6 +270,7 @@ Module.register('MMM-soccer', {
         if (/(HELP)/g.test(data)) {
             this.handleModals(data, 'help', /(OPEN)/g, /(CLOSE)/g);
         } else if (/(VIEW)/g.test(data)) {
+            console.log('standings modal', data);
             this.handleModals(data, 'standings', /(EXPAND)/g, /(COLLAPSE)/g);
         } else if (/(STANDINGS)/g.test(data)) {
             const countrys = Object.keys(this.config.leagues);
