@@ -1,5 +1,29 @@
 # MMM-soccer Changelog
 
+## [2.1.0]
+
+**Requires version > 2.14 of MagicMirror!**
+
+### Added
+
+* Integrated [MMM-Modal](https://github.com/fewieden/MMM-Modal)
+
+### Changed
+
+* Using remote logos
+* Preview pictures
+
+### Fixed
+
+* Fade effect
+* Focus_on in modal highlights correct team
+* Help modal shows correct voice commands
+
+### Removed
+
+* Logo downloader
+* Doclet integration
+
 ## [2.0.1]
 
 ### Added
