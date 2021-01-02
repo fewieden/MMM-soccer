@@ -1,7 +1,7 @@
 {
   "LOADING": "memuat...",
   "NO_DATA_AVAILABLE": "Data tidak tersedia!",
-  "MATCHDAY": "Jadwal",
+  "MATCHDAY": "Jadwal {matchDayNumber}",
   "TEAM": "Tim",
   "COMMAND_LIST": "Daftar semua Perintah Suara",
   "MODE": "Mode",

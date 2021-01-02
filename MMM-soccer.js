@@ -28,6 +28,11 @@
  */
 Module.register('MMM-soccer', {
     /**
+     * @member {string} requiresVersion - Defines the required minimum version of the MagicMirror framework in order to run this verion of the module.
+     */
+    requiresVersion: '2.14.0',
+
+    /**
      * @member {Object} defaults - Defines the default config values.
      * @property {boolean|string} api_key - API acces key for football-data.org.
      * @property {boolean} colored - Flag to show logos in color or black/white.
@@ -51,16 +56,6 @@ Module.register('MMM-soccer', {
             SPAIN: 'PD',
             ITALY: 'SA'
         }
-    },
-
-    /**
-     * @member {Object} modals - Stores the status of the module's modals.
-     * @property {boolean} standings - Full standings table.
-     * @property {boolean} help - List of voice commands of this module.
-     */
-    modals: {
-        standings: false,
-        help: false
     },
 
     /**
@@ -129,7 +124,7 @@ Module.register('MMM-soccer', {
             this.season = payload.season;
             this.competition = payload.competition;
             this.loading = false;
-            this.updateDom();
+            this.updateDom(300);
         }
     },
 
@@ -144,15 +139,16 @@ Module.register('MMM-soccer', {
      */
     notificationReceived(notification, payload, sender) {
         if (notification === 'ALL_MODULES_STARTED') {
-            const voice = Object.assign({}, this.voice);
-            voice.sentences.push(Object.keys(this.config.leagues).join(' '));
-            this.sendNotification('REGISTER_VOICE_MODULE', voice);
+            const leagues = Object.keys(this.config.leagues).join(' ');
+            this.sendNotification('REGISTER_VOICE_MODULE', {
+                mode: this.voice.mode,
+                sentences: [...this.voice.sentences, leagues]
+            });
         } else if (notification === 'VOICE_SOCCER' && sender.name === 'MMM-voice') {
-            this.checkCommands(payload);
+            this.executeVoiceCommands(payload);
         } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice'
             && payload.old === this.voice.mode) {
-            this.closeAllModals();
-            this.updateDom(300);
+            this.sendNotification('CLOSE_MODAL');
         }
     },
 
@@ -192,7 +188,7 @@ Module.register('MMM-soccer', {
      * @returns {string} Path to nunjuck template.
      */
     getTemplate() {
-        return 'MMM-soccer.njk';
+        return 'templates/MMM-soccer.njk';
     },
 
     /**
@@ -207,83 +203,105 @@ Module.register('MMM-soccer', {
             boundaries: this.calculateTeamDisplayBoundaries(),
             competitionName: this.competition.name || this.name,
             config: this.config,
-            isModalActive: this.isModalActive(),
-            modals: this.modals,
-            season: this.season ?
-                `${this.translate('MATCHDAY')}: ${this.season.currentMatchday || 'N/A'}` : this.translate('LOADING'),
+            matchDayNumber: this.season ? this.season.currentMatchday : 'N/A',
             standing: this.standing,
-            voice: this.voice
+            loading: this.loading
         };
     },
 
     /**
-     * @function handleModals
-     * @description Hide/show modules based on voice commands.
-     */
-    handleModals(data, modal, open, close) {
-        if (close.test(data) || (this.modals[modal] && !open.test(data))) {
-            this.closeAllModals();
-        } else if (open.test(data) || (!this.modals[modal] && !close.test(data))) {
-            this.closeAllModals();
-            this.modals[modal] = true;
-        }
-
-        const modules = document.querySelectorAll('.module');
-        for (let i = 0; i < modules.length; i += 1) {
-            if (!modules[i].classList.contains('MMM-soccer')) {
-                if (this.isModalActive()) {
-                    modules[i].classList.add('MMM-soccer-blur');
-                } else {
-                    modules[i].classList.remove('MMM-soccer-blur');
-                }
-            }
-        }
-    },
-
-    /**
-     * @function closeAllModals
-     * @description Close all modals of the module.
-     */
-    closeAllModals() {
-        const modals = Object.keys(this.modals);
-        modals.forEach((modal) => { this.modals[modal] = false; });
-    },
-
-    /**
-     * @function isModalActive
-     * @description Checks if at least one modal is active.
+     * @function handleHelpModal
+     * @description Opens/closes help modal based on voice commands.
      *
-     * @returns {boolean} Flag if there is an active modal.
+     * @param {string} data - Text with commands.
+     *
+     * @returns {void}
      */
-    isModalActive() {
-        const modals = Object.keys(this.modals);
-        return modals.some(modal => this.modals[modal] === true);
+    handleHelpModal(data) {
+        if (/(CLOSE)/g.test(data) && !/(OPEN)/g.test(data)) {
+            this.sendNotification('CLOSE_MODAL');
+        } else if (/(OPEN)/g.test(data) && !/(CLOSE)/g.test(data)) {
+            this.sendNotification('OPEN_MODAL', {
+                template: 'templates/HelpModal.njk',
+                data: {
+                    ...this.voice,
+                    fns: {
+                        translate: this.translate.bind(this)
+                    }
+                }
+            });
+        }
     },
 
     /**
-     * @function checkCommands
-     * @description Voice command handler.
+     * @function handleStandingsModal
+     * @description Opens/closes standing modal based on voice commands.
+     *
+     * @param {string} data - Text with commands.
+     *
+     * @returns {void}
      */
-    checkCommands(data) {
-        if (/(HELP)/g.test(data)) {
-            this.handleModals(data, 'help', /(OPEN)/g, /(CLOSE)/g);
-        } else if (/(VIEW)/g.test(data)) {
-            this.handleModals(data, 'standings', /(EXPAND)/g, /(COLLAPSE)/g);
-        } else if (/(STANDINGS)/g.test(data)) {
-            const countrys = Object.keys(this.config.leagues);
-            for (let i = 0; i < countrys.length; i += 1) {
-                const regexp = new RegExp(countrys[i], 'g');
-                if (regexp.test(data)) {
-                    this.closeAllModals();
-                    if (this.currentLeague !== this.config.leagues[countrys[i]]) {
-                        this.currentLeague = this.config.leagues[countrys[i]];
-                        this.getData();
+    handleStandingsModal(data) {
+        if (/(COLLAPSE)/g.test(data) && !/(EXPAND)/g.test(data)) {
+            this.sendNotification('CLOSE_MODAL');
+        } else if (/(EXPAND)/g.test(data) && !/(COLLAPSE)/g.test(data)) {
+            this.sendNotification('OPEN_MODAL', {
+                template: 'templates/StandingsModal.njk',
+                data: {
+                    ...this.getTemplateData(),
+                    fns: {
+                        translate: this.translate.bind(this)
                     }
-                    break;
                 }
+            });
+        }
+    },
+
+    /**
+     * @function handleLeagueSwitch
+     * @description Sitches the soccer league based on voice commands.
+     *
+     * @param {string} data - Text with commands.
+     *
+     * @returns {void}
+     */
+    handleLeagueSwitch(data) {
+        const countrys = Object.keys(this.config.leagues);
+
+        for (let i = 0; i < countrys.length; i += 1) {
+            const regexp = new RegExp(countrys[i], 'g');
+
+            if (regexp.test(data)) {
+                this.sendNotification('CLOSE_MODAL');
+
+                if (this.currentLeague !== this.config.leagues[countrys[i]]) {
+                    this.currentLeague = this.config.leagues[countrys[i]];
+                    this.getData();
+                }
+
+                break;
             }
         }
+
         this.updateDom(300);
+    },
+
+    /**
+     * @function executeVoiceCommands
+     * @description Executes the voice commands.
+     *
+     * @param {string} data - Text with commands.
+     *
+     * @returns {void}
+     */
+    executeVoiceCommands(data) {
+        if (/(HELP)/g.test(data)) {
+            this.handleHelpModal(data);
+        } else if (/(VIEW)/g.test(data)) {
+            this.handleStandingsModal(data);
+        } else if (/(STANDINGS)/g.test(data)) {
+            this.handleLeagueSwitch(data);
+        }
     },
 
     /**
@@ -293,7 +311,7 @@ Module.register('MMM-soccer', {
      * @returns {boolean}
      */
     isMaxTeamsLessAll() {
-        return (this.config.max_teams && this.config.max_teams <= this.standing.length);
+        return this.config.max_teams && this.config.max_teams <= this.standing.length;
     },
 
     /**
@@ -380,6 +398,8 @@ Module.register('MMM-soccer', {
     /**
      * @function addFilters
      * @description Adds the filter used by the nunjuck template.
+     *
+     * @returns {void}
      */
     addFilters() {
         this.nunjucksEnvironment().addFilter('fade', (index, focus) => {

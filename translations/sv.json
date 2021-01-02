@@ -1,7 +1,7 @@
 {
   "LOADING": "laddar...",
   "NO_DATA_AVAILABLE": "Ingen data tillänglig!",
-  "MATCHDAY": "Matchdag",
+  "MATCHDAY": "Matchdag {matchDayNumber}",
   "TEAM": "Lag",
   "COMMAND_LIST": "Lista för alla röstkommandon",
   "MODE": "Läge",

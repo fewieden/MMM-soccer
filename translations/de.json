@@ -1,7 +1,7 @@
 {
   "LOADING": "Lade...",
   "NO_DATA_AVAILABLE": "Keine Daten verfügbar!",
-  "MATCHDAY": "Spieltag",
+  "MATCHDAY": "{matchDayNumber}. Spieltag",
   "TEAM": "Mannschaft",
   "COMMAND_LIST": "Liste aller Sprachbefehle",
   "MODE": "Modus",
