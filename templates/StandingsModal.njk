@@ -17,13 +17,13 @@
     <tbody>
         {% for entry in data.standing %}
             <tr class="centered-row {% if loop.index === data.boundaries.focusTeamIndex %}bright{% endif %}">
-                <td>{{entry.position}}</td>
+                <td>{{ entry.position }}</td>
                 {% if data.config.logos %}
-                    <td><img class="icon {% if not data.config.colored %}no-color{% endif %}" src="/MMM-soccer/{{entry.team.name}}.svg"/></td>
+                    <td><img class="icon {% if not data.config.colored %}no-color{% endif %}" src="{{ entry.team.crestUrl }}"/></td>
                 {% endif %}
-                <td class="name">{{entry.team.name}}</td>
-                <td class="centered">{{entry.points}}</td>
-                <td class="centered">{{entry.goalDifference}}</td>
+                <td class="name">{{ entry.team.name }}</td>
+                <td class="centered">{{ entry.points }}</td>
+                <td class="centered">{{ entry.goalDifference }}</td>
             </tr>
         {% else %}
             <tr><td>No entries</td></tr>

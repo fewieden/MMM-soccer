@@ -140,7 +140,7 @@ Module.register('MMM-soccer', {
                 sentences: [...this.voice.sentences, leagues]
             });
         } else if (notification === 'VOICE_SOCCER' && sender.name === 'MMM-voice') {
-            this.checkCommands(payload);
+            this.executeVoiceCommands(payload);
         } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice'
             && payload.old === this.voice.mode) {
             this.sendNotification('CLOSE_MODAL');

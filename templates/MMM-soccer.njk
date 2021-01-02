@@ -19,10 +19,10 @@
         </thead>
         <tbody>
             {% for index in range(boundaries.firstTeam, boundaries.lastTeam) %}
-                <tr class="centered-row {% if index === boundaries.focusTeamIndex %}bright{% endif %}" style="{{ loop.index | fade(boundaries.focusTeamIndex) }}">
+                <tr class="centered-row {% if index === boundaries.focusTeamIndex %}bright{% endif %}" style="{{ index | fade(boundaries.focusTeamIndex) }}">
                     <td>{{ standing[index].position }}</td>
                     {% if config.logos %}
-                        <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="/MMM-soccer/{{ standing[index].team.name }}.svg"/></td>
+                        <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{ standing[index].team.crestUrl }}"/></td>
                     {% endif %}
                     <td class="name">{{ standing[index].team.name }}</td>
                     <td class="centered">{{ standing[index].points }}</td>
