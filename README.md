@@ -15,21 +15,21 @@ European Soccer Standings Module for MagicMirror²
 
 ## Installation
 
-1. Clone this repo into `~/MagicMirror/modules` directory.
-1. Configure your `~/MagicMirror/config/config.js`:
+* Clone this repo into `~/MagicMirror/modules` directory.
+* Configure your `~/MagicMirror/config/config.js`:
 
-    ```
-    {
-        module: 'MMM-soccer',
-        position: 'bottom_right',
-        config: {
-            // add your config options here
-        }
+```js
+{
+    module: 'MMM-soccer',
+    position: 'bottom_right',
+    config: {
+        // add your config options here
     }
-    ```
+}
+```
 
-1. Run command `npm i --production` in `~/MagicMirror/modules/MMM-soccer` directory.
-1. Optional: Get a free api key [here](http://api.football-data.org/register)
+* Run command `npm i --production` in `~/MagicMirror/modules/MMM-soccer` directory.
+* Optional: Get a free api key [here](http://api.football-data.org/register)
 
 ## Config Options
 
