@@ -1,8 +1,25 @@
 # MMM-soccer Changelog
 
+## [2.1.1]
+
+### Added
+
+* JSDoc dependency
+* package-lock.json
+
+### Changed
+
+* Travis config
+* Updated eslint
+* Updated config
+
+### Fixed
+
+* Linting issues
+
 ## [2.1.0]
 
-**Requires version > 2.14 of MagicMirror!**
+**Requires version >= 2.14 of MagicMirror!**
 
 ### Added
 
@@ -28,7 +45,7 @@
 
 ### Added
 
-* French translations (Thanks to https://github.com/laventin85)
+* French translations (Thanks to [Laventin85](https://github.com/laventin85))
 
 ### Changed
 

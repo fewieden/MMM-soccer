@@ -35,6 +35,8 @@ module.exports = NodeHelper.create({
      * @function start
      * @description Logs a start message to the console.
      * @override
+     *
+     * @returns {void}
      */
     start() {
         console.log(`Starting module: ${this.name}`);
@@ -47,6 +49,8 @@ module.exports = NodeHelper.create({
      *
      * @param {string} notification - Notification name
      * @param {*} payload - Detailed payload of the notification.
+     *
+     * @returns {void}
      */
     socketNotificationReceived(notification, payload) {
         if (notification === 'GET_DATA') {
@@ -65,9 +69,10 @@ module.exports = NodeHelper.create({
      * @description Request data from the supplied URL and broadcast it to the MagicMirror module if it's received.
      *
      * @param {Object} options - request optionsthe notification.
+     *
+     * @returns {void}
      */
     getData(options) {
-        console.log(`Get league table for url ${options.url}`);
         request(options, (error, response, body) => {
             if (response.statusCode === 200) {
                 this.sendSocketNotification('DATA', JSON.parse(body));
