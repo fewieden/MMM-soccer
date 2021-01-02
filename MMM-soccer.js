@@ -54,16 +54,6 @@ Module.register('MMM-soccer', {
     },
 
     /**
-     * @member {Object} modals - Stores the status of the module's modals.
-     * @property {boolean} standings - Full standings table.
-     * @property {boolean} help - List of voice commands of this module.
-     */
-    modals: {
-        standings: false,
-        help: false
-    },
-
-    /**
      * @member {Object} voice - Defines the default mode and commands of this module.
      * @property {string} mode - Voice mode of this module.
      * @property {string[]} sentences - List of voice commands of this module.
@@ -129,7 +119,7 @@ Module.register('MMM-soccer', {
             this.season = payload.season;
             this.competition = payload.competition;
             this.loading = false;
-            this.updateDom();
+            this.updateDom(300);
         }
     },
 
@@ -153,8 +143,7 @@ Module.register('MMM-soccer', {
             this.checkCommands(payload);
         } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice'
             && payload.old === this.voice.mode) {
-            this.closeAllModals();
-            this.updateDom(300);
+            this.sendNotification('CLOSE_MODAL');
         }
     },
 
@@ -209,57 +198,10 @@ Module.register('MMM-soccer', {
             boundaries: this.calculateTeamDisplayBoundaries(),
             competitionName: this.competition.name || this.name,
             config: this.config,
-            isModalActive: this.isModalActive(),
-            modals: this.modals,
-            season: this.season ?
-                `${this.translate('MATCHDAY')}: ${this.season.currentMatchday || 'N/A'}` : this.translate('LOADING'),
+            matchDayNumber: this.season ? this.season.currentMatchday : 'N/A',
             standing: this.standing,
-            voice: this.voice
+            loading: this.loading
         };
-    },
-
-    /**
-     * @function handleModals
-     * @description Hide/show modules based on voice commands.
-     */
-    handleModals(data, modal, open, close) {
-        if (close.test(data) || (this.modals[modal] && !open.test(data))) {
-            this.closeAllModals();
-        } else if (open.test(data) || (!this.modals[modal] && !close.test(data))) {
-            this.closeAllModals();
-            this.modals[modal] = true;
-        }
-
-        const modules = document.querySelectorAll('.module');
-        for (let i = 0; i < modules.length; i += 1) {
-            if (!modules[i].classList.contains('MMM-soccer')) {
-                if (this.isModalActive()) {
-                    modules[i].classList.add('MMM-soccer-blur');
-                } else {
-                    modules[i].classList.remove('MMM-soccer-blur');
-                }
-            }
-        }
-    },
-
-    /**
-     * @function closeAllModals
-     * @description Close all modals of the module.
-     */
-    closeAllModals() {
-        const modals = Object.keys(this.modals);
-        modals.forEach((modal) => { this.modals[modal] = false; });
-    },
-
-    /**
-     * @function isModalActive
-     * @description Checks if at least one modal is active.
-     *
-     * @returns {boolean} Flag if there is an active modal.
-     */
-    isModalActive() {
-        const modals = Object.keys(this.modals);
-        return modals.some(modal => this.modals[modal] === true);
     },
 
     /**
@@ -288,8 +230,7 @@ Module.register('MMM-soccer', {
                 this.sendNotification('OPEN_MODAL', {
                     template: 'templates/StandingsModal.njk',
                     data: {
-                        config: this.config,
-                        standing: this.standing,
+                        ...this.getTemplateData(),
                         fns: {
                             translate: this.translate.bind(this)
                         }

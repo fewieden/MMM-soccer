@@ -1,7 +1,7 @@
 {
   "LOADING": "Chargement...",
   "NO_DATA_AVAILABLE": "Aucunes données disponibles!",
-  "MATCHDAY": "Jour de Match",
+  "MATCHDAY": "Jour de Match {matchDayNumber}",
   "TEAM": "Equipe",
   "COMMAND_LIST": "Liste de toutes les commandes vocales",
   "MODE": "Mode",

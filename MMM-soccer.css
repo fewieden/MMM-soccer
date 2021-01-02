@@ -19,25 +19,11 @@
     vertical-align: middle;
 }
 
+.MMM-soccer .space-between {
+    display: flex;
+    justify-content: space-between;
+}
+
 .MMM-soccer .centered {
     text-align: center;
-}
-
-.MMM-soccer-blur {
-    -webkit-filter: blur(2px) brightness(50%);
-}
-
-.MMM-soccer .modal {
-    position: fixed;
-    text-align: left;
-    left: 50%;
-    top: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    -o-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-}
-
-.MMM-soccer .modal ul {
-    margin: 0;
 }
