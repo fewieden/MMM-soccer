@@ -7,8 +7,6 @@
  * @see  https://github.com/fewieden/MMM-soccer
  */
 
-/* global Module Log */
-
 /**
  * @external Module
  * @see https://github.com/MichMich/MagicMirror/blob/master/js/module.js
@@ -28,7 +26,8 @@
  */
 Module.register('MMM-soccer', {
     /**
-     * @member {string} requiresVersion - Defines the required minimum version of the MagicMirror framework in order to run this verion of the module.
+     * @member {string} requiresVersion - Defines the required minimum version of the MagicMirror framework in order to
+     * run this version of the module.
      */
     requiresVersion: '2.14.0',
 
@@ -91,6 +90,8 @@ Module.register('MMM-soccer', {
      * @function start
      * @description Adds nunjuck filters and requests for league data.
      * @override
+     *
+     * @returns {void}
      */
     start() {
         Log.info(`Starting module: ${this.name}`);
@@ -103,8 +104,10 @@ Module.register('MMM-soccer', {
     },
 
     /**
-     * @function start
+     * @function getData
      * @description Sends request to the node_helper to fetch data for the current selected league.
+     *
+     * @returns {void}
      */
     getData() {
         this.sendSocketNotification('GET_DATA', { league: this.currentLeague, api_key: this.config.api_key });
@@ -308,7 +311,7 @@ Module.register('MMM-soccer', {
      * @function isMaxTeamsLessAll
      * @description Are there more entries than the config option specifies.
      *
-     * @returns {boolean}
+     * @returns {boolean} Is max teams less than all teams?
      */
     isMaxTeamsLessAll() {
         return this.config.max_teams && this.config.max_teams <= this.standing.length;
@@ -339,6 +342,8 @@ Module.register('MMM-soccer', {
      * @function getFirstAndLastTeam
      * @description Helper function to get the boundaries of the teams that should be displayed.
      *
+     * @param {number} index - Index of the focus_on team.
+     *
      * @returns {Object} Index of the first and the last team.
      */
     getFirstAndLastTeam(index) {
@@ -352,8 +357,8 @@ Module.register('MMM-soccer', {
                 lastTeam = firstTeam + this.config.max_teams;
             } else {
                 lastTeam = this.standing.length;
-                firstTeam = lastTeam - this.config.max_teams >= 0 ?
-                    lastTeam - this.config.max_teams : 0;
+                firstTeam = lastTeam - this.config.max_teams >= 0
+                    ? lastTeam - this.config.max_teams : 0;
             }
         } else {
             firstTeam = 0;
@@ -406,7 +411,7 @@ Module.register('MMM-soccer', {
             if (this.config.max_teams && focus >= 0) {
                 if (index !== focus) {
                     const currentStep = Math.abs(index - focus);
-                    return `opacity: ${1 - ((1 / this.config.max_teams) * currentStep)}`;
+                    return `opacity: ${1 - 1 / this.config.max_teams * currentStep}`;
                 }
             }
 
