@@ -28,6 +28,11 @@
  */
 Module.register('MMM-soccer', {
     /**
+     * @member {string} requiresVersion - Defines the required minimum version of the MagicMirror framework in order to run this verion of the module.
+     */
+    requiresVersion: '2.14.0',
+
+    /**
      * @member {Object} defaults - Defines the default config values.
      * @property {boolean|string} api_key - API acces key for football-data.org.
      * @property {boolean} colored - Flag to show logos in color or black/white.

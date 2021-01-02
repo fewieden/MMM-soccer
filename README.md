@@ -1,4 +1,4 @@
-# MMM-soccer [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-soccer/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-soccer.svg?branch=master)](https://travis-ci.org/fewieden/MMM-soccer) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-soccer/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-soccer) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-soccer/badge.svg)](https://snyk.io/test/github/fewieden/mmm-soccer) [![API Doc](https://doclets.io/fewieden/MMM-soccer/master.svg)](https://doclets.io/fewieden/MMM-soccer/master)
+# MMM-soccer [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-soccer/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-soccer.svg?branch=master)](https://travis-ci.org/fewieden/MMM-soccer) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-soccer/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-soccer) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-soccer/badge.svg)](https://snyk.io/test/github/fewieden/mmm-soccer)
 
 European Soccer Standings Module for MagicMirror²
 
@@ -62,3 +62,8 @@ The voice control mode for this module is `SOCCER`
   you have to edit the config)
 * EXPAND VIEW -> Expands the standings table and shows all teams.
 * COLLAPSE VIEW -> Collapse the expanded view.
+
+## Developer
+
+* `npm run lint` - Lints JS and CSS files.
+* `npm run docs` - Generates documentation.
