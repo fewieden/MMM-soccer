@@ -1,5 +1,11 @@
 # MMM-soccer Changelog
 
+## [2.0.1]
+
+### Added
+
+* French translations (Thanks to https://github.com/laventin85)
+
 ## [2.0.0]
 
 ### Added
