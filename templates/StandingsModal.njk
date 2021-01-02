@@ -16,7 +16,7 @@
     </thead>
     <tbody>
         {% for entry in data.standing %}
-            <tr class="centered-row {% if loop.index === data.boundaries.focusTeamIndex %}bright{% endif %}">
+            <tr class="centered-row {% if loop.index0 === data.boundaries.focusTeamIndex %}bright{% endif %}">
                 <td>{{ entry.position }}</td>
                 {% if data.config.logos %}
                     <td><img class="icon {% if not data.config.colored %}no-color{% endif %}" src="{{ entry.team.crestUrl }}"/></td>

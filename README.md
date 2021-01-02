@@ -4,13 +4,12 @@ European Soccer Standings Module for MagicMirror²
 
 ## Example
 
-![](.github/example_full.png) ![](.github/example_focused.png)
-![](.github/example.jpg)
+![](.github/regular.png) ![](.github/modal.png)
 
 ## Dependencies
 
 * An installation of [MagicMirror²](https://github.com/MichMich/MagicMirror)
-* OPTIONAL: [Voice Control](https://github.com/fewieden/MMM-voice)
+* OPTIONAL: [Voice Control](https://github.com/fewieden/MMM-voice) and [MMM-Modal](https://github.com/fewieden/MMM-Modal)
 * npm
 * [request](https://www.npmjs.com/package/request)
 
@@ -44,25 +43,10 @@ European Soccer Standings Module for MagicMirror²
 | `leagues` | `{"GERMANY": "BL1", "FRANCE": "FL1", "ENGLAND": "PL", "SPAIN": "PD", "ITALY": "SA"}` | A collection of leagues obtained from <http://api.football-data.org/v2/competitions> |
 | `logos` | `false` | Boolean to show club logos or not. |
 
-## Logos
+## OPTIONAL: Voice Control and Modal
 
-As the v2 api doesn't provide logos anymore, I developed a club logo downloader. It supports the five major leagues as above named.
-To run the downloader you need to execute the following steps.
-
-1. Go to the module directory `cd ~/MagicMirror/modules/MMM-soccer`.
-1. Execute `node scripts/downloader COUNTRYNAME`.
-1. Run this command for all the leagues you want to display on the mirror.
-1. Don't forget to activate the display of the logos in the config.
-
-If there isn't every club logo, you can also place them manually in the public directory of the module,
-the logos need to be in `svg` format and the name of the file has to match the displayed name.
-
-## OPTIONAL: Voice Control
-
-This module supports voice control by
-[MMM-voice](https://github.com/fewieden/MMM-voice). In order to use this
-feature, it's required to install the voice module. There are no extra config
-options for voice control needed.
+This module supports voice control by [MMM-voice](https://github.com/fewieden/MMM-voice) and [MMM-Modal](https://github.com/fewieden/MMM-Modal).
+In order to use this feature, it's required to install the voice and modal modules. There are no extra config options for voice control and modals needed.
 
 ### Mode
 
