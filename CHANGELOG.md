@@ -6,6 +6,11 @@
 
 * French translations (Thanks to https://github.com/laventin85)
 
+### Changed
+
+* Readme config example
+* Github config files
+
 ## [2.0.0]
 
 ### Added
