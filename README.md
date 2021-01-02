@@ -24,7 +24,7 @@ European Soccer Standings Module for MagicMirror²
         module: 'MMM-soccer',
         position: 'bottom_right',
         config: {
-            ...
+            // add your config options here
         }
     }
     ```
