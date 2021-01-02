@@ -205,53 +205,97 @@ Module.register('MMM-soccer', {
     },
 
     /**
-     * @function checkCommands
-     * @description Voice command handler.
+     * @function handleHelpModal
+     * @description Opens/closes help modal based on voice commands.
+     *
+     * @param {string} data - Text with commands.
+     *
+     * @returns {void}
      */
-    checkCommands(data) {
-        if (/(HELP)/g.test(data)) {
-            if (/(CLOSE)/g.test(data) && !/(OPEN)/g.test(data)) {
-                this.sendNotification('CLOSE_MODAL');
-            } else if (/(OPEN)/g.test(data) && !/(CLOSE)/g.test(data)) {
-                this.sendNotification('OPEN_MODAL', {
-                    template: 'templates/HelpModal.njk',
-                    data: {
-                        ...this.voice,
-                        fns: {
-                            translate: this.translate.bind(this)
-                        }
+    handleHelpModal(data) {
+        if (/(CLOSE)/g.test(data) && !/(OPEN)/g.test(data)) {
+            this.sendNotification('CLOSE_MODAL');
+        } else if (/(OPEN)/g.test(data) && !/(CLOSE)/g.test(data)) {
+            this.sendNotification('OPEN_MODAL', {
+                template: 'templates/HelpModal.njk',
+                data: {
+                    ...this.voice,
+                    fns: {
+                        translate: this.translate.bind(this)
                     }
-                });
-            }
-        } else if (/(VIEW)/g.test(data)) {
-            if (/(COLLAPSE)/g.test(data) && !/(EXPAND)/g.test(data)) {
-                this.sendNotification('CLOSE_MODAL');
-            } else if (/(EXPAND)/g.test(data) && !/(COLLAPSE)/g.test(data)) {
-                this.sendNotification('OPEN_MODAL', {
-                    template: 'templates/StandingsModal.njk',
-                    data: {
-                        ...this.getTemplateData(),
-                        fns: {
-                            translate: this.translate.bind(this)
-                        }
-                    }
-                });
-            }
-        } else if (/(STANDINGS)/g.test(data)) {
-            const countrys = Object.keys(this.config.leagues);
-            for (let i = 0; i < countrys.length; i += 1) {
-                const regexp = new RegExp(countrys[i], 'g');
-                if (regexp.test(data)) {
-                    this.closeAllModals();
-                    if (this.currentLeague !== this.config.leagues[countrys[i]]) {
-                        this.currentLeague = this.config.leagues[countrys[i]];
-                        this.getData();
-                    }
-                    break;
                 }
-            }
+            });
+        }
+    },
 
-            this.updateDom(300);
+    /**
+     * @function handleStandingsModal
+     * @description Opens/closes standing modal based on voice commands.
+     *
+     * @param {string} data - Text with commands.
+     *
+     * @returns {void}
+     */
+    handleStandingsModal(data) {
+        if (/(COLLAPSE)/g.test(data) && !/(EXPAND)/g.test(data)) {
+            this.sendNotification('CLOSE_MODAL');
+        } else if (/(EXPAND)/g.test(data) && !/(COLLAPSE)/g.test(data)) {
+            this.sendNotification('OPEN_MODAL', {
+                template: 'templates/StandingsModal.njk',
+                data: {
+                    ...this.getTemplateData(),
+                    fns: {
+                        translate: this.translate.bind(this)
+                    }
+                }
+            });
+        }
+    },
+
+    /**
+     * @function handleLeagueSwitch
+     * @description Sitches the soccer league based on voice commands.
+     *
+     * @param {string} data - Text with commands.
+     *
+     * @returns {void}
+     */
+    handleLeagueSwitch(data) {
+        const countrys = Object.keys(this.config.leagues);
+
+        for (let i = 0; i < countrys.length; i += 1) {
+            const regexp = new RegExp(countrys[i], 'g');
+
+            if (regexp.test(data)) {
+                this.sendNotification('CLOSE_MODAL');
+
+                if (this.currentLeague !== this.config.leagues[countrys[i]]) {
+                    this.currentLeague = this.config.leagues[countrys[i]];
+                    this.getData();
+                }
+
+                break;
+            }
+        }
+
+        this.updateDom(300);
+    },
+
+    /**
+     * @function executeVoiceCommands
+     * @description Executes the voice commands.
+     *
+     * @param {string} data - Text with commands.
+     *
+     * @returns {void}
+     */
+    executeVoiceCommands(data) {
+        if (/(HELP)/g.test(data)) {
+            this.handleHelpModal(data);
+        } else if (/(VIEW)/g.test(data)) {
+            this.handleStandingsModal(data);
+        } else if (/(STANDINGS)/g.test(data)) {
+            this.handleLeagueSwitch(data);
         }
     },
 
@@ -262,7 +306,7 @@ Module.register('MMM-soccer', {
      * @returns {boolean}
      */
     isMaxTeamsLessAll() {
-        return (this.config.max_teams && this.config.max_teams <= this.standing.length);
+        return this.config.max_teams && this.config.max_teams <= this.standing.length;
     },
 
     /**
@@ -349,6 +393,8 @@ Module.register('MMM-soccer', {
     /**
      * @function addFilters
      * @description Adds the filter used by the nunjuck template.
+     *
+     * @returns {void}
      */
     addFilters() {
         this.nunjucksEnvironment().addFilter('fade', (index, focus) => {
