@@ -268,10 +268,34 @@ Module.register('MMM-soccer', {
      */
     checkCommands(data) {
         if (/(HELP)/g.test(data)) {
-            this.handleModals(data, 'help', /(OPEN)/g, /(CLOSE)/g);
+            if (/(CLOSE)/g.test(data) && !/(OPEN)/g.test(data)) {
+                this.sendNotification('CLOSE_MODAL');
+            } else if (/(OPEN)/g.test(data) && !/(CLOSE)/g.test(data)) {
+                this.sendNotification('OPEN_MODAL', {
+                    template: 'templates/HelpModal.njk',
+                    data: {
+                        ...this.voice,
+                        fns: {
+                            translate: this.translate.bind(this)
+                        }
+                    }
+                });
+            }
         } else if (/(VIEW)/g.test(data)) {
-            console.log('standings modal', data);
-            this.handleModals(data, 'standings', /(EXPAND)/g, /(COLLAPSE)/g);
+            if (/(COLLAPSE)/g.test(data) && !/(EXPAND)/g.test(data)) {
+                this.sendNotification('CLOSE_MODAL');
+            } else if (/(EXPAND)/g.test(data) && !/(COLLAPSE)/g.test(data)) {
+                this.sendNotification('OPEN_MODAL', {
+                    template: 'templates/StandingsModal.njk',
+                    data: {
+                        config: this.config,
+                        standing: this.standing,
+                        fns: {
+                            translate: this.translate.bind(this)
+                        }
+                    }
+                });
+            }
         } else if (/(STANDINGS)/g.test(data)) {
             const countrys = Object.keys(this.config.leagues);
             for (let i = 0; i < countrys.length; i += 1) {
@@ -285,8 +309,9 @@ Module.register('MMM-soccer', {
                     break;
                 }
             }
+
+            this.updateDom(300);
         }
-        this.updateDom(300);
     },
 
     /**

@@ -1,0 +1,28 @@
+<table class="MMM-soccer standings small table">
+    <thead>
+        <tr class="row">
+            <th></th>
+            {% if data.config.logos %}
+                <th></th>
+            {% endif %}
+            <th class="name">{{ data.fns.translate("TEAM") }}</th>
+            <th class="centered"><i class="fa fa-line-chart"/></th>
+            <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in data.standing %}
+            <tr class="centered-row {% if loop.index === data.boundaries.focusTeamIndex %}bright{% endif %}">
+                <td>{{entry.position}}</td>
+                {% if data.config.logos %}
+                    <td><img class="icon {% if not data.config.colored %}no-color{% endif %}" src="/MMM-soccer/{{entry.team.name}}.svg"/></td>
+                {% endif %}
+                <td class="name">{{entry.team.name}}</td>
+                <td class="centered">{{entry.points}}</td>
+                <td class="centered">{{entry.goalDifference}}</td>
+            </tr>
+        {% else %}
+            <tr><td>No entries</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
