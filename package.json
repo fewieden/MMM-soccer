@@ -1,6 +1,6 @@
 {
   "name": "mmm-soccer",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "European Soccer Standings Module for MagicMirror2",
   "repository": {
     "type": "git",
@@ -17,17 +17,17 @@
   },
   "homepage": "https://github.com/fewieden/MMM-soccer#readme",
   "scripts": {
-    "lint": "eslint . && stylelint .",
+    "lint": "eslint . && stylelint **/*.css",
     "docs": "jsdoc -c jsdoc.json ."
   },
   "dependencies": {
     "request": "^2.74.0"
   },
   "devDependencies": {
-    "eslint": "^3.14.1",
-    "eslint-config-airbnb-base": "^11.0.1",
-    "eslint-plugin-import": "^2.2.0",
-    "stylelint": "^7.8.0",
-    "stylelint-config-standard": "^16.0.0"
+    "eslint": "^6.8.0",
+    "eslint-config-recommended": "^4.1.0",
+    "jsdoc": "^3.6.6",
+    "stylelint": "^13.8.0",
+    "stylelint-config-standard": "^20.0.0"
   }
 }
