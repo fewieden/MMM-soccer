@@ -6,7 +6,7 @@
 
 * JSDoc dependency
 * package-lock.json
-git add RE  
+
 ### Changed
 
 * Travis config
