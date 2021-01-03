@@ -21,7 +21,7 @@
     "docs": "jsdoc -c jsdoc.json ."
   },
   "dependencies": {
-    "request": "^2.74.0"
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
