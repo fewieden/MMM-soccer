@@ -9,7 +9,7 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  Report coverage diff:
+  report-coverage-diff:
     if: ${{ github.event_name == 'pull_request' }}
     strategy:
       matrix:
@@ -27,7 +27,7 @@ jobs:
         with:
           fullCoverageDiff: false
 
-  Upload coverage report:
+  upload-coverage-report:
     if: ${{ github.event_name == 'push' }}
     strategy:
       matrix:
