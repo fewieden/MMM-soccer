@@ -106,9 +106,9 @@ global.Module = {
 
             translate(key, defaultValueOrVariables, defaultValue) {},
 
-            updateDom(speed) {},
+            updateDom: jest.fn(),
 
-            sendNotification(notification, payload) {},
+            sendNotification: jest.fn(),
 
             sendSocketNotification: jest.fn(),
 

@@ -30,3 +30,42 @@ Object {
   ],
 }
 `;
+
+exports[`MMM-soccer notificationReceived executes voice commands 1`] = `
+Array [
+  "OPEN_MODAL",
+  Object {
+    "data": Object {
+      "fns": Object {
+        "translate": [Function],
+      },
+      "mode": "SOCCER",
+      "sentences": Array [
+        "OPEN HELP",
+        "CLOSE HELP",
+        "SHOW STANDINGS OF COUNTRY NAME",
+        "EXPAND VIEW",
+        "COLLAPSE VIEW",
+      ],
+    },
+    "template": "templates/HelpModal.njk",
+  },
+]
+`;
+
+exports[`MMM-soccer notificationReceived registers voice commands 1`] = `
+Array [
+  "REGISTER_VOICE_MODULE",
+  Object {
+    "mode": "SOCCER",
+    "sentences": Array [
+      "OPEN HELP",
+      "CLOSE HELP",
+      "SHOW STANDINGS OF COUNTRY NAME",
+      "EXPAND VIEW",
+      "COLLAPSE VIEW",
+      "GERMANY FRANCE ENGLAND SPAIN ITALY",
+    ],
+  },
+]
+`;

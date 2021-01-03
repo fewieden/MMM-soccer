@@ -9,6 +9,7 @@ describe('MMM-soccer', () => {
     let MMMsoccer;
 
     beforeEach(() => {
+        jest.resetModules();
         require('../MMM-soccer');
 
         MMMsoccer = global.Module.create(name);
@@ -94,5 +95,83 @@ describe('MMM-soccer', () => {
 
             expect(global.setInterval).toHaveBeenNthCalledWith(1, expect.any(Function), 300000);
         });
+    });
+
+    describe('socketNotificationReceived', () => {
+        const {generateResponse} = require('../__mocks__/mockResponse');
+
+        const payload = generateResponse();
+
+        test('sets loading to false after receiving data', () => {
+            MMMsoccer.socketNotificationReceived('DATA', payload);
+
+            expect(MMMsoccer.loading).toBe(false);
+        });
+
+        test('updates dom after receiving data', () => {
+            MMMsoccer.socketNotificationReceived('DATA', payload);
+
+            expect(MMMsoccer.updateDom).toHaveBeenNthCalledWith(1, 300);
+        });
+
+        test('assigns data correctly', () => {
+            MMMsoccer.socketNotificationReceived('DATA', payload);
+
+            expect(MMMsoccer.standing).toMatchObject(payload.standings[0].table);
+            expect(MMMsoccer.competition).toMatchObject(payload.competition);
+            expect(MMMsoccer.season).toMatchObject(payload.season);
+        });
+
+        test('does nothing if notification is different than DATA', () => {
+            MMMsoccer.socketNotificationReceived('OTHER NOTIFICATION', payload);
+
+            expect(MMMsoccer.loading).toBe(true);
+        });
+    });
+
+    describe('notificationReceived', () => {
+        test('registers voice commands', () => {
+            MMMsoccer.notificationReceived('ALL_MODULES_STARTED');
+
+            expect(MMMsoccer.sendNotification.mock.calls[0]).toMatchSnapshot();
+        });
+
+        test('executes voice commands', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'OPEN HELP', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification.mock.calls[0]).toMatchSnapshot();
+        });
+
+        test('closes modal after current voice mode was changed to other module', () => {
+            MMMsoccer.notificationReceived('VOICE_MODE_CHANGED', {old: 'SOCCER'}, {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).toHaveBeenNthCalledWith(1, 'CLOSE_MODAL');
+        });
+
+        test('does NOT trigger notifications', () => {
+            MMMsoccer.notificationReceived('OTHER NOTIFICATION');
+
+            expect(MMMsoccer.sendNotification).not.toHaveBeenCalled();
+        });
+    });
+
+    test('registers font-awesome and custom css', () => {
+        expect(MMMsoccer.getStyles()).toMatchObject(['font-awesome.css', 'MMM-soccer.css']);
+    });
+
+    test('translations are matching translation files', () => {
+        const translations = MMMsoccer.getTranslations();
+
+        const {readdirSync} = require('fs');
+        const {join} = require('path');
+        const translationFiles = readdirSync(join(__dirname, '..', 'translations'));
+
+        expect(Object.keys(translations).length).toBe(5);
+        expect(translationFiles.length).toBe(5);
+
+        for (const file of translationFiles) {
+            const language = file.replace('.json', '');
+            expect(translations[language]).toBe(`translations/${language}.json`);
+        }
     });
 });

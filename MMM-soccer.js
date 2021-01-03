@@ -309,7 +309,7 @@ Module.register('MMM-soccer', {
 
     /**
      * @function isMaxTeamsLessAll
-     * @description Are there more entries than the config option specifies.
+     * @description Are there less entries than the config option specifies.
      *
      * @returns {boolean} Is max teams less than all teams?
      */
