@@ -1,5 +1,17 @@
 # MMM-soccer Changelog
 
+## [Unreleased]
+
+### Added
+
+### Updated
+
+### Removed
+
+* Travis integration
+
+### Fixed
+
 ## [2.1.1]
 
 ### Added
