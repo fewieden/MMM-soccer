@@ -11,5 +11,6 @@ module.exports = {
     collectCoverageFrom: [
         'MMM-soccer.js',
         'node_helper.js'
-    ]
+    ],
+    coverageReporters: ['html', 'lcov']
 };
