@@ -19,7 +19,7 @@
   "scripts": {
     "docs": "jsdoc -c jsdoc.json .",
     "lint": "eslint . && stylelint **/*.css",
-    "test": "jest --coverage"
+    "test": "jest"
   },
   "dependencies": {
     "node-fetch": "^2.6.1"
