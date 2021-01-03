@@ -14,6 +14,8 @@
         "jest": true
     },
     "globals": {
+        "Module": true,
+        "Log": true,
         "waitForAsync": true,
         "fetchMock": true
     },
