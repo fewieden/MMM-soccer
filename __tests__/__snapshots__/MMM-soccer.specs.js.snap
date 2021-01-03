@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MMM-soccer has correct defaults 1`] = `
+Object {
+  "api_key": false,
+  "colored": false,
+  "focus_on": false,
+  "leagues": Object {
+    "ENGLAND": "PL",
+    "FRANCE": "FL1",
+    "GERMANY": "BL1",
+    "ITALY": "SA",
+    "SPAIN": "PD",
+  },
+  "logos": false,
+  "max_teams": false,
+  "show": "GERMANY",
+}
+`;
+
+exports[`MMM-soccer has correct voice commands 1`] = `
+Object {
+  "mode": "SOCCER",
+  "sentences": Array [
+    "OPEN HELP",
+    "CLOSE HELP",
+    "SHOW STANDINGS OF COUNTRY NAME",
+    "EXPAND VIEW",
+    "COLLAPSE VIEW",
+  ],
+}
+`;

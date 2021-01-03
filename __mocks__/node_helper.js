@@ -1,44 +1,42 @@
 module.exports = {
     create(overrides) {
-        for (const fn in overrides) {
-            this[fn] = overrides[fn];
-        }
+        const base = {
+            init() {
+                console.log('Initializing new module helper ...');
+            },
 
-        return this;
-    },
+            loaded(callback) {
+                console.log(`Module helper loaded: ${this.name}`);
+                callback();
+            },
 
-    init() {
-        console.log('Initializing new module helper ...');
-    },
+            start() {
+                console.log(`Starting module helper: ${this.name}`);
+            },
 
-    loaded(callback) {
-        console.log(`Module helper loaded: ${this.name}`);
-        callback();
-    },
+            stop() {
+                console.log(`Stopping module helper: ${this.name}`);
+            },
 
-    start() {
-        console.log(`Starting module helper: ${this.name}`);
-    },
+            socketNotificationReceived(notification, payload) {
+                console.log(`${this.name} received a socket notification: ${notification} Payload: ${payload}`);
+            },
 
-    stop() {
-        console.log(`Stopping module helper: ${this.name}`);
-    },
+            setName(name) {
+                this.name = name;
+            },
 
-    socketNotificationReceived(notification, payload) {
-        console.log(`${this.name} received a socket notification: ${notification} Payload: ${payload}`);
-    },
+            setPath(path) {
+                this.path = path;
+            },
 
-    setName(name) {
-        this.name = name;
-    },
+            sendSocketNotification: jest.fn(),
 
-    setPath(path) {
-        this.path = path;
-    },
+            setExpressApp: jest.fn(),
 
-    sendSocketNotification: jest.fn(),
+            setSocketIO: jest.fn()
+        };
 
-    setExpressApp: jest.fn(),
-
-    setSocketIO: jest.fn()
+        return {...base, ...overrides};
+    }
 };
