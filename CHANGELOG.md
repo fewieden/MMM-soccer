@@ -8,6 +8,7 @@
 
 * Github actions (building and changelog)
 * Dependency `node-fetch`
+* Automated tests for node_helper
 
 ### Updated
 
