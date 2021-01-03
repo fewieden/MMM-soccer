@@ -2,13 +2,19 @@
 
 ## [Unreleased]
 
+**Update requires installation of dependencies refer to readme file!**
+
 ### Added
+
+* Github actions (building and changelog)
+* Dependency `node-fetch`
 
 ### Updated
 
 ### Removed
 
 * Travis integration
+* Dependency `request`
 
 ### Fixed
 
