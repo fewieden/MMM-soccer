@@ -46,7 +46,7 @@ module.exports = NodeHelper.create({
             const options = {};
 
             if (payload.api_key) {
-                options.headers = { 'X-Auth-Token': payload.api_key };
+                options.headers = {'X-Auth-Token': payload.api_key};
             }
 
             this.getData(url, options);

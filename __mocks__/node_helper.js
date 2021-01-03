@@ -8,7 +8,7 @@ module.exports = {
     },
 
     init() {
-        console.log("Initializing new module helper ...");
+        console.log('Initializing new module helper ...');
     },
 
     loaded(callback) {

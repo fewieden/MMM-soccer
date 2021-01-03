@@ -110,7 +110,7 @@ Module.register('MMM-soccer', {
      * @returns {void}
      */
     getData() {
-        this.sendSocketNotification('GET_DATA', { league: this.currentLeague, api_key: this.config.api_key });
+        this.sendSocketNotification('GET_DATA', {league: this.currentLeague, api_key: this.config.api_key});
     },
 
     /**
@@ -333,9 +333,9 @@ Module.register('MMM-soccer', {
             }
         }
 
-        const { firstTeam, lastTeam } = this.getFirstAndLastTeam(focusTeamIndex);
+        const {firstTeam, lastTeam} = this.getFirstAndLastTeam(focusTeamIndex);
 
-        return { focusTeamIndex, firstTeam, lastTeam };
+        return {focusTeamIndex, firstTeam, lastTeam};
     },
 
     /**
@@ -365,7 +365,7 @@ Module.register('MMM-soccer', {
             lastTeam = this.standing.length;
         }
 
-        return { firstTeam, lastTeam };
+        return {firstTeam, lastTeam};
     },
 
     /**
