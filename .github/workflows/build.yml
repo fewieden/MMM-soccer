@@ -55,3 +55,4 @@ jobs:
         uses: anuraag016/Jest-Coverage-Diff@master
         with:
           fullCoverageDiff: false
+      - run: bash <(curl -s https://codecov.io/bash)
