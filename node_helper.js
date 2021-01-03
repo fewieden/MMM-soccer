@@ -31,17 +31,6 @@ const NodeHelper = require('node_helper');
  */
 module.exports = NodeHelper.create({
     /**
-     * @function start
-     * @description Logs a start message to the console.
-     * @override
-     *
-     * @returns {void}
-     */
-    start() {
-        console.log(`Starting module: ${this.name}`);
-    },
-
-    /**
      * @function socketNotificationReceived
      * @description Receives socket notifications from the module.
      * @override

@@ -1,0 +1,163 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`node_helper data fetching logs error on failure 1`] = `
+Object {
+  "competition": Object {
+    "area": Object {
+      "id": 2088,
+      "name": "Germany",
+    },
+    "code": "BL1",
+    "id": 2002,
+    "lastUpdated": "2021-01-03T01:25:08Z",
+    "name": "Bundesliga",
+    "plan": "TIER_ONE",
+  },
+  "season": Object {
+    "currentMatchday": 14,
+    "endDate": "2021-05-15",
+    "id": 599,
+    "startDate": "2020-09-18",
+  },
+  "standings": Array [
+    Object {
+      "stage": "REGULAR_SEASON",
+      "table": Array [
+        Object {
+          "draw": 4,
+          "form": "W,D,W,W,D",
+          "goalDifference": 16,
+          "goalsAgainst": 9,
+          "goalsFor": 25,
+          "lost": 1,
+          "playedGames": 14,
+          "points": 31,
+          "position": 1,
+          "team": Object {
+            "crestUrl": "https://crests.football-data.org/721.svg",
+            "id": 721,
+            "name": "RB Leipzig",
+          },
+          "won": 9,
+        },
+        Object {
+          "draw": 3,
+          "form": "W,W,D,D,W",
+          "goalDifference": 20,
+          "goalsAgainst": 19,
+          "goalsFor": 39,
+          "lost": 1,
+          "playedGames": 13,
+          "points": 30,
+          "position": 2,
+          "team": Object {
+            "crestUrl": "https://crests.football-data.org/5.svg",
+            "id": 5,
+            "name": "FC Bayern München",
+          },
+          "won": 9,
+        },
+        Object {
+          "draw": 4,
+          "form": "L,L,W,W,W",
+          "goalDifference": 15,
+          "goalsAgainst": 14,
+          "goalsFor": 29,
+          "lost": 2,
+          "playedGames": 14,
+          "points": 28,
+          "position": 3,
+          "team": Object {
+            "crestUrl": "https://crests.football-data.org/3.svg",
+            "id": 3,
+            "name": "Bayer 04 Leverkusen",
+          },
+          "won": 8,
+        },
+      ],
+      "type": "TOTAL",
+    },
+  ],
+}
+`;
+
+exports[`node_helper data fetching sends response via socket to module on success 1`] = `
+Object {
+  "competition": Object {
+    "area": Object {
+      "id": 2088,
+      "name": "Germany",
+    },
+    "code": "BL1",
+    "id": 2002,
+    "lastUpdated": "2021-01-03T01:25:08Z",
+    "name": "Bundesliga",
+    "plan": "TIER_ONE",
+  },
+  "season": Object {
+    "currentMatchday": 14,
+    "endDate": "2021-05-15",
+    "id": 599,
+    "startDate": "2020-09-18",
+  },
+  "standings": Array [
+    Object {
+      "stage": "REGULAR_SEASON",
+      "table": Array [
+        Object {
+          "draw": 4,
+          "form": "W,D,W,W,D",
+          "goalDifference": 16,
+          "goalsAgainst": 9,
+          "goalsFor": 25,
+          "lost": 1,
+          "playedGames": 14,
+          "points": 31,
+          "position": 1,
+          "team": Object {
+            "crestUrl": "https://crests.football-data.org/721.svg",
+            "id": 721,
+            "name": "RB Leipzig",
+          },
+          "won": 9,
+        },
+        Object {
+          "draw": 3,
+          "form": "W,W,D,D,W",
+          "goalDifference": 20,
+          "goalsAgainst": 19,
+          "goalsFor": 39,
+          "lost": 1,
+          "playedGames": 13,
+          "points": 30,
+          "position": 2,
+          "team": Object {
+            "crestUrl": "https://crests.football-data.org/5.svg",
+            "id": 5,
+            "name": "FC Bayern München",
+          },
+          "won": 9,
+        },
+        Object {
+          "draw": 4,
+          "form": "L,L,W,W,W",
+          "goalDifference": 15,
+          "goalsAgainst": 14,
+          "goalsFor": 29,
+          "lost": 2,
+          "playedGames": 14,
+          "points": 28,
+          "position": 3,
+          "team": Object {
+            "crestUrl": "https://crests.football-data.org/3.svg",
+            "id": 3,
+            "name": "Bayer 04 Leverkusen",
+          },
+          "won": 8,
+        },
+      ],
+      "type": "TOTAL",
+    },
+  ],
+}
+`;

@@ -17,8 +17,9 @@
   },
   "homepage": "https://github.com/fewieden/MMM-soccer#readme",
   "scripts": {
+    "docs": "jsdoc -c jsdoc.json .",
     "lint": "eslint . && stylelint **/*.css",
-    "docs": "jsdoc -c jsdoc.json ."
+    "test": "jest --coverage"
   },
   "dependencies": {
     "node-fetch": "^2.6.1"
@@ -26,6 +27,8 @@
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-config-recommended": "^4.1.0",
+    "jest": "^26.6.3",
+    "jest-fetch-mock": "^3.0.3",
     "jsdoc": "^3.6.6",
     "stylelint": "^13.8.0",
     "stylelint-config-standard": "^20.0.0"
