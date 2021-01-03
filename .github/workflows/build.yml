@@ -50,9 +50,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - name: TestCoverage
-        id: testCovergae
-        uses: anuraag016/Jest-Coverage-Diff@master
-        with:
-          fullCoverageDiff: false
+      - run: npx jest --coverage --coverageReporters="json-summary" --coverageDirectory="./"
       - run: bash <(curl -s https://codecov.io/bash)
