@@ -11,10 +11,10 @@
 /* eslint-disable no-console */
 
 /**
- * @external request
- * @see https://www.npmjs.com/package/request
+ * @external node-fetch
+ * @see https://www.npmjs.com/package/node-fetch
  */
-const request = require('request');
+const fetch = require('node-fetch');
 
 /**
  * @external node_helper
@@ -26,22 +26,10 @@ const NodeHelper = require('node_helper');
  * @module node_helper
  * @description Backend for the module to query data from the API provider.
  *
- * @requires external:request
+ * @requires external:node-fetch
  * @requires external:node_helper
  */
 module.exports = NodeHelper.create({
-
-    /**
-     * @function start
-     * @description Logs a start message to the console.
-     * @override
-     *
-     * @returns {void}
-     */
-    start() {
-        console.log(`Starting module: ${this.name}`);
-    },
-
     /**
      * @function socketNotificationReceived
      * @description Receives socket notifications from the module.
@@ -54,32 +42,38 @@ module.exports = NodeHelper.create({
      */
     socketNotificationReceived(notification, payload) {
         if (notification === 'GET_DATA') {
-            const options = {
-                url: `http://api.football-data.org/v2/competitions/${payload.league}/standings`
-            };
+            const url = `http://api.football-data.org/v2/competitions/${payload.league}/standings`;
+            const options = {};
+
             if (payload.api_key) {
-                options.headers = { 'X-Auth-Token': payload.api_key };
+                options.headers = {'X-Auth-Token': payload.api_key};
             }
-            this.getData(options);
+
+            this.getData(url, options);
         }
     },
 
     /**
      * @function getData
      * @description Request data from the supplied URL and broadcast it to the MagicMirror module if it's received.
+     * @async
      *
-     * @param {Object} options - request optionsthe notification.
+     * @param {string} url - URL to fetch data from.
+     * @param {Object} options - Request options containing the api key if provided as header.
      *
      * @returns {void}
      */
-    getData(options) {
-        request(options, (error, response, body) => {
-            if (response.statusCode === 200) {
-                this.sendSocketNotification('DATA', JSON.parse(body));
-            } else {
-                this.sendSocketNotification('DATA');
-                console.log(`Error getting league table ${response.statusCode}`);
-            }
-        });
+    async getData(url, options) {
+        const response = await fetch(url, options);
+
+        if (!response.ok) {
+            console.error(`Getting league table: ${response.status} ${response.statusText}`);
+
+            return;
+        }
+
+        const parsedResponse = await response.json();
+
+        this.sendSocketNotification('DATA', parsedResponse);
     }
 });

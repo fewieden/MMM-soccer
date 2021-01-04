@@ -1,5 +1,36 @@
 # MMM-soccer Changelog
 
+## [Unreleased]
+
+### Fixed
+
+### Added
+
+### Changed
+
+### Removed
+
+## [2.2.0]
+
+**Update requires installation of dependencies refer to readme file!**
+
+### Fixed
+
+* Max teams showed in some occasions 1 team too much.
+
+### Added
+
+* Github actions (building and changelog)
+* Dependency `node-fetch`
+* Automated tests for node_helper and module
+* Code coverage
+* Codecov report
+
+### Removed
+
+* Travis integration
+* Dependency `request`
+
 ## [2.1.1]
 
 ### Added

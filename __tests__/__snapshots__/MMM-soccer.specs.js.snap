@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MMM-soccer has correct defaults 1`] = `
+Object {
+  "api_key": false,
+  "colored": false,
+  "focus_on": false,
+  "leagues": Object {
+    "ENGLAND": "PL",
+    "FRANCE": "FL1",
+    "GERMANY": "BL1",
+    "ITALY": "SA",
+    "SPAIN": "PD",
+  },
+  "logos": false,
+  "max_teams": false,
+  "show": "GERMANY",
+}
+`;
+
+exports[`MMM-soccer has correct voice commands 1`] = `
+Object {
+  "mode": "SOCCER",
+  "sentences": Array [
+    "OPEN HELP",
+    "CLOSE HELP",
+    "SHOW STANDINGS OF COUNTRY NAME",
+    "EXPAND VIEW",
+    "COLLAPSE VIEW",
+  ],
+}
+`;
+
+exports[`MMM-soccer notificationReceived executes voice commands 1`] = `
+Array [
+  "OPEN_MODAL",
+  Object {
+    "data": Object {
+      "fns": Object {
+        "translate": [Function],
+      },
+      "mode": "SOCCER",
+      "sentences": Array [
+        "OPEN HELP",
+        "CLOSE HELP",
+        "SHOW STANDINGS OF COUNTRY NAME",
+        "EXPAND VIEW",
+        "COLLAPSE VIEW",
+      ],
+    },
+    "template": "templates/HelpModal.njk",
+  },
+]
+`;
+
+exports[`MMM-soccer notificationReceived registers voice commands 1`] = `
+Array [
+  "REGISTER_VOICE_MODULE",
+  Object {
+    "mode": "SOCCER",
+    "sentences": Array [
+      "OPEN HELP",
+      "CLOSE HELP",
+      "SHOW STANDINGS OF COUNTRY NAME",
+      "EXPAND VIEW",
+      "COLLAPSE VIEW",
+      "GERMANY FRANCE ENGLAND SPAIN ITALY",
+    ],
+  },
+]
+`;

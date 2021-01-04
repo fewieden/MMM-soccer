@@ -85,6 +85,10 @@ Module.register('MMM-soccer', {
      * @member {Object} competition - Details about the current selected league.
      */
     competition: {},
+    /**
+     * @member {Object} season - Details about the current season of the selected league.
+     */
+    season: {},
 
     /**
      * @function start
@@ -110,7 +114,7 @@ Module.register('MMM-soccer', {
      * @returns {void}
      */
     getData() {
-        this.sendSocketNotification('GET_DATA', { league: this.currentLeague, api_key: this.config.api_key });
+        this.sendSocketNotification('GET_DATA', {league: this.currentLeague, api_key: this.config.api_key});
     },
 
     /**
@@ -206,7 +210,7 @@ Module.register('MMM-soccer', {
             boundaries: this.calculateTeamDisplayBoundaries(),
             competitionName: this.competition.name || this.name,
             config: this.config,
-            matchDayNumber: this.season ? this.season.currentMatchday : 'N/A',
+            matchDayNumber: this.season.currentMatchday || 'N/A',
             standing: this.standing,
             loading: this.loading
         };
@@ -269,16 +273,16 @@ Module.register('MMM-soccer', {
      * @returns {void}
      */
     handleLeagueSwitch(data) {
-        const countrys = Object.keys(this.config.leagues);
+        const countries = Object.keys(this.config.leagues);
 
-        for (let i = 0; i < countrys.length; i += 1) {
-            const regexp = new RegExp(countrys[i], 'g');
+        for (const country of countries) {
+            const regexp = new RegExp(country, 'g');
 
             if (regexp.test(data)) {
                 this.sendNotification('CLOSE_MODAL');
 
-                if (this.currentLeague !== this.config.leagues[countrys[i]]) {
-                    this.currentLeague = this.config.leagues[countrys[i]];
+                if (this.currentLeague !== this.config.leagues[country]) {
+                    this.currentLeague = this.config.leagues[country];
                     this.getData();
                 }
 
@@ -308,23 +312,27 @@ Module.register('MMM-soccer', {
     },
 
     /**
-     * @function isMaxTeamsLessAll
-     * @description Are there more entries than the config option specifies.
+     * @function getMaxTeams
+     * @description Are there less entries than the config option specifies.
      *
-     * @returns {boolean} Is max teams less than all teams?
+     * @returns {number} Amount of teams to display
      */
-    isMaxTeamsLessAll() {
-        return this.config.max_teams && this.config.max_teams <= this.standing.length;
+    getMaxTeams() {
+        if (this.config.max_teams) {
+            return Math.min(Math.max(this.config.max_teams, 0), this.standing.length);
+        }
+
+        return this.standing.length;
     },
 
     /**
      * @function findFocusTeam
      * @description Helper function to find index of team in standings
      *
-     * @returns {Object} Index of team, first and last team to display.
+     * @returns {Object} Index of team, first and last team to display. focusTeamIndex is -1 if it can't be found.
      */
     findFocusTeam() {
-        let focusTeamIndex;
+        let focusTeamIndex = -1;
 
         for (let i = 0; i < this.standing.length; i += 1) {
             if (this.standing[i].team.name === this.config.focus_on[this.config.show]) {
@@ -333,9 +341,9 @@ Module.register('MMM-soccer', {
             }
         }
 
-        const { firstTeam, lastTeam } = this.getFirstAndLastTeam(focusTeamIndex);
+        const {firstTeam, lastTeam} = this.getFirstAndLastTeam(focusTeamIndex);
 
-        return { focusTeamIndex, firstTeam, lastTeam };
+        return {focusTeamIndex, firstTeam, lastTeam};
     },
 
     /**
@@ -347,25 +355,21 @@ Module.register('MMM-soccer', {
      * @returns {Object} Index of the first and the last team.
      */
     getFirstAndLastTeam(index) {
-        let firstTeam;
-        let lastTeam;
+        let firstTeam = 0;
+        let lastTeam = this.standing.length - 1;
 
         if (this.config.max_teams) {
             const before = parseInt(this.config.max_teams / 2);
-            firstTeam = index - before >= 0 ? index - before : 0;
-            if (firstTeam + this.config.max_teams <= this.standing.length) {
-                lastTeam = firstTeam + this.config.max_teams;
+            const indexDiff = this.config.max_teams - 1;
+            firstTeam = Math.max(index - before, 0);
+            if (firstTeam + indexDiff < this.standing.length) {
+                lastTeam = firstTeam + indexDiff;
             } else {
-                lastTeam = this.standing.length;
-                firstTeam = lastTeam - this.config.max_teams >= 0
-                    ? lastTeam - this.config.max_teams : 0;
+                firstTeam = Math.max(lastTeam - indexDiff, 0);
             }
-        } else {
-            firstTeam = 0;
-            lastTeam = this.standing.length;
         }
 
-        return { firstTeam, lastTeam };
+        return {firstTeam, lastTeam};
     },
 
     /**
@@ -380,24 +384,18 @@ Module.register('MMM-soccer', {
                 return {
                     focusTeamIndex: -1,
                     firstTeam: 0,
-                    lastTeam: this.isMaxTeamsLessAll() ? this.config.max_teams : this.standing.length
+                    lastTeam: this.getMaxTeams() - 1
                 };
             } else if (this.config.focus_on[this.config.show] === 'BOTTOM') {
                 return {
                     focusTeamIndex: -1,
-                    firstTeam: this.isMaxTeamsLessAll() ? this.standing.length - this.config.max_teams : 0,
-                    lastTeam: this.standing.length
+                    firstTeam: this.standing.length - this.getMaxTeams(),
+                    lastTeam: this.standing.length - 1
                 };
             }
-
-            return this.findFocusTeam();
         }
 
-        return {
-            focusTeamIndex: -1,
-            firstTeam: 0,
-            lastTeam: this.config.max_teams || this.standing.length
-        };
+        return this.findFocusTeam();
     },
 
     /**
@@ -411,7 +409,9 @@ Module.register('MMM-soccer', {
             if (this.config.max_teams && focus >= 0) {
                 if (index !== focus) {
                     const currentStep = Math.abs(index - focus);
-                    return `opacity: ${1 - 1 / this.config.max_teams * currentStep}`;
+                    const percentage = (1 - 1 / this.config.max_teams * currentStep).toFixed(2);
+
+                    return `opacity: ${percentage}`;
                 }
             }
 

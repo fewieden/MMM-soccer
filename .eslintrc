@@ -10,7 +10,14 @@
     "env": {
         "browser": true,
         "node": true,
-        "es6": true
+        "es6": true,
+        "jest": true
+    },
+    "globals": {
+        "Module": true,
+        "Log": true,
+        "waitForAsync": true,
+        "fetchMock": true
     },
     "rules": {
         "import/no-commonjs": 0,
@@ -23,6 +30,7 @@
         "curly": ["error", "all"],
         "array-bracket-spacing": 0,
         "space-before-function-paren": 0,
+        "object-curly-spacing": ["error", "never"],
         "object-property-newline": ["error", { "allowAllPropertiesOnSameLine": true }]
     }
 }
