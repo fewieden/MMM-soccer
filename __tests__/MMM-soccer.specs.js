@@ -246,26 +246,12 @@ describe('MMM-soccer', () => {
             expect(MMMsoccer.sendNotification).not.toHaveBeenCalled();
             expect(MMMsoccer.sendSocketNotification).not.toHaveBeenCalled();
         });
-    });
 
-    describe('isMaxTeamsLessAll', () => {
-        test('returns false if config option max_teams is not specified', () => {
-            expect(MMMsoccer.isMaxTeamsLessAll()).toBe(false);
-        });
+        test('does NOTHING for other voice commands', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'OTHER COMMAND', {name: 'MMM-voice'});
 
-        test('returns true if max_teams is less than all teams', () => {
-            MMMsoccer.standing = [{id: 1}, {id: 2}, {id: 3}];
-            MMMsoccer.setConfig({max_teams: 2});
-
-            expect(MMMsoccer.isMaxTeamsLessAll()).toBe(true);
-        });
-
-        test('returns false if max_teams is higher than all teams', () => {
-            MMMsoccer.standing = [{id: 1}, {id: 2}, {id: 3}];
-            MMMsoccer.setConfig({max_teams: 5});
-
-            expect(MMMsoccer.isMaxTeamsLessAll()).toBe(false);
-
+            expect(MMMsoccer.sendNotification).not.toHaveBeenCalled();
+            expect(MMMsoccer.sendSocketNotification).not.toHaveBeenCalled();
         });
     });
 
@@ -285,7 +271,7 @@ describe('MMM-soccer', () => {
             ];
         });
 
-        test('returns all teams and focus === -1 if focus NOT specified', () => {
+        test('returns all teams and focus === -1 if focus NOT specified WITHOUT max_teams', () => {
             expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
                 focusTeamIndex: -1,
                 firstTeam: 0,
@@ -293,8 +279,28 @@ describe('MMM-soccer', () => {
             });
         });
 
-        test('returns all teams and focus === -1 if focus NOT found', () => {
+        test('returns all teams and focus === -1 if focus NOT found WITHOUT max_teams', () => {
             MMMsoccer.setConfig({focus_on: {GERMANY: 'anotherTeam'}});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: -1,
+                firstTeam: 0,
+                lastTeam: 9
+            });
+        });
+
+        test('returns all teams and focus === -1 if focus top WITHOUT max_teams', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'TOP'}});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: -1,
+                firstTeam: 0,
+                lastTeam: 9
+            });
+        });
+
+        test('returns all teams and focus === -1 if focus bottom WITHOUT max_teams', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'BOTTOM'}});
 
             expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
                 focusTeamIndex: -1,
@@ -370,6 +376,48 @@ describe('MMM-soccer', () => {
                 focusTeamIndex: 5,
                 firstTeam: 2,
                 lastTeam: 7
+            });
+        });
+    });
+
+    describe('addFilters', () => {
+        let addFilter;
+
+        beforeEach(() => {
+            MMMsoccer.addFilters();
+            addFilter = MMMsoccer.nunjucksEnvironment().addFilter;
+        });
+
+        describe('fade', () => {
+            test('adds fade filters', () => {
+                expect(addFilter).toHaveBeenNthCalledWith(1, 'fade', expect.any(Function));
+            });
+
+            test('returns opacity style', () => {
+                MMMsoccer.setConfig({max_teams: 7});
+                const fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
+
+                expect(fadeFilter(1, 3)).toBe('opacity: 0.71');
+            });
+
+            test('returns empty string if max_teams is NOT set', () => {
+                const fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
+
+                expect(fadeFilter(3, -1)).toBe('');
+            });
+
+            test('returns empty string if focus team NOT found', () => {
+                MMMsoccer.setConfig({max_teams: 7});
+                const fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
+
+                expect(fadeFilter(3, -1)).toBe('');
+            });
+
+            test('returns empty string if focus === index', () => {
+                MMMsoccer.setConfig({max_teams: 7});
+                const fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
+
+                expect(fadeFilter(3, 3)).toBe('');
             });
         });
     });
