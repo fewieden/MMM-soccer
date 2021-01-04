@@ -269,16 +269,16 @@ Module.register('MMM-soccer', {
      * @returns {void}
      */
     handleLeagueSwitch(data) {
-        const countrys = Object.keys(this.config.leagues);
+        const countries = Object.keys(this.config.leagues);
 
-        for (let i = 0; i < countrys.length; i += 1) {
-            const regexp = new RegExp(countrys[i], 'g');
+        for (const country of countries) {
+            const regexp = new RegExp(country, 'g');
 
             if (regexp.test(data)) {
                 this.sendNotification('CLOSE_MODAL');
 
-                if (this.currentLeague !== this.config.leagues[countrys[i]]) {
-                    this.currentLeague = this.config.leagues[countrys[i]];
+                if (this.currentLeague !== this.config.leagues[country]) {
+                    this.currentLeague = this.config.leagues[country];
                     this.getData();
                 }
 

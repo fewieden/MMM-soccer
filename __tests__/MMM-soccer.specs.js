@@ -174,4 +174,77 @@ describe('MMM-soccer', () => {
             expect(translations[language]).toBe(`translations/${language}.json`);
         }
     });
+
+    test('returns template path inside templates dir', () => {
+        expect(MMMsoccer.getTemplate()).toBe(`templates/${name}.njk`);
+    });
+
+    describe('executeVoiceCommands', () => {
+        test('opens help modal', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'OPEN HELP', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).toHaveBeenNthCalledWith(1, 'OPEN_MODAL', {
+                data: expect.any(Object),
+                template: 'templates/HelpModal.njk'
+            });
+        });
+
+        test('closes help modal', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'CLOSE HELP', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).toHaveBeenNthCalledWith(1, 'CLOSE_MODAL');
+        });
+
+        test('does NOTHING if help modal but NO open/close keyword', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'HELP', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).not.toHaveBeenCalled();
+        });
+
+        test('opens standings modal', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'EXPAND VIEW', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).toHaveBeenNthCalledWith(1, 'OPEN_MODAL', {
+                data: expect.any(Object),
+                template: 'templates/StandingsModal.njk'
+            });
+        });
+
+        test('closes standings modal', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'COLLAPSE VIEW', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).toHaveBeenNthCalledWith(1, 'CLOSE_MODAL');
+        });
+
+        test('does NOTHING if standings modal but NO expand/collapse keyword', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'VIEW', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).not.toHaveBeenCalled();
+        });
+
+        test('switches current league to premiere league and requests new data', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'STANDINGS ENGLAND', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).toHaveBeenNthCalledWith(1, 'CLOSE_MODAL');
+            expect(MMMsoccer.currentLeague).toBe('PL');
+            expect(MMMsoccer.sendSocketNotification).toHaveBeenNthCalledWith(1, 'GET_DATA', {
+                api_key: false, league: 'PL'
+            });
+        });
+
+        test('requests NO data if user tries to switch to same league', () => {
+            MMMsoccer.currentLeague = 'BL1';
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'STANDINGS GERMANY', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).toHaveBeenNthCalledWith(1, 'CLOSE_MODAL');
+            expect(MMMsoccer.sendSocketNotification).not.toHaveBeenCalled();
+        });
+
+        test('does NOT switch league if league/country is unknown', () => {
+            MMMsoccer.notificationReceived('VOICE_SOCCER', 'VIEW', {name: 'MMM-voice'});
+
+            expect(MMMsoccer.sendNotification).not.toHaveBeenCalled();
+            expect(MMMsoccer.sendSocketNotification).not.toHaveBeenCalled();
+        });
+    });
 });
