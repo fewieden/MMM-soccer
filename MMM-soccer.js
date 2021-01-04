@@ -321,10 +321,10 @@ Module.register('MMM-soccer', {
      * @function findFocusTeam
      * @description Helper function to find index of team in standings
      *
-     * @returns {Object} Index of team, first and last team to display.
+     * @returns {Object} Index of team, first and last team to display. focusTeamIndex is -1 if it can't be found.
      */
     findFocusTeam() {
-        let focusTeamIndex;
+        let focusTeamIndex = -1;
 
         for (let i = 0; i < this.standing.length; i += 1) {
             if (this.standing[i].team.name === this.config.focus_on[this.config.show]) {

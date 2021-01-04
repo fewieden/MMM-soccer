@@ -247,4 +247,130 @@ describe('MMM-soccer', () => {
             expect(MMMsoccer.sendSocketNotification).not.toHaveBeenCalled();
         });
     });
+
+    describe('isMaxTeamsLessAll', () => {
+        test('returns false if config option max_teams is not specified', () => {
+            expect(MMMsoccer.isMaxTeamsLessAll()).toBe(false);
+        });
+
+        test('returns true if max_teams is less than all teams', () => {
+            MMMsoccer.standing = [{id: 1}, {id: 2}, {id: 3}];
+            MMMsoccer.setConfig({max_teams: 2});
+
+            expect(MMMsoccer.isMaxTeamsLessAll()).toBe(true);
+        });
+
+        test('returns false if max_teams is higher than all teams', () => {
+            MMMsoccer.standing = [{id: 1}, {id: 2}, {id: 3}];
+            MMMsoccer.setConfig({max_teams: 5});
+
+            expect(MMMsoccer.isMaxTeamsLessAll()).toBe(false);
+
+        });
+    });
+
+    describe('calculateTeamDisplayBoundaries', () => {
+        beforeEach(() => {
+            MMMsoccer.standing = [
+                {team: {name: 'team01'}},
+                {team: {name: 'team02'}},
+                {team: {name: 'team03'}},
+                {team: {name: 'team04'}},
+                {team: {name: 'team05'}},
+                {team: {name: 'team06'}},
+                {team: {name: 'team07'}},
+                {team: {name: 'team08'}},
+                {team: {name: 'team09'}},
+                {team: {name: 'team10'}}
+            ];
+        });
+
+        test('returns all teams and focus === -1 if focus NOT specified', () => {
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: -1,
+                firstTeam: 0,
+                lastTeam: 9
+            });
+        });
+
+        test('returns all teams and focus === -1 if focus NOT found', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'anotherTeam'}});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: -1,
+                firstTeam: 0,
+                lastTeam: 9
+            });
+        });
+
+        test('returns 5 teams and index of focus team', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'team06'}, max_teams: 5});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: 5,
+                firstTeam: 3,
+                lastTeam: 7
+            });
+        });
+
+        test('returns top 5 teams and focus === -1', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'TOP'}, max_teams: 5});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: -1,
+                firstTeam: 0,
+                lastTeam: 4
+            });
+        });
+
+        test('returns top 5 teams and focus === -1 if focus NOT found', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'anotherTeam'}, max_teams: 5});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: -1,
+                firstTeam: 0,
+                lastTeam: 4
+            });
+        });
+
+        test('returns top 5 teams and focus === 1 if focus is to close to top', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'team02'}, max_teams: 5});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: 1,
+                firstTeam: 0,
+                lastTeam: 4
+            });
+        });
+
+        test('returns bottom 5 teams and focus === -1', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'BOTTOM'}, max_teams: 5});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: -1,
+                firstTeam: 5,
+                lastTeam: 9
+            });
+        });
+
+        test('returns bottom 5 teams and focus === 8 if focus is to close to bottom', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'team09'}, max_teams: 5});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: 8,
+                firstTeam: 5,
+                lastTeam: 9
+            });
+        });
+
+        test('returns 6 teams and index of focus team', () => {
+            MMMsoccer.setConfig({focus_on: {GERMANY: 'team06'}, max_teams: 6});
+
+            expect(MMMsoccer.calculateTeamDisplayBoundaries()).toMatchObject({
+                focusTeamIndex: 5,
+                firstTeam: 2,
+                lastTeam: 7
+            });
+        });
+    });
 });
