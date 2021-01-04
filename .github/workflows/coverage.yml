@@ -9,26 +9,7 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  report-coverage-diff:
-    if: ${{ github.event_name == 'pull_request' }}
-    strategy:
-      matrix:
-        node-version: [ 14.x ]
-        platform: [ ubuntu-latest ]
-    runs-on: ${{ matrix.platform }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - uses: anuraag016/Jest-Coverage-Diff@master
-        with:
-          fullCoverageDiff: false
-
   upload-coverage-report:
-    if: ${{ github.event_name == 'push' }}
     strategy:
       matrix:
         node-version: [ 14.x ]
