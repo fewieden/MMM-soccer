@@ -1,7 +1,7 @@
 describe('MMM-soccer', () => {
     beforeAll(() => {
-       require('../__mocks__/Logger');
-       require('../__mocks__/Module');
+        require('../__mocks__/Logger');
+        require('../__mocks__/Module');
     });
 
     const name = 'MMM-soccer';
@@ -33,7 +33,7 @@ describe('MMM-soccer', () => {
     });
 
     describe('start', () => {
-        let originalInterval = setInterval;
+        const originalInterval = setInterval;
 
         beforeEach(() => {
             global.setInterval = jest.fn();
