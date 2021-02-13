@@ -1,14 +1,10 @@
 # MMM-soccer Changelog
 
-## [Unreleased]
+## [2.2.1]
 
 ### Fixed
 
-### Added
-
-### Changed
-
-### Removed
+* [Nunjuck template was rendering one team less than specified in config](https://github.com/fewieden/MMM-soccer/issues/39)
 
 ## [2.2.0]
 

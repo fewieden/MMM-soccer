@@ -18,7 +18,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for index in range(boundaries.firstTeam, boundaries.lastTeam) %}
+            {% for index in range(boundaries.firstTeam, boundaries.lastTeam + 1) %}
                 <tr class="centered-row {% if index === boundaries.focusTeamIndex %}bright{% endif %}" style="{{ index | fade(boundaries.focusTeamIndex) }}">
                     <td>{{ standing[index].position }}</td>
                     {% if config.logos %}
