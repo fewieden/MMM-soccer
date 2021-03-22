@@ -21,6 +21,7 @@ module.exports = NodeHelper.create({
     teamList: {},
     liveMatches: [],
     liveLeagues: [],
+    isRunning: false,
 
     start: function() {
         console.log(`Starting module: ${this.name}`);
@@ -30,14 +31,17 @@ module.exports = NodeHelper.create({
     socketNotificationReceived: function(notification, payload) {
         if (notification === 'GET_SOCCER_DATA') {
             this.log("Socket notification received: " + notification + " Payload: " + JSON.stringify(payload));
-            this.log("Starting API call cycle");
             this.config = payload;
+            this.leagues = this.config.show;
             this.headers = payload.api_key ? { 'X-Auth-Token': payload.api_key } : {};
-            this.leagues = this.config.show;    
             this.getTables(this.leagues);
             this.getMatches(this.leagues);
-            this.liveMode = false;
-            this.scheduleAPICalls(false);
+            if (!this.isRunning) {
+                this.log("Starting API call cycle");
+                this.liveMode = false;
+                this.isRunning = true;
+                this.scheduleAPICalls(false);
+            }
         }
     },
 
@@ -98,7 +102,7 @@ module.exports = NodeHelper.create({
     },
 
     getMatches: function(leagues) {
-        var now = moment().subtract(0, "minutes");
+        var now = moment().subtract(60*13, "minutes");	//subtract minutes or hours to test live mode
         this.log("Collecting matches for leagues: " + leagues);
         var urlArray = leagues.map(league => { return `http://api.football-data.org/v2/competitions/${league}/matches`; });
         this.liveLeagues = [];
@@ -111,7 +115,7 @@ module.exports = NodeHelper.create({
                 var currentLeague = matchesData.competition.code;
                 matchesData.matches.forEach(match => {
                     delete match.referees;
-                    
+
                     //check for live matches
                     if (match.status == "IN_PLAY" || Math.abs(moment(match.utcDate).diff(now, 'seconds')) < self.config.apiCallInterval * 2) {
                         if (self.liveMatches.indexOf(match.id) === -1) {

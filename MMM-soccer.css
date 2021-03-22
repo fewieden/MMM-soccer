@@ -20,12 +20,9 @@
     margin-bottom: 10px;
 }
 
-.MMM-soccer table {
-    margin-bottom: 30px;
-}
-
 .MMM-soccer .games {
     table-layout: fixed;
+    margin-bottom: 20px;
 }
 
 .MMM-soccer .games .status {
@@ -35,7 +32,7 @@
     color: black;
     border-radius: 10px;
     text-align: center;
-	  font-size: 100%;
+    font-size: 100%;
     width: 50px;
 }
 
@@ -50,8 +47,8 @@
 
 .MMM-soccer .logo {
     width: 25px;
-	  padding: 0px 3px;
-	  vertical-align: middle;
+    padding: 0px 3px;
+    vertical-align: middle;
 }
 
 .MMM-soccer .centered-row {
@@ -68,6 +65,11 @@
 
 .MMM-soccer .name .IN_PLAY {
     color: yellow;
+}
+
+
+.MMM-soccer .table {
+    margin: 10px 0px;
 }
 
 .MMM-soccer-blur {
@@ -98,4 +100,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.MMM-soccer .matchName.winner {
+    font-weight: bold;
+    #text-decoration: underline;
+}
+
+.MMM-soccer svg {
+    background-color: #000;
 }

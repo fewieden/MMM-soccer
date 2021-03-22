@@ -12,7 +12,7 @@
 /* global Module Log */
 
 Module.register('MMM-soccer', {
-    
+
     defaults: {
         api_key: false,
         colored: false,
@@ -26,8 +26,9 @@ Module.register('MMM-soccer', {
         logos: true,
         showTables: true,
         showMatches: true,
+        showMatchDay: true,
         matchType: 'league',    //choose 'next', 'daily', or 'league'
-	    	numberOfNextMatches: 8,
+        numberOfNextMatches: 8,
         leagues: {
             GERMANY: 'BL1',
             FRANCE: 'FL1',
@@ -36,6 +37,7 @@ Module.register('MMM-soccer', {
             ITALY: 'SA'
         },
         replace: 'default',     //choose 'default', 'short' or '' for original names
+        daysOffset: 0,
         debug: false,
     },
 
@@ -57,14 +59,14 @@ Module.register('MMM-soccer', {
 
     loading: true,
     tables: {},
-   	matches: {},
+    matches: {},
     teams: {},
     matchDay: "",
-  	showTable: true,
+    showTable: true,
     leagues: [],
     liveMode: false,
-  	liveMatches: [],
-  	liveLeagues: [],
+    liveMatches: [],
+    liveLeagues: [],
     replacements: {
         default: {}
     },
@@ -77,8 +79,8 @@ Module.register('MMM-soccer', {
         this.leagues = this.config.show;
         this.competition = this.leagues[0];
         this.showTable = this.config.showTables;
-		var self = this;
-		this.replacers = this.loadReplacements(response => {
+        var self = this;
+        this.replacers = this.loadReplacements(response => {
             self.replacements = JSON.parse(response);
             //self.log(self.replacements);
         });
@@ -87,10 +89,10 @@ Module.register('MMM-soccer', {
     },
 
 
-	loadReplacements: function(callback) {
-		    this.log("Loading replacements file");
-        var xobj = new XMLHttpRequest(),
-		    path = this.file('replacements.json');
+    loadReplacements: function(callback) {
+        this.log("Loading replacements file");
+        var xobj = new XMLHttpRequest();
+        var path = this.file('replacements.json');
         xobj.overrideMimeType("application/json");
         xobj.open("GET", path, true);
         xobj.onreadystatechange = function() {
@@ -104,14 +106,15 @@ Module.register('MMM-soccer', {
 
     scheduleDOMUpdates: function () {
         var count = 0;
-        var _this = this;
+        var self = this;
         setInterval(() => {
-            const comps = _this.leagues.length;
+            const comps = self.leagues.length;
             count = (count >= comps - 1) ? 0 : count + 1;
-            _this.competition = _this.leagues[count];
-            _this.log("Showing competition: " + _this.competition);
-            _this.standing = _this.filterTables(_this.tables[_this.competition], _this.config.focus_on[_this.competition]);
-            _this.updateDom(500);
+            self.competition = self.leagues[count];
+            self.log("Showing competition: " + self.competition);
+            self.log(self.tables[self.competition]);
+            self.standing = self.filterTables(self.tables[self.competition], self.config.focus_on[self.competition]);
+            self.updateDom(500);
         }, this.config.updateInterval * 1000);
     },
 
@@ -119,12 +122,13 @@ Module.register('MMM-soccer', {
     socketNotificationReceived: function(notification, payload) {
         this.log(`received a Socket Notification: ${notification}`);
         if (notification === 'TABLES') {
+            this.log(payload);
             this.tables = payload;
             this.standing = this.filterTables(this.tables[this.competition], this.config.focus_on[this.competition]);
             this.log("Current table: " + JSON.stringify(this.standing));
         } else if (notification === 'MATCHES') {
             this.matches = payload;
-            //this.log(this.matches);
+            this.log("Received matches: "+this.matches);
         } else if (notification === 'TEAMS') {
             this.teams = payload;
         /*} else if (notification === 'LIVE_MATCHES') {
@@ -174,29 +178,46 @@ Module.register('MMM-soccer', {
     getTemplateData: function() {
         return {
             boundaries: (this.tables.hasOwnProperty(this.competition)) ? this.calculateTeamDisplayBoundaries(this.competition) : {},
-            competitionName: (Object.keys(this.tables).length > 0) ? this.tables[this.competition].competition.name : "",
+            matchHeader: this.getMatchHeader(),
             config: this.config,
             isModalActive: this.isModalActive(),
             modals: this.modals,
             table: this.standing,
-            matches: (Object.keys(this.matches).length > 0) ? this.prepareMatches(this.matches, this.config.focus_on[this.competition]) : "",
-            season: (Object.keys(this.tables).length > 0) ?
-                `${this.translate('MATCHDAY')}: ${this.translate(this.matchDay)}` : this.translate('LOADING'),
+            comps: (Object.keys(this.matches).length > 0) ? this.prepareMatches(this.matches, this.config.focus_on[this.competition]) : "",
             showTable: this.showTable,
             teams: (Object.keys(this.tables).length > 0) ? this.teams : {},
-            showMatchDay: (this.config.matchType == "league"),
+            showMatchDay: this.config.showMatchDay,
             voice: this.voice
         };
     },
 
+    getMatchHeader: function() {
+        if (this.config.matchType == "daily") {
+            return {
+                competition: this.translate('TODAYS_MATCHES'),
+                season: (Object.keys(this.tables).length > 0) ? "" : this.translate('LOADING'),
+            }
+        } else if (this.config.matchType == "next") {
+            return {
+                competition: this.translate('NEXT_MATCHES'),
+                season: (Object.keys(this.tables).length > 0) ? "" : this.translate('LOADING'),
+            }
+        }
+        return {
+            competition: (Object.keys(this.tables).length > 0) ? this.tables[this.competition].competition.name : "",
+            season: (Object.keys(this.tables).length > 0) ? `${this.translate('MATCHDAY')}: ${this.translate(this.matchDay)}` : this.translate('LOADING'),
+        }
+    },
+
 
     prepareMatches: function(allMatches, focusTeam) {
+        var returnedMatches = [];
         if (this.config.matchType === 'league') {
             var diff = 0;
             var matches = allMatches[this.competition].matches;
             var minDiff = Math.abs(moment().diff(matches[0].utcDate));
             for (var m = 0; m < matches.length; m++) {
-                if (!matches[m].matchday) {matches[m].matchday = matches[m].stage; }  //for cup modes, copy stage to matchday property
+                if (!matches[m].matchday) { matches[m].matchday = matches[m].stage; }  //for cup modes, copy stage to matchday property
                 diff = Math.abs(moment().diff(matches[m].utcDate));
                 if (diff < minDiff) {
                     minDiff = diff;
@@ -205,11 +226,14 @@ Module.register('MMM-soccer', {
             }
             this.log("Current matchday: " + this.matchDay);
             this.showTable = (!isNaN(this.matchDay));
-
-    		returnedMatches = matches.filter(match => {
-                return match.matchday == this.matchDay;
+    	    returnedMatches.push({
+                competition: (Object.keys(this.tables).length > 0) ? this.tables[this.competition].competition.name : "",
+                season: (Object.keys(this.tables).length > 0) ? `${this.translate('MATCHDAY')}: ${this.translate(this.matchDay)}` : this.translate('LOADING'),
+                matches: matches.filter(match => {
+                    return match.matchday == this.matchDay;
+                })
             });
-        } else if (this.config.matchType === "next") {
+        } else if (this.config.matchType === 'next') {
             var teams = [];
             var nextMatches = [];
             for (var comp in this.config.focus_on) {
@@ -220,7 +244,7 @@ Module.register('MMM-soccer', {
                     return (teams.includes(match.homeTeam.name) || teams.includes(match.awayTeam.name));
                 });
                 var index = filteredMatches.findIndex(match => {
-                    return (moment(match.utcDate) > moment());
+                    return (parseInt(moment(match.utcDate).format("X")) > parseInt(moment().subtract(3, 'days').format("X")));
                 });
                 for (var i = index - 1; i < filteredMatches.length; i++) {
                     nextMatches.push(filteredMatches[i]);
@@ -229,24 +253,65 @@ Module.register('MMM-soccer', {
             nextMatches.sort(function (match1, match2) {
                 return (moment(match1.utcDate) - moment(match2.utcDate));
             });
-            returnedMatches = nextMatches.slice(0, numberOfNextMatches);
-        }
-        returnedMatches.forEach(match => {
-            match.focused = (match.homeTeam.name === focusTeam) ? true : (match.awayTeam.name === focusTeam) ? true : false;
-            if (match.status == "SCHEDULED" || match.status == "POSTPONED") {
-                match.state = (moment(match.utcDate).diff(moment(), 'days') > 7) ? moment(match.utcDate).format("D.MM.") : (moment(match.utcDate).startOf('day') > moment()) ? moment(match.utcDate).format("dd") : moment(match.utcDate).format("LT");
-            } else {
-                match.state = match.score.fullTime.homeTeam + " - " + match.score.fullTime.awayTeam;
+            returnedMatches.push({
+                competition: this.translate('NEXT_MATCHES'),
+                season: (Object.keys(this.tables).length > 0) ? "" : this.translate('LOADING'),
+                matches: nextMatches.slice(0, this.config.numberOfNextMatches)
+            });
+
+        } else if (this.config.matchType === 'daily') {
+            var today = moment().subtract(this.config.daysOffset, 'days');
+            var todaysMatches = [];
+            for (var league in allMatches) {
+                var filteredMatches = allMatches[league].matches.filter(match => {
+                    return ( moment(match.utcDate).isSame(today, 'day') );
+                });
+                this.log("Filtered macthes: ");
+                this.log(filteredMatches);
+                if (filteredMatches.length) {
+                    returnedMatches.push({
+                        competition: (Object.keys(this.tables).length > 0) ? this.tables[league].competition.name : "",
+                        season: (Object.keys(this.tables).length > 0) ? "" : this.translate('LOADING'),
+                        matches: filteredMatches
+                    });
+                }
             }
+            /*todaysMatches = todaysMatches.flat();
+            todaysMatches.sort(function (match1, match2) {
+                return (match1.season.id - match2.season.id);
+            });
+            returnedMatches.push({
+                competition: this.translate('TODAYS_MATCHES'),
+                season: (Object.keys(this.tables).length > 0) ? "" : this.translate('LOADING'),
+                matches: todaysMatches
+            });*/
+        }
+        returnedMatches.forEach(matchset => {
+            matchset.matches.forEach(match => {
+                if (this.config.matchType == "league" || this.config.matchType == "daily") {
+                    match.focused = (match.homeTeam.name === focusTeam) ? true : (match.awayTeam.name === focusTeam) ? true : false;
+                }
+                if (match.status == "SCHEDULED" || match.status == "POSTPONED") {
+                    match.state = (moment(match.utcDate).diff(moment(), 'days') > 7) ? moment(match.utcDate).format("D.MM.") : (moment(match.utcDate).startOf('day') > moment()) ? moment(match.utcDate).format("dd") : moment(match.utcDate).format("LT");
+               } else {
+                    match.state = match.score.fullTime.homeTeam + " - " + match.score.fullTime.awayTeam;
+                    if (match.score.winner == "HOME_TEAM") {
+                        match.homeTeam["status"] = "winner"
+                    } else if (match.score.winner == "AWAY_TEAM") {
+                        match.awayTeam["status"] = "winner"
+                   }
+                }
+            });
         });
-        //this.log("Returned matches: "+JSON.stringify(returnedMatches));
+        this.log("Returned matches:");
+        this.log(returnedMatches);
         return returnedMatches;
     },
 
 
     filterTables: function(tables, focusTeam) {
         //filtering out "home" and "away" tables
-        if (!tables.standings) return "";
+        if (tables && !tables.standings) return "";
         tableArray = tables.standings.filter(table => {
             return table.type === "TOTAL";
         });
@@ -267,9 +332,9 @@ Module.register('MMM-soccer', {
 
     findFocusTeam: function() {
         this.log("Finding focus team for table...");
-        let focusTeamIndex;
+        let focusTeamIndex = -1;
         var table = this.standing;
-        for (let i = 0; i < table.length; i += 1) {
+        for (let i = 0; i < table.length; i ++) {
             if (table[i].team.name === this.config.focus_on[this.competition]) {
                 focusTeamIndex = i;
                 this.log("Focus Team found: " + table[i].team.name);
@@ -277,7 +342,7 @@ Module.register('MMM-soccer', {
             }
         }
 
-        if (!focusTeamIndex) {
+        if (focusTeamIndex < 0) {
             this.log("No Focus Team found! Please check your entry!");
             return {
                 focusTeamIndex: -1,
@@ -297,7 +362,7 @@ Module.register('MMM-soccer', {
 
         if (this.config.max_teams) {
             const before = parseInt(this.config.max_teams / 2);
-            firstTeam = index - before >= 0 ? index - before : 0;
+            firstTeam = (index - before >= 0) ? (index - before) : 0;
             if (firstTeam + this.config.max_teams <= this.standing.length) {
                 lastTeam = firstTeam + this.config.max_teams;
             } else {
@@ -309,6 +374,7 @@ Module.register('MMM-soccer', {
             firstTeam = 0;
             lastTeam = this.standing.length;
         }
+        this.log({firstTeam, lastTeam});
         return { firstTeam, lastTeam };
     },
 

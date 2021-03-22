@@ -5,38 +5,36 @@
 	{{'LOADING' | translate}}
 {% else %}
 	{% if config.showMatches %}
-		<div class="xsmall">
+		<table class="xsmall games">
+			<tbody>
 			{% if comps.length %}
 				{% for i in range(0, comps.length) %}
-				<table class="games">
-					<tbody>
-						<tr class="small matchDay bold">{{ comps[i].competition }}</div></tr>
-						<tr class="small matchDay bold">{{ comps[i].season }}</div></tr>
-						{% for m in range(0, comps[i].matches.length) %}					
-							<tr class="centered-row {% if comps[i].matches[m].focused %}bright{% endif %}">
-							<td class="name matchName homeTeam {{comps[i].matches[m].status}} {{comps[i].matches[m].homeTeam.status}}">{{comps[i].matches[m].homeTeam.name | replace}}</td>
-							{% if config.logos %}
-								<td class="logo">
-									<!--<svg class="logo-svg" width="100%" height="100%">{{ teams[comps[i].matches[m].homeTeam.id].crestUrl }}</svg>-->
-									<img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[comps[i].matches[m].homeTeam.id].crestUrl}}"/>
-								</td>
-							{% endif %}
-							<td class="status bold {{comps[i].matches[m].status}}">{{ comps[i].matches[m].state }}</td>
-							{% if config.logos %}
-								<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[comps[i].matches[m].awayTeam.id].crestUrl}}"/></td>
-							{% endif %}
-							<td class="name matchName awayTeam {{comps[i].matches[m].status}} {{comps[i].matches[m].awayTeam.status}}">{{comps[i].matches[m].awayTeam.name | replace}}</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+					<tr><td colspan="5" class="small matchDay bold">{{ comps[i].competition }}</td></tr>
+					<tr><td colspan="5" class="small matchDay bold">{{ comps[i].season }}</td></tr>
+					{% for m in range(0, comps[i].matches.length) %}					
+						<tr class="centered-row {% if comps[i].matches[m].focused %}bright{% endif %}">
+						<td class="name matchName homeTeam {{comps[i].matches[m].status}} {{comps[i].matches[m].homeTeam.status}}">{{comps[i].matches[m].homeTeam.name | replace}}</td>
+						{% if config.logos %}
+							<td class="logo">
+								<!--<svg class="logo-svg" width="100%" height="100%">{{ teams[comps[i].matches[m].homeTeam.id].crestUrl }}</svg>-->
+								<img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[comps[i].matches[m].homeTeam.id].crestUrl}}"/>
+							</td>
+						{% endif %}
+						<td class="status bold {{comps[i].matches[m].status}}">{{ comps[i].matches[m].state }}</td>
+						{% if config.logos %}
+							<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[comps[i].matches[m].awayTeam.id].crestUrl}}"/></td>
+						{% endif %}
+						<td class="name matchName awayTeam {{comps[i].matches[m].status}} {{comps[i].matches[m].awayTeam.status}}">{{comps[i].matches[m].awayTeam.name | replace}}</td>
+						</tr>
+					{% endfor %}
 				{% endfor %}
 			{% else %}
 				<tr class="centered-row">
 					<td>{{ 'NO_MATCHES' | translate }}</td>
 				</tr> 
 			{% endif %}
-		</div>
+			</tbody>
+		</table>
 	{% endif %}
 
 	{% if showTable %}

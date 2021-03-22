@@ -1,13 +1,17 @@
 {
   "LOADING": "Lade...",
   "NO_DATA_AVAILABLE": "Keine Daten verfügbar!",
+  "NO_MATCHES": "Keine Spiele",
+  "TODAYS_MATCHES": "Heute",
+  "NEXT_MATCHES": "Nächste Spiele",
   "MATCHDAY": "Spieltag",
   "TEAM": "Mannschaft",
   "COMMAND_LIST": "Liste aller Sprachbefehle",
   "MODE": "Modus",
   "VOICE_COMMANDS": "Sprachbefehle",
+  "PLAY_OFF_ROUND": "Play-Off-Runde",
   "ROUND_OF_16": "Achtelfinale",
-  "ROUND_OF_8": "Viertelfinale",
-  "ROUND_OF_4": "Halbfinale",
+  "QUARTER_FINALS": "Viertelfinale",
+  "SEMI_FINALS": "Halbfinale",
   "FINAL": "Finale"
 }
