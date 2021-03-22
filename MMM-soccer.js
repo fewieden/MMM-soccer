@@ -244,7 +244,7 @@ Module.register('MMM-soccer', {
                     return (teams.includes(match.homeTeam.name) || teams.includes(match.awayTeam.name));
                 });
                 var index = filteredMatches.findIndex(match => {
-                    return (parseInt(moment(match.utcDate).format("X")) > parseInt(moment().subtract(3, 'days').format("X")));
+                    return (parseInt(moment(match.utcDate).format("X")) > parseInt(moment().format("X")));
                 });
                 for (var i = index - 1; i < filteredMatches.length; i++) {
                     nextMatches.push(filteredMatches[i]);
