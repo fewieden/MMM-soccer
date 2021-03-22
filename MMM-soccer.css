@@ -21,7 +21,6 @@
 }
 
 .MMM-soccer .games {
-    table-layout: fixed;
     margin-bottom: 20px;
 }
 
@@ -46,8 +45,9 @@
 }
 
 .MMM-soccer .logo {
+    max-width: 25px;
     width: 25px;
-    padding: 0px 3px;
+    padding: 0px 8px;
     vertical-align: middle;
 }
 
