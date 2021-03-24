@@ -48,20 +48,23 @@
 						<th></th>
 					{% endif %}
 					<th class="name">{{'TEAM' | translate}}</th>
-					<th class="centered"><i class="fas fa-chart-line"/></th>
 					<th class="centered"><i class="fas fa-futbol"/></th>
+					<th class="centered"><i class="fas fa-chart-line"/></th>
+					<th class="centered"><i class="fas fa-bullseye"/></th>
 				</tr>
 			</thead>
 			<tbody>
 				{% for i in range(boundaries.firstTeam, boundaries.lastTeam) %}
+					<tr class="centered-row {% if i === boundaries.focusTeamIndex %}bright{% endif %}" style="{{i | fade(boundaries.focusTeamIndex)}}">
 					<tr class="centered-row {% if i === boundaries.focusTeamIndex %}bright{% endif %}" style="{{i | fade(boundaries.focusTeamIndex)}}">
 						<td>{{table[i].position}}</td>
 						{% if config.logos %}
 							<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{table[i].team.crestUrl}}"/></td>
 						{% endif %}
 						<td class="name">{{table[i].team.name | replace}}</td>
+						<td class="centered">{{table[i].playedGames}}</td>
 						<td class="centered">{{table[i].points}}</td>
-						<td class="centered">{{table[i].goalDifference}}</td>
+						<td class="centered">{% if table[i].goalDifference > 0 %}+{% endif %}{{table[i].goalDifference}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
