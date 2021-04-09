@@ -54,7 +54,10 @@ Module.register('MMM-soccer', {
             ENGLAND: 'PL',
             SPAIN: 'PD',
             ITALY: 'SA'
-        }
+        },
+        competitions: [
+            {code: 'BL1', type: 'league', provider: {standings: 'football-data'}}
+        ]
     },
 
     /**
@@ -101,6 +104,7 @@ Module.register('MMM-soccer', {
         Log.info(`Starting module: ${this.name}`);
         this.addFilters();
         this.currentLeague = this.config.leagues[this.config.show];
+        this.sendSocketNotification('CONFIG', this.config);
         this.getData();
         setInterval(() => {
             this.getData();
@@ -114,7 +118,7 @@ Module.register('MMM-soccer', {
      * @returns {void}
      */
     getData() {
-        this.sendSocketNotification('GET_DATA', {league: this.currentLeague, api_key: this.config.api_key});
+        this.sendSocketNotification('GET_DATA', {league: this.currentLeague, competition: this.config.competitions[0]});
     },
 
     /**
