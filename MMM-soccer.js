@@ -105,20 +105,6 @@ Module.register('MMM-soccer', {
         this.addFilters();
         this.currentLeague = this.config.leagues[this.config.show];
         this.sendSocketNotification('CONFIG', this.config);
-        this.getData();
-        setInterval(() => {
-            this.getData();
-        }, this.config.api_key ? 300000 : 1800000); // with api_key every 5min without every 30min
-    },
-
-    /**
-     * @function getData
-     * @description Sends request to the node_helper to fetch data for the current selected league.
-     *
-     * @returns {void}
-     */
-    getData() {
-        this.sendSocketNotification('GET_DATA', {league: this.currentLeague, competition: this.config.competitions[0]});
     },
 
     /**
@@ -130,10 +116,11 @@ Module.register('MMM-soccer', {
      * @param {*} payload - Detailed payload of the notification.
      */
     socketNotificationReceived(notification, payload) {
-        if (notification === 'DATA') {
-            this.standing = payload.standings[0].table;
-            this.season = payload.season;
-            this.competition = payload.competition;
+        if (notification === 'STANDINGS') {
+            const data = payload[this.config.competitions[0].code];
+            this.standing = data.standings;
+            this.season = data.season;
+            this.competition = data.competition;
             this.loading = false;
             this.updateDom(300);
         }

@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const fetch = require('node-fetch');
 
 const {registerProvider} = require('./provider');
@@ -5,7 +6,6 @@ const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, API_LIMIT_REA
 
 const BASE_URL = 'http://api.football-data.org/v2';
 const PROVIDER_NAME = 'football-data';
-
 const COMPETITIONS = {
     BL1: 'BL1',
     PL: 'PL',
@@ -48,7 +48,14 @@ async function fetchStandings(competition) {
         throw new SoccerError(reason, {competition, provider: PROVIDER_NAME});
     }
 
-    return response.json();
+    const parsedResponse = await response.json();
+
+    return {
+        code: competition,
+        competition: _.get(parsedResponse, 'competition'),
+        season: _.get(parsedResponse, 'season'),
+        standings: _.get(parsedResponse, ['standings', 0, 'table'])
+    };
 }
 
 function init(config) {

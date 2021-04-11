@@ -10,6 +10,8 @@
 /* eslint-env node */
 /* eslint-disable no-console */
 
+const _ = require('lodash');
+
 /**
  * @external node_helper
  * @see https://github.com/MichMich/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
@@ -17,6 +19,9 @@
 const NodeHelper = require('node_helper');
 
 const {handleError, initProvider, getProvider} = require('./provider');
+
+const MINUTE_IN_MILLISECONDS = 60 * 1000;
+const DATA_TYPES = ['standings'];
 
 /**
  * @module node_helper
@@ -39,20 +44,63 @@ module.exports = NodeHelper.create({
     async socketNotificationReceived(notification, payload) {
         if (notification === 'CONFIG') {
             await initProvider(payload);
-        } else if (notification === 'GET_DATA') {
-            const {code, provider: {standings: provider} = {}} = payload.competition;
 
-            if (!provider) {
-                return;
-            }
-
-            try {
-                const standings = await getProvider(provider).fetchStandings(code);
-
-                this.sendSocketNotification('DATA', standings);
-            } catch (error) {
-                handleError(error);
-            }
+            this.scheduleRequests(payload);
         }
+    },
+
+    transformCompetitions(config) {
+        const grouped = _.transform(config.competitions, (competitions, competition) => {
+            _.set(competitions, [competition.code, 'code'], competition.code);
+
+            for (const type in competition.provider) {
+                _.set(competitions, [competition.code, type], _.get(competition, ['provider', type]));
+            }
+
+            return competitions;
+        }, {});
+
+        return _.values(grouped);
+    },
+
+    scheduleRequests(config) {
+        const compactCompetitions = this.transformCompetitions(config);
+
+        for (const [index, type] of DATA_TYPES.entries()) {
+            setTimeout(() => {
+                setInterval(() => this.makeRequests(compactCompetitions, type), (10 + DATA_TYPES.length) * MINUTE_IN_MILLISECONDS);
+                this.makeRequests(compactCompetitions, type);
+            }, index * MINUTE_IN_MILLISECONDS);
+        }
+    },
+
+    async createSingleRequest(competition, type) {
+        const provider = _.get(competition, type);
+
+        if (!provider) {
+            return;
+        }
+
+        const method = `fetch${_.upperFirst(type)}`;
+
+        try {
+            const response = await getProvider(provider)[method](competition.code);
+
+            return response;
+        } catch (error) {
+            handleError(error);
+        }
+    },
+
+    async makeRequests(competitions, type) {
+        const requests = _.map(competitions, competition => this.createSingleRequest(competition, type));
+
+        const responses = await Promise.all(requests);
+
+        const filteredResponses = _.filter(responses, response => _.isArray(_.get(response, type)));
+
+        const indexedResponsesByCompetition = _.keyBy(filteredResponses, 'code');
+
+        this.sendSocketNotification(_.upperCase(type), indexedResponsesByCompetition);
     }
 });
