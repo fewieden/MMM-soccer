@@ -1,21 +1,11 @@
 const _ = require('lodash');
 const fetch = require('node-fetch');
 
-const {registerProvider} = require('./provider');
-const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, API_LIMIT_REACHED, API_KEY_REQUIRED} = require('./utils');
+const {registerProvider} = require('../provider');
+const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, API_LIMIT_REACHED, API_KEY_REQUIRED} = require('../utils');
 
-const BASE_URL = 'http://api.football-data.org/v2';
-const PROVIDER_NAME = 'football-data';
-const COMPETITIONS = {
-    BL1: 'BL1',
-    PL: 'PL',
-    SA: 'SA',
-    FL1: 'FL1',
-    PD: 'PD',
-    PPL: 'PPL',
-    DED: 'DED',
-    BSA: 'BSA'
-};
+const {getTeamCode} = require('./teams');
+const {BASE_URL, PROVIDER_NAME, COMPETITIONS} = require('./constants');
 
 let apiKey;
 
@@ -37,6 +27,16 @@ function getRequestOptions() {
     return {headers: {'X-Auth-Token': apiKey}};
 }
 
+function mapStandingEntry(entry = {}) {
+    return {
+        position: entry.position,
+        logo: _.get(entry, ['team', 'crestUrl']),
+        team: getTeamCode(entry.team),
+        points: entry.points,
+        goalDifference: entry.goalDifference
+    };
+}
+
 async function fetchStandings(competition) {
     const competitionId = getCompetitionId(competition);
 
@@ -50,11 +50,13 @@ async function fetchStandings(competition) {
 
     const parsedResponse = await response.json();
 
+    const standings = _.get(parsedResponse, ['standings', 0, 'table']);
+
     return {
         code: competition,
         competition: _.get(parsedResponse, 'competition'),
         season: _.get(parsedResponse, 'season'),
-        standings: _.get(parsedResponse, ['standings', 0, 'table'])
+        standings: _.map(standings, mapStandingEntry)
     };
 }
 

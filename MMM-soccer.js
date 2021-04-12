@@ -326,7 +326,7 @@ Module.register('MMM-soccer', {
         let focusTeamIndex = -1;
 
         for (let i = 0; i < this.standing.length; i += 1) {
-            if (this.standing[i].team.name === this.config.focus_on[this.config.show]) {
+            if (this.standing[i].team === this.config.focus_on[this.config.show]) {
                 focusTeamIndex = i;
                 break;
             }
