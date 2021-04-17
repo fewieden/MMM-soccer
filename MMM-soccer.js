@@ -56,8 +56,17 @@ Module.register('MMM-soccer', {
             ITALY: 'SA'
         },
         competitions: [
-            {code: 'BL1', type: 'league', provider: {standings: 'football-data'}}
-        ]
+            {
+                code: 'BL1',
+                type: 'league',
+                standings: {
+                    provider: 'football-data',
+                    focusOn: 'SCF',
+                    maxTeams: 5
+                }
+            }
+        ],
+        rotationInterval: 15 * 1000
     },
 
     /**
@@ -93,6 +102,11 @@ Module.register('MMM-soccer', {
      */
     season: {},
 
+    types: ['standings'],
+
+    competitionIndex: 0,
+    typeIndex: 0,
+
     /**
      * @function start
      * @description Adds nunjuck filters and requests for league data.
@@ -103,8 +117,8 @@ Module.register('MMM-soccer', {
     start() {
         Log.info(`Starting module: ${this.name}`);
         this.addFilters();
-        this.currentLeague = this.config.leagues[this.config.show];
         this.sendSocketNotification('CONFIG', this.config);
+        this.scheduleCarousel();
     },
 
     /**
@@ -387,6 +401,36 @@ Module.register('MMM-soccer', {
         }
 
         return this.findFocusTeam();
+    },
+
+    getNextTypeIndex(shift) {
+        const currentIndex = this.typeIndex + (shift ? 1 : 0);
+
+        for (let i = currentIndex; i <= this.types.length; i++) {
+            if (this.config.competitions[this.competitionIndex][this.types[i]]) {
+                return i;
+            }
+        }
+
+        return 0;
+    },
+
+    scheduleCarousel() {
+        setInterval(() => {
+            this.typeIndex = this.getNextTypeIndex(true);
+
+            if (this.typeIndex !== 0) {
+                return;
+            }
+
+            this.competitionIndex++;
+
+            if (this.competitionIndex >= this.config.competitions.length) {
+                this.competitionIndex = 0;
+            }
+
+            this.typeIndex = this.getNextTypeIndex(false);
+        }, this.config.rotationInterval);
     },
 
     /**

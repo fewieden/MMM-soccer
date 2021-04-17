@@ -53,8 +53,8 @@ module.exports = NodeHelper.create({
         const grouped = _.transform(config.competitions, (competitions, competition) => {
             _.set(competitions, [competition.code, 'code'], competition.code);
 
-            for (const type in competition.provider) {
-                _.set(competitions, [competition.code, type], _.get(competition, ['provider', type]));
+            for (const type of DATA_TYPES) {
+                _.set(competitions, [competition.code, type], _.get(competition, [type, 'provider']));
             }
 
             return competitions;
