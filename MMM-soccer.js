@@ -53,7 +53,12 @@ Module.register('MMM-soccer', {
                 standings: {
                     provider: 'football-data',
                     focusOn: 'SCF',
-                    maxTeams: 5
+                    maxEntries: 5
+                },
+                scorers: {
+                    provider: 'football-data',
+                    focusOn: 'SCF',
+                    maxEntries: 5
                 }
             },
             {
@@ -62,7 +67,7 @@ Module.register('MMM-soccer', {
                 standings: {
                     provider: 'football-data',
                     focusOn: 'LIV',
-                    maxTeams: 7
+                    maxEntries: 7
                 }
             }
         ]
@@ -85,9 +90,9 @@ Module.register('MMM-soccer', {
     },
 
     standings: {},
-    competitions: {},
+    scorers: {},
 
-    types: ['standings'],
+    types: ['standings', 'scorers'],
 
     competitionIndex: 0,
     typeIndex: 0,
@@ -115,11 +120,13 @@ Module.register('MMM-soccer', {
      * @param {*} payload - Detailed payload of the notification.
      */
     socketNotificationReceived(notification, payload) {
-        if (notification === 'standings') {
-            this.standings = payload;
+        if (this.types.includes(notification)) {
+            this[notification] = payload;
         }
 
-        this.updateDom(0);
+        if (notification === this.getCurrentType()) {
+            this.updateDom(0);
+        }
     },
 
     /**
@@ -182,7 +189,7 @@ Module.register('MMM-soccer', {
      * @returns {string} Path to nunjuck template.
      */
     getTemplate() {
-        return 'templates/MMM-soccer.njk';
+        return this.getCurrentType() === 'scorers' ? 'templates/TopList.njk' : 'templates/MMM-soccer.njk';
     },
 
     /**
@@ -194,13 +201,14 @@ Module.register('MMM-soccer', {
      */
     getTemplateData() {
         const code = this.config.competitions[this.competitionIndex].code;
+        const type = this.getCurrentType();
 
         return {
-            boundaries: this.calculateTeamDisplayBoundaries(),
+            boundaries: this.calculateDisplayBoundaries(),
             competition: code,
             config: this.config,
-            matchDayNumber: this.season?.currentMatchday || 'N/A',
-            standing: this.standings[code]
+            list: this[type][code],
+            type
         };
     },
 
@@ -305,15 +313,16 @@ Module.register('MMM-soccer', {
      *
      * @returns {number} Amount of teams to display
      */
-    getMaxTeams() {
+    getMaxEntries() {
         const code = this.config.competitions[this.competitionIndex].code;
         const competition = this.getCurrentCompetitionConfig();
+        const type = this.getCurrentType();
 
-        if (competition.maxTeams) {
-            return Math.min(Math.max(competition.maxTeams, 0), this.standings[code]?.length);
+        if (competition.maxEntries) {
+            return Math.min(Math.max(competition.maxEntries, 0), this[type][code]?.length);
         }
 
-        return this.standings[code]?.length;
+        return this[type][code]?.length;
     },
 
     /**
@@ -322,21 +331,23 @@ Module.register('MMM-soccer', {
      *
      * @returns {Object} Index of team, first and last team to display. focusTeamIndex is -1 if it can't be found.
      */
-    findFocusTeam() {
+    findFocusEntry() {
         const code = this.config.competitions[this.competitionIndex].code;
         const competition = this.getCurrentCompetitionConfig();
-        let focusTeamIndex = -1;
+        const type = this.getCurrentType();
 
-        for (let i = 0; i < this.standings[code]?.length; i += 1) {
-            if (this.standings[code][i].team === competition.focusOn) {
-                focusTeamIndex = i;
+        let focusEntryIndex = -1;
+
+        for (let i = 0; i < this[type][code]?.length; i += 1) {
+            if (this[type][code][i].team === competition.focusOn) {
+                focusEntryIndex = i;
                 break;
             }
         }
 
-        const {firstTeam, lastTeam} = this.getFirstAndLastTeam(focusTeamIndex);
+        const {firstEntry, lastEntry} = this.getFirstAndLastEntry(focusEntryIndex);
 
-        return {focusTeamIndex, firstTeam, lastTeam};
+        return {focusEntryIndex, firstEntry, lastEntry};
     },
 
     /**
@@ -347,26 +358,27 @@ Module.register('MMM-soccer', {
      *
      * @returns {Object} Index of the first and the last team.
      */
-    getFirstAndLastTeam(index) {
+    getFirstAndLastEntry(index) {
         const code = this.config.competitions[this.competitionIndex].code;
+        const type = this.getCurrentType();
 
-        let firstTeam = 0;
-        let lastTeam = this.standings[code]?.length - 1;
+        let firstEntry = 0;
+        let lastEntry = this[type][code]?.length - 1;
 
         const competition = this.getCurrentCompetitionConfig();
 
-        if (competition.maxTeams) {
-            const before = parseInt(competition.maxTeams / 2);
-            const indexDiff = competition.maxTeams - 1;
-            firstTeam = Math.max(index - before, 0);
-            if (firstTeam + indexDiff < this.standings[code]?.length) {
-                lastTeam = firstTeam + indexDiff;
+        if (competition.maxEntries) {
+            const before = parseInt(competition.maxEntries / 2);
+            const indexDiff = competition.maxEntries - 1;
+            firstEntry = Math.max(index - before, 0);
+            if (firstEntry + indexDiff < this[type][code]?.length) {
+                lastEntry = firstEntry + indexDiff;
             } else {
-                firstTeam = Math.max(lastTeam - indexDiff, 0);
+                firstEntry = Math.max(lastEntry - indexDiff, 0);
             }
         }
 
-        return {firstTeam, lastTeam};
+        return {firstEntry, lastEntry};
     },
 
     /**
@@ -375,32 +387,37 @@ Module.register('MMM-soccer', {
      *
      * @returns {Object} Index of team, first and last team to display.
      */
-    calculateTeamDisplayBoundaries() {
+    calculateDisplayBoundaries() {
         const competition = this.getCurrentCompetitionConfig();
 
         if (competition.focusOn) {
             if (competition.focusOn === 'TOP') {
                 return {
-                    focusTeamIndex: -1,
-                    firstTeam: 0,
-                    lastTeam: this.getMaxTeams() - 1
+                    focusEntryIndex: -1,
+                    firstEntry: 0,
+                    lastEntry: this.getMaxEntries() - 1
                 };
             } else if (competition.focusOn === 'BOTTOM') {
                 const code = this.config.competitions[this.competitionIndex].code;
+                const type = this.getCurrentType();
 
                 return {
-                    focusTeamIndex: -1,
-                    firstTeam: this.standings[code]?.length - this.getMaxTeams(),
-                    lastTeam: this.standings[code]?.length - 1
+                    focusEntryIndex: -1,
+                    firstEntry: this[type][code]?.length - this.getMaxEntries(),
+                    lastEntry: this[type][code]?.length - 1
                 };
             }
         }
 
-        return this.findFocusTeam();
+        return this.findFocusEntry();
     },
 
     getCurrentCompetitionConfig() {
-        return this.config.competitions[this.competitionIndex][this.types[this.typeIndex]];
+        return this.config.competitions[this.competitionIndex][this.getCurrentType()];
+    },
+
+    getCurrentType() {
+        return this.types[this.typeIndex];
     },
 
     getNextTypeIndex(shift) {
@@ -445,10 +462,10 @@ Module.register('MMM-soccer', {
         this.nunjucksEnvironment().addFilter('fade', (index, focus) => {
             const competition = this.getCurrentCompetitionConfig();
 
-            if (competition.maxTeams && focus >= 0) {
+            if (competition.maxEntries && focus >= 0) {
                 if (index !== focus) {
                     const currentStep = Math.abs(index - focus);
-                    const percentage = (1 - 1 / competition.maxTeams * currentStep).toFixed(2);
+                    const percentage = (1 - 1 / competition.maxEntries * currentStep).toFixed(2);
 
                     return `opacity: ${percentage}`;
                 }

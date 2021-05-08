@@ -21,7 +21,7 @@ const NodeHelper = require('node_helper');
 const {handleError, initProvider, getProvider} = require('./provider');
 
 const MINUTE_IN_MILLISECONDS = 60 * 1000;
-const DATA_TYPES = ['standings'];
+const DATA_TYPES = ['standings', 'scorers'];
 
 /**
  * @module node_helper

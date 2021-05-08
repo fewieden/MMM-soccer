@@ -12,6 +12,9 @@ function registerProvider(name, implementation) {
         fetchStandings(competition) {
             throw new SoccerError(METHOD_NOT_IMPLEMENTED, {competition, provider: name});
         },
+        fetchScorers(competition) {
+            throw new SoccerError(METHOD_NOT_IMPLEMENTED, {competition, provider: name});
+        },
         ...implementation
     };
 }

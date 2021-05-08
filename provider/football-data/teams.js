@@ -176,4 +176,8 @@ function getTeamCode(team = {}) {
     return _.get(mapping, team.id, team.name);
 }
 
-module.exports = {getTeamCode};
+function getTeamLogo(team = {}) {
+    return `https://crests.football-data.org/${team.id}.svg`;
+}
+
+module.exports = {getTeamCode, getTeamLogo};

@@ -9,9 +9,7 @@
             {% if config.logos %}
                 <th></th>
             {% endif %}
-            <th class="name">{{ "TEAM" | translate }}</th>
-            <th class="centered"><i class="fa fa-calendar-check"/></th>
-            <th class="centered"><i class="fa fa-line-chart"/></th>
+            <th class="name">{{ "NAME" | translate }}</th>
             <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
         </tr>
     </thead>
@@ -22,16 +20,8 @@
                 {% if config.logos %}
                     <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{ list[index].logo }}"/></td>
                 {% endif %}
-                <td class="name">
-                    {% if config.shortNames %}
-                        {{ list[index].team }}
-                    {% else %}
-                        {{ list[index].team | translate }}
-                    {% endif %}
-                </td>
-                <td class="centered">{{ list[index].playedGames }}</td>
-                <td class="centered">{{ list[index].points }}</td>
-                <td class="centered">{{ list[index].goalDifference }}</td>
+                <td class="name">{{ list[index].name }}</td>
+                <td class="centered">{{ list[index].value }}</td>
             </tr>
         {% endfor %}
     </tbody>

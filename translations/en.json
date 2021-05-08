@@ -1,11 +1,15 @@
 {
   "LOADING": "loading...",
   "NO_DATA_AVAILABLE": "No data available!",
-  "MATCHDAY": "Matchday {matchDayNumber}",
   "TEAM": "Team",
+  "NAME": "Name",
+  "scorers": "Scorers",
+  "standings": "Standing",
   "COMMAND_LIST": "List of all Voice Commands",
   "MODE": "Mode",
   "VOICE_COMMANDS": "Voice Commands",
+
+
 
   "BSA": "Serie A Brazil",
   "APR": "Athletico Paranaense",
