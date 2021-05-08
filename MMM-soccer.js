@@ -44,17 +44,8 @@ Module.register('MMM-soccer', {
     defaults: {
         api_key: false,
         colored: false,
-        show: 'GERMANY',
-        focus_on: false,
-        max_teams: false,
         logos: false,
-        leagues: {
-            GERMANY: 'BL1',
-            FRANCE: 'FL1',
-            ENGLAND: 'PL',
-            SPAIN: 'PD',
-            ITALY: 'SA'
-        },
+        rotationInterval: 15 * 1000,
         competitions: [
             {
                 code: 'BL1',
@@ -64,9 +55,17 @@ Module.register('MMM-soccer', {
                     focusOn: 'SCF',
                     maxTeams: 5
                 }
+            },
+            {
+                code: 'PL',
+                type: 'league',
+                standings: {
+                    provider: 'football-data',
+                    focusOn: 'LIV',
+                    maxTeams: 7
+                }
             }
-        ],
-        rotationInterval: 15 * 1000
+        ]
     },
 
     /**
@@ -85,22 +84,8 @@ Module.register('MMM-soccer', {
         ]
     },
 
-    /**
-     * @member {boolean} loading - Flag to indicate the loading state of the module.
-     */
-    loading: true,
-    /**
-     * @member {Object[]} standing - Stores the list of standing table entries of current selected league.
-     */
-    standing: [],
-    /**
-     * @member {Object} competition - Details about the current selected league.
-     */
-    competition: {},
-    /**
-     * @member {Object} season - Details about the current season of the selected league.
-     */
-    season: {},
+    standings: {},
+    competitions: {},
 
     types: ['standings'],
 
@@ -117,8 +102,8 @@ Module.register('MMM-soccer', {
     start() {
         Log.info(`Starting module: ${this.name}`);
         this.addFilters();
-        this.sendSocketNotification('CONFIG', this.config);
         this.scheduleCarousel();
+        this.sendSocketNotification('CONFIG', this.config);
     },
 
     /**
@@ -130,14 +115,11 @@ Module.register('MMM-soccer', {
      * @param {*} payload - Detailed payload of the notification.
      */
     socketNotificationReceived(notification, payload) {
-        if (notification === 'STANDINGS') {
-            const data = payload[this.config.competitions[0].code];
-            this.standing = data.standings;
-            this.season = data.season;
-            this.competition = data.competition;
-            this.loading = false;
-            this.updateDom(300);
+        if (notification === 'standings') {
+            this.standings = payload;
         }
+
+        this.updateDom(0);
     },
 
     /**
@@ -151,10 +133,10 @@ Module.register('MMM-soccer', {
      */
     notificationReceived(notification, payload, sender) {
         if (notification === 'ALL_MODULES_STARTED') {
-            const leagues = Object.keys(this.config.leagues).join(' ');
+            const competitions = this.config.competitions.map(competition => competition.code).join(' ');
             this.sendNotification('REGISTER_VOICE_MODULE', {
                 mode: this.voice.mode,
-                sentences: [...this.voice.sentences, leagues]
+                sentences: [...this.voice.sentences, competitions]
             });
         } else if (notification === 'VOICE_SOCCER' && sender.name === 'MMM-voice') {
             this.executeVoiceCommands(payload);
@@ -211,13 +193,14 @@ Module.register('MMM-soccer', {
      * @returns {string} Data for the nunjuck template.
      */
     getTemplateData() {
+        const code = this.config.competitions[this.competitionIndex].code;
+
         return {
             boundaries: this.calculateTeamDisplayBoundaries(),
             competitionName: this.competition.name || this.name,
             config: this.config,
-            matchDayNumber: this.season.currentMatchday || 'N/A',
-            standing: this.standing,
-            loading: this.loading
+            matchDayNumber: this.season?.currentMatchday || 'N/A',
+            standing: this.standings[code]
         };
     },
 
@@ -323,11 +306,14 @@ Module.register('MMM-soccer', {
      * @returns {number} Amount of teams to display
      */
     getMaxTeams() {
-        if (this.config.max_teams) {
-            return Math.min(Math.max(this.config.max_teams, 0), this.standing.length);
+        const code = this.config.competitions[this.competitionIndex].code;
+        const competition = this.getCurrentCompetitionConfig();
+
+        if (competition.maxTeams) {
+            return Math.min(Math.max(competition.maxTeams, 0), this.standings[code]?.length);
         }
 
-        return this.standing.length;
+        return this.standings[code]?.length;
     },
 
     /**
@@ -337,10 +323,12 @@ Module.register('MMM-soccer', {
      * @returns {Object} Index of team, first and last team to display. focusTeamIndex is -1 if it can't be found.
      */
     findFocusTeam() {
+        const code = this.config.competitions[this.competitionIndex].code;
+        const competition = this.getCurrentCompetitionConfig();
         let focusTeamIndex = -1;
 
-        for (let i = 0; i < this.standing.length; i += 1) {
-            if (this.standing[i].team === this.config.focus_on[this.config.show]) {
+        for (let i = 0; i < this.standings[code]?.length; i += 1) {
+            if (this.standings[code][i].team === competition.focusOn) {
                 focusTeamIndex = i;
                 break;
             }
@@ -360,14 +348,18 @@ Module.register('MMM-soccer', {
      * @returns {Object} Index of the first and the last team.
      */
     getFirstAndLastTeam(index) {
-        let firstTeam = 0;
-        let lastTeam = this.standing.length - 1;
+        const code = this.config.competitions[this.competitionIndex].code;
 
-        if (this.config.max_teams) {
-            const before = parseInt(this.config.max_teams / 2);
-            const indexDiff = this.config.max_teams - 1;
+        let firstTeam = 0;
+        let lastTeam = this.standings[code]?.length - 1;
+
+        const competition = this.getCurrentCompetitionConfig();
+
+        if (competition.maxTeams) {
+            const before = parseInt(competition.maxTeams / 2);
+            const indexDiff = competition.maxTeams - 1;
             firstTeam = Math.max(index - before, 0);
-            if (firstTeam + indexDiff < this.standing.length) {
+            if (firstTeam + indexDiff < this.standings[code]?.length) {
                 lastTeam = firstTeam + indexDiff;
             } else {
                 firstTeam = Math.max(lastTeam - indexDiff, 0);
@@ -384,23 +376,31 @@ Module.register('MMM-soccer', {
      * @returns {Object} Index of team, first and last team to display.
      */
     calculateTeamDisplayBoundaries() {
-        if (this.config.focus_on && Object.prototype.hasOwnProperty.call(this.config.focus_on, this.config.show)) {
-            if (this.config.focus_on[this.config.show] === 'TOP') {
+        const competition = this.getCurrentCompetitionConfig();
+
+        if (competition.focusOn) {
+            if (competition.focusOn === 'TOP') {
                 return {
                     focusTeamIndex: -1,
                     firstTeam: 0,
                     lastTeam: this.getMaxTeams() - 1
                 };
-            } else if (this.config.focus_on[this.config.show] === 'BOTTOM') {
+            } else if (competition.focusOn === 'BOTTOM') {
+                const code = this.config.competitions[this.competitionIndex].code;
+
                 return {
                     focusTeamIndex: -1,
-                    firstTeam: this.standing.length - this.getMaxTeams(),
-                    lastTeam: this.standing.length - 1
+                    firstTeam: this.standings[code]?.length - this.getMaxTeams(),
+                    lastTeam: this.standings[code]?.length - 1
                 };
             }
         }
 
         return this.findFocusTeam();
+    },
+
+    getCurrentCompetitionConfig() {
+        return this.config.competitions[this.competitionIndex][this.types[this.typeIndex]];
     },
 
     getNextTypeIndex(shift) {
@@ -420,7 +420,7 @@ Module.register('MMM-soccer', {
             this.typeIndex = this.getNextTypeIndex(true);
 
             if (this.typeIndex !== 0) {
-                return;
+                return this.updateDom(300);
             }
 
             this.competitionIndex++;
@@ -430,6 +430,8 @@ Module.register('MMM-soccer', {
             }
 
             this.typeIndex = this.getNextTypeIndex(false);
+
+            return this.updateDom(300);
         }, this.config.rotationInterval);
     },
 
@@ -441,10 +443,12 @@ Module.register('MMM-soccer', {
      */
     addFilters() {
         this.nunjucksEnvironment().addFilter('fade', (index, focus) => {
-            if (this.config.max_teams && focus >= 0) {
+            const competition = this.getCurrentCompetitionConfig();
+
+            if (competition.maxTeams && focus >= 0) {
                 if (index !== focus) {
                     const currentStep = Math.abs(index - focus);
-                    const percentage = (1 - 1 / this.config.max_teams * currentStep).toFixed(2);
+                    const percentage = (1 - 1 / competition.maxTeams * currentStep).toFixed(2);
 
                     return `opacity: ${percentage}`;
                 }

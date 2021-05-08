@@ -97,10 +97,12 @@ module.exports = NodeHelper.create({
 
         const responses = await Promise.all(requests);
 
-        const filteredResponses = _.filter(responses, response => _.isArray(_.get(response, type)));
+        const indexedCompetitions = _.transform(responses, (indexed, response) => {
+            if (_.isArray(_.get(response, type))) {
+                indexed[response.code] = response[type];
+            }
+        }, {});
 
-        const indexedResponsesByCompetition = _.keyBy(filteredResponses, 'code');
-
-        this.sendSocketNotification(_.upperCase(type), indexedResponsesByCompetition);
+        this.sendSocketNotification(type, indexedCompetitions);
     }
 });
