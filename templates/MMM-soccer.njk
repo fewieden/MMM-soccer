@@ -2,7 +2,7 @@
     <div class="dimmed light">{{ "LOADING" | translate | safe }}</div>
 {% else %}
     <header class="space-between">
-        <span>{{ competitionName }}</span>
+        <span>{{ competition | translate }}</span>&nbsp;
         <span>{{ "MATCHDAY" | translate({matchDayNumber: matchDayNumber}) }}</span>
     </header>
     <table class="xsmall table">

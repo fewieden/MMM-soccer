@@ -197,7 +197,7 @@ Module.register('MMM-soccer', {
 
         return {
             boundaries: this.calculateTeamDisplayBoundaries(),
-            competitionName: this.competition.name || this.name,
+            competition: code,
             config: this.config,
             matchDayNumber: this.season?.currentMatchday || 'N/A',
             standing: this.standings[code]
