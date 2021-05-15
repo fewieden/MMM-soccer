@@ -2,7 +2,7 @@ const _ = require('lodash');
 const fetch = require('node-fetch');
 
 const {registerProvider} = require('../provider');
-const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, FETCHING_SCORERS, API_LIMIT_REACHED, API_KEY_REQUIRED} = require('../utils');
+const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, FETCHING_SCORERS, API_LIMIT_REACHED, API_KEY_REQUIRED, computeGroupStandings, isCompetitionTypeCup} = require('../utils');
 
 const {getTeamCode, getTeamLogo} = require('./teams');
 const {BASE_URL, PROVIDER_NAME, COMPETITIONS} = require('./constants');
@@ -38,10 +38,27 @@ function mapStandingEntry(entry = {}) {
     };
 }
 
+function mapMatchEntry(entry = {}) {
+    return {
+        stage: entry.stage,
+        group: entry.group,
+        status: entry.status,
+        homeLogo: getTeamLogo(entry.homeTeam),
+        homeTeam: getTeamCode(entry.homeTeam),
+        homeScore: entry.score?.fullTime?.homeTeam || 0,
+        awayLogo: getTeamLogo(entry.awayTeam),
+        awayTeam: getTeamCode(entry.awayTeam),
+        awayScore: entry.score?.fullTime?.awayTeam || 0,
+    };
+}
+
 async function fetchStandings(competition) {
+    const isCup = isCompetitionTypeCup(competition);
     const competitionId = getCompetitionId(competition);
 
-    const response = await fetch(`${BASE_URL}/competitions/${competitionId}/standings`, getRequestOptions());
+    const endPoint = isCup ? 'matches' : 'standings';
+
+    const response = await fetch(`${BASE_URL}/competitions/${competitionId}/${endPoint}`, getRequestOptions());
 
     if (!response.ok) {
         const reason = response.status === 429 ? API_LIMIT_REACHED : FETCHING_STANDINGS;
@@ -51,12 +68,15 @@ async function fetchStandings(competition) {
 
     const parsedResponse = await response.json();
 
+    if (isCup) {
+        const matches = _.map(parsedResponse.matches, mapMatchEntry);
+
+        return {code: competition, standings: computeGroupStandings(matches)};
+    }
+
     const standings = _.get(parsedResponse, ['standings', 0, 'table']);
 
-    return {
-        code: competition,
-        standings: _.map(standings, mapStandingEntry)
-    };
+    return {code: competition, standings: _.map(standings, mapStandingEntry)};
 }
 
 async function fetchScorers(competition) {
@@ -84,10 +104,7 @@ async function fetchScorers(competition) {
         });
     });
 
-    return {
-        code: competition,
-        scorers
-    };
+    return {code: competition, scorers};
 }
 
 function init(config) {

@@ -1,0 +1,5 @@
+const LIST_OF_CUPS = ['CL', 'EC', 'ELC', 'WC'];
+
+const POINT_RELATED_STATUSES = ['IN_PLAY', 'PAUSED', 'FINISHED', 'AWARDED'];
+
+module.exports = {LIST_OF_CUPS, POINT_RELATED_STATUSES};

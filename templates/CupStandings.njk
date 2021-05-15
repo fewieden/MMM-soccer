@@ -1,0 +1,38 @@
+<header class="space-between">
+    <span>{{ competition | translate }}</span>&nbsp;
+    <span>{{ type | translate }}</span>
+</header>
+<table class="xsmall table">
+    <thead>
+        <tr class="row">
+            <th class="centered"><i class="fa fa-hashtag"/></th>
+            {% if config.logos %}
+                <th></th>
+            {% endif %}
+            <th class="name">{{ "TEAM" | translate }}</th>
+            <th class="centered"><i class="fa fa-calendar-check"/></th>
+            <th class="centered"><i class="fa fa-line-chart"/></th>
+            <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for index in range(boundaries.firstEntry, boundaries.lastEntry + 1) %}
+            <tr class="centered-row {% if index === boundaries.focusEntryIndex %}bright{% endif %}" style="{{ index | fade(boundaries.focusEntryIndex) }}">
+                <td class="centered">{{ list[index].position }}</td>
+                {% if config.logos %}
+                    <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{ list[index].logo }}"/></td>
+                {% endif %}
+                <td class="name">
+                    {% if config.shortNames %}
+                        {{ list[index].team }}
+                    {% else %}
+                        {{ list[index].team | translate }}
+                    {% endif %}
+                </td>
+                <td class="centered">{{ list[index].playedGames }}</td>
+                <td class="centered">{{ list[index].points }}</td>
+                <td class="centered">{{ list[index].goalsScored - list[index].goalsAgainst }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

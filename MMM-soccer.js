@@ -62,8 +62,8 @@ Module.register('MMM-soccer', {
                 }
             },
             {
-                code: 'PL',
-                type: 'league',
+                code: 'CL',
+                type: 'cup',
                 standings: {
                     provider: 'football-data',
                     focusOn: 'LIV',
@@ -189,7 +189,15 @@ Module.register('MMM-soccer', {
      * @returns {string} Path to nunjuck template.
      */
     getTemplate() {
-        return this.getCurrentType() === 'scorers' ? 'templates/TopList.njk' : 'templates/MMM-soccer.njk';
+        let templateName = 'MMM-soccer';
+
+        if (this.getCurrentType() === 'scorers') {
+            templateName = 'TopList';
+        } else if (this.config.competitions[this.competitionIndex].type === 'cup') {
+            templateName = 'CupStandings';
+        }
+
+        return `templates/${templateName}.njk`;
     },
 
     /**
@@ -200,14 +208,18 @@ Module.register('MMM-soccer', {
      * @returns {string} Data for the nunjuck template.
      */
     getTemplateData() {
-        const code = this.config.competitions[this.competitionIndex].code;
+        const {code, type: leagueType} = this.config.competitions[this.competitionIndex];
         const type = this.getCurrentType();
 
+        const boundaries = this.calculateDisplayBoundaries();
+
+        const list = leagueType === 'cup' ? this[type][code][boundaries.focusGroupIndex] : this[type][code];
+
         return {
-            boundaries: this.calculateDisplayBoundaries(),
+            boundaries,
             competition: code,
             config: this.config,
-            list: this[type][code],
+            list,
             type
         };
     },
@@ -325,6 +337,19 @@ Module.register('MMM-soccer', {
         return this[type][code]?.length;
     },
 
+    getFocusEntryIndex(list = [], focusOn) {
+        let focusEntryIndex = -1;
+
+        for (let i = 0; i < list?.length; i += 1) {
+            if (list[i].team === focusOn) {
+                focusEntryIndex = i;
+                break;
+            }
+        }
+
+        return focusEntryIndex;
+    },
+
     /**
      * @function findFocusTeam
      * @description Helper function to find index of team in standings
@@ -332,22 +357,32 @@ Module.register('MMM-soccer', {
      * @returns {Object} Index of team, first and last team to display. focusTeamIndex is -1 if it can't be found.
      */
     findFocusEntry() {
-        const code = this.config.competitions[this.competitionIndex].code;
+        const {code, type: leagueType} = this.config.competitions[this.competitionIndex];
         const competition = this.getCurrentCompetitionConfig();
         const type = this.getCurrentType();
 
-        let focusEntryIndex = -1;
+        let lists = this[type][code];
 
-        for (let i = 0; i < this[type][code]?.length; i += 1) {
-            if (this[type][code][i].team === competition.focusOn) {
-                focusEntryIndex = i;
+        if (leagueType !== 'cup') {
+            lists = [this[type][code]];
+        }
+
+
+        let focusEntryIndex = -1;
+        let focusGroupIndex = 0;
+
+        for (let i = 0; i < lists.length; i++) {
+            focusEntryIndex = this.getFocusEntryIndex(lists[i], competition.focusOn);
+
+            if (focusEntryIndex !== -1) {
+                focusGroupIndex = i;
                 break;
             }
         }
 
-        const {firstEntry, lastEntry} = this.getFirstAndLastEntry(focusEntryIndex);
+        const {firstEntry, lastEntry} = this.getFirstAndLastEntry(lists[focusGroupIndex], focusEntryIndex);
 
-        return {focusEntryIndex, firstEntry, lastEntry};
+        return {focusEntryIndex, focusGroupIndex, firstEntry, lastEntry};
     },
 
     /**
@@ -358,12 +393,9 @@ Module.register('MMM-soccer', {
      *
      * @returns {Object} Index of the first and the last team.
      */
-    getFirstAndLastEntry(index) {
-        const code = this.config.competitions[this.competitionIndex].code;
-        const type = this.getCurrentType();
-
+    getFirstAndLastEntry(list = [], index) {
         let firstEntry = 0;
-        let lastEntry = this[type][code]?.length - 1;
+        let lastEntry = list.length - 1;
 
         const competition = this.getCurrentCompetitionConfig();
 
@@ -371,7 +403,7 @@ Module.register('MMM-soccer', {
             const before = parseInt(competition.maxEntries / 2);
             const indexDiff = competition.maxEntries - 1;
             firstEntry = Math.max(index - before, 0);
-            if (firstEntry + indexDiff < this[type][code]?.length) {
+            if (firstEntry + indexDiff < list.length) {
                 lastEntry = firstEntry + indexDiff;
             } else {
                 firstEntry = Math.max(lastEntry - indexDiff, 0);
