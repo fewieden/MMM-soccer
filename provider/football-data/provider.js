@@ -41,7 +41,7 @@ function mapStandingEntry(entry = {}) {
 function mapMatchEntry(entry = {}) {
     return {
         stage: entry.stage,
-        group: entry.group,
+        group: entry.group?.replace('Group ', ''),
         status: entry.status,
         homeLogo: getTeamLogo(entry.homeTeam),
         homeTeam: getTeamCode(entry.homeTeam),
@@ -71,12 +71,20 @@ async function fetchStandings(competition) {
     if (isCup) {
         const matches = _.map(parsedResponse.matches, mapMatchEntry);
 
-        return {code: competition, standings: computeGroupStandings(matches)};
+        return {
+            code: competition,
+            details: {isCup},
+            groups: computeGroupStandings(matches)
+        };
     }
 
     const standings = _.get(parsedResponse, ['standings', 0, 'table']);
 
-    return {code: competition, standings: _.map(standings, mapStandingEntry)};
+    return {
+        code: competition,
+        details: {isCup},
+        list: _.map(standings, mapStandingEntry)
+    };
 }
 
 async function fetchScorers(competition) {
@@ -104,7 +112,11 @@ async function fetchScorers(competition) {
         });
     });
 
-    return {code: competition, scorers};
+    return {
+        code: competition,
+        details: {isCup: isCompetitionTypeCup(competition)},
+        list: scorers
+    };
 }
 
 function init(config) {

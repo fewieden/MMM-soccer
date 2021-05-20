@@ -1,4 +1,5 @@
-const errors = require('./errors');
+const constants = require('./constants');
 const cupUtils = require('./cupUtils');
+const errors = require('./errors');
 
-module.exports = {...errors, ...cupUtils};
+module.exports = {...constants, ...cupUtils, ...errors};

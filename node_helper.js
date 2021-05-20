@@ -18,10 +18,9 @@ const _ = require('lodash');
  */
 const NodeHelper = require('node_helper');
 
-const {handleError, initProvider, getProvider} = require('./provider');
+const {handleError, initProvider, getProvider, DATA_TYPES} = require('./provider');
 
 const MINUTE_IN_MILLISECONDS = 60 * 1000;
-const DATA_TYPES = ['standings', 'scorers'];
 
 /**
  * @module node_helper
@@ -97,12 +96,6 @@ module.exports = NodeHelper.create({
 
         const responses = await Promise.all(requests);
 
-        const indexedCompetitions = _.transform(responses, (indexed, response) => {
-            if (_.isArray(_.get(response, type))) {
-                indexed[response.code] = response[type];
-            }
-        }, {});
-
-        this.sendSocketNotification(type, indexedCompetitions);
+        this.sendSocketNotification(type, _.keyBy(responses, 'code'));
     }
 });

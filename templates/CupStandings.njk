@@ -5,6 +5,11 @@
 <table class="xsmall table">
     <thead>
         <tr class="row">
+            <th colspan="{{ 6 if config.logos else 5 }}" class="align-left">
+                {{ "GROUP" | translate }}: {{ details.group }}
+            </th>
+        </tr>
+        <tr class="row">
             <th class="centered"><i class="fa fa-hashtag"/></th>
             {% if config.logos %}
                 <th></th>

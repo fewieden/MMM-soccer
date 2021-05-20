@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const {LIST_OF_CUPS, POINT_RELATED_STATUSES} = require('./constants');
+const {SUPPORTED_COMPETITIONS, POINT_RELATED_STATUSES} = require('./constants');
 
 function initStatsByGroup(matchesByGroup) {
     let statsByGroup = {};
@@ -214,7 +214,10 @@ function getStandingsWithPositions(statsByGroup, matchesByGroup) {
     for (const group in statsByGroup) {
         let groupStanding = _.values(statsByGroup[group]);
         groupStanding = _.orderBy(groupStanding, 'points', 'desc');
-        standings.push(computePositionsForGroupRest([], groupStanding, matchesByGroup[group]));
+        standings.push({
+            details: {group},
+            list: computePositionsForGroupRest([], groupStanding, matchesByGroup[group])
+        });
     }
 
     return standings;
@@ -231,7 +234,7 @@ function computeGroupStandings(matches) {
 }
 
 function isCompetitionTypeCup(competition) {
-    return LIST_OF_CUPS.includes(competition);
+    return _.get(SUPPORTED_COMPETITIONS, [competition, 'type']) === 'cup';
 }
 
 module.exports = {computeGroupStandings, isCompetitionTypeCup};

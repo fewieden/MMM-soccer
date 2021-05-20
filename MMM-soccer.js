@@ -49,7 +49,6 @@ Module.register('MMM-soccer', {
         competitions: [
             {
                 code: 'BL1',
-                type: 'league',
                 standings: {
                     provider: 'football-data',
                     focusOn: 'SCF',
@@ -63,7 +62,6 @@ Module.register('MMM-soccer', {
             },
             {
                 code: 'CL',
-                type: 'cup',
                 standings: {
                     provider: 'football-data',
                     focusOn: 'LIV',
@@ -189,11 +187,14 @@ Module.register('MMM-soccer', {
      * @returns {string} Path to nunjuck template.
      */
     getTemplate() {
+        const {code} = this.config.competitions[this.competitionIndex];
+        const type = this.getCurrentType();
+
         let templateName = 'MMM-soccer';
 
         if (this.getCurrentType() === 'scorers') {
             templateName = 'TopList';
-        } else if (this.config.competitions[this.competitionIndex].type === 'cup') {
+        } else if (this[type][code]?.details?.isCup) {
             templateName = 'CupStandings';
         }
 
@@ -208,17 +209,18 @@ Module.register('MMM-soccer', {
      * @returns {string} Data for the nunjuck template.
      */
     getTemplateData() {
-        const {code, type: leagueType} = this.config.competitions[this.competitionIndex];
+        const {code} = this.config.competitions[this.competitionIndex];
         const type = this.getCurrentType();
 
-        const boundaries = this.calculateDisplayBoundaries();
+        const {focusEntryIndex, focusGroupIndex, list, details} = this.findFocusAndList();
 
-        const list = leagueType === 'cup' ? this[type][code][boundaries.focusGroupIndex] : this[type][code];
+        const boundaries = this.calculateDisplayBoundaries(list, focusEntryIndex);
 
         return {
-            boundaries,
+            boundaries: {...boundaries, focusEntryIndex, focusGroupIndex},
             competition: code,
             config: this.config,
+            details,
             list,
             type
         };
@@ -319,35 +321,8 @@ Module.register('MMM-soccer', {
         }
     },
 
-    /**
-     * @function getMaxTeams
-     * @description Are there less entries than the config option specifies.
-     *
-     * @returns {number} Amount of teams to display
-     */
-    getMaxEntries() {
-        const code = this.config.competitions[this.competitionIndex].code;
-        const competition = this.getCurrentCompetitionConfig();
-        const type = this.getCurrentType();
-
-        if (competition.maxEntries) {
-            return Math.min(Math.max(competition.maxEntries, 0), this[type][code]?.length);
-        }
-
-        return this[type][code]?.length;
-    },
-
     getFocusEntryIndex(list = [], focusOn) {
-        let focusEntryIndex = -1;
-
-        for (let i = 0; i < list?.length; i += 1) {
-            if (list[i].team === focusOn) {
-                focusEntryIndex = i;
-                break;
-            }
-        }
-
-        return focusEntryIndex;
+        return list.findIndex(entry => entry.team === focusOn);
     },
 
     /**
@@ -356,23 +331,20 @@ Module.register('MMM-soccer', {
      *
      * @returns {Object} Index of team, first and last team to display. focusTeamIndex is -1 if it can't be found.
      */
-    findFocusEntry() {
-        const {code, type: leagueType} = this.config.competitions[this.competitionIndex];
+    findFocusAndList() {
+        const {code} = this.config.competitions[this.competitionIndex];
         const competition = this.getCurrentCompetitionConfig();
         const type = this.getCurrentType();
 
-        let lists = this[type][code];
-
-        if (leagueType !== 'cup') {
-            lists = [this[type][code]];
-        }
-
+        const data = this[type][code];
+        const isCup = data?.details?.isCup;
+        const lists = isCup ? data?.groups : [data];
 
         let focusEntryIndex = -1;
         let focusGroupIndex = 0;
 
         for (let i = 0; i < lists.length; i++) {
-            focusEntryIndex = this.getFocusEntryIndex(lists[i], competition.focusOn);
+            focusEntryIndex = this.getFocusEntryIndex(lists[i]?.list, competition.focusOn);
 
             if (focusEntryIndex !== -1) {
                 focusGroupIndex = i;
@@ -380,37 +352,13 @@ Module.register('MMM-soccer', {
             }
         }
 
-        const {firstEntry, lastEntry} = this.getFirstAndLastEntry(lists[focusGroupIndex], focusEntryIndex);
-
-        return {focusEntryIndex, focusGroupIndex, firstEntry, lastEntry};
-    },
-
-    /**
-     * @function getFirstAndLastTeam
-     * @description Helper function to get the boundaries of the teams that should be displayed.
-     *
-     * @param {number} index - Index of the focus_on team.
-     *
-     * @returns {Object} Index of the first and the last team.
-     */
-    getFirstAndLastEntry(list = [], index) {
-        let firstEntry = 0;
-        let lastEntry = list.length - 1;
-
-        const competition = this.getCurrentCompetitionConfig();
-
-        if (competition.maxEntries) {
-            const before = parseInt(competition.maxEntries / 2);
-            const indexDiff = competition.maxEntries - 1;
-            firstEntry = Math.max(index - before, 0);
-            if (firstEntry + indexDiff < list.length) {
-                lastEntry = firstEntry + indexDiff;
-            } else {
-                firstEntry = Math.max(lastEntry - indexDiff, 0);
-            }
+        if (focusEntryIndex === -1) {
+            focusEntryIndex = 0;
         }
 
-        return {firstEntry, lastEntry};
+        const details = {...data?.details, ...lists[focusGroupIndex]?.details, };
+
+        return {focusEntryIndex, focusGroupIndex, list: lists[focusGroupIndex]?.list, details};
     },
 
     /**
@@ -419,29 +367,24 @@ Module.register('MMM-soccer', {
      *
      * @returns {Object} Index of team, first and last team to display.
      */
-    calculateDisplayBoundaries() {
+    calculateDisplayBoundaries(list = [], focusEntryIndex) {
+        let firstEntry = 0;
+        let lastEntry = list.length - 1;
+
         const competition = this.getCurrentCompetitionConfig();
 
-        if (competition.focusOn) {
-            if (competition.focusOn === 'TOP') {
-                return {
-                    focusEntryIndex: -1,
-                    firstEntry: 0,
-                    lastEntry: this.getMaxEntries() - 1
-                };
-            } else if (competition.focusOn === 'BOTTOM') {
-                const code = this.config.competitions[this.competitionIndex].code;
-                const type = this.getCurrentType();
-
-                return {
-                    focusEntryIndex: -1,
-                    firstEntry: this[type][code]?.length - this.getMaxEntries(),
-                    lastEntry: this[type][code]?.length - 1
-                };
+        if (competition.maxEntries) {
+            const before = parseInt(competition.maxEntries / 2);
+            const indexDiff = competition.maxEntries - 1;
+            firstEntry = Math.max(focusEntryIndex - before, 0);
+            if (firstEntry + indexDiff < list.length) {
+                lastEntry = firstEntry + indexDiff;
+            } else {
+                firstEntry = Math.max(lastEntry - indexDiff, 0);
             }
         }
 
-        return this.findFocusEntry();
+        return {firstEntry, lastEntry};
     },
 
     getCurrentCompetitionConfig() {
