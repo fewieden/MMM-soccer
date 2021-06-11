@@ -19,6 +19,15 @@ European Soccer Standings Module for MagicMirror²
 * Run command `npm i --production` in `~/MagicMirror/modules/MMM-soccer` directory.
 * Configure your `~/MagicMirror/config/config.js` file. The config of this module can be complex for beginners. You can take a look at a [full example](#full-example) as reference.
 
+## Slow mode
+
+To not exceed the limit of your API this module is using a slow mode during the start.
+
+This means you can see the following data points `X` mins after starting your mirror:
+- Standings (immediately)
+- Schedules (1 minute)
+- Scorers (2 minutes)
+
 ## Global config
 
 | **Option** | **Default** | **Description** |
@@ -46,7 +55,7 @@ For each competition you have the following options.
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
 | `code` | **`REQUIRED`** | Specify which competition it is, see all [supported competition codes](#competition-codes). |
-| `standings` | `Not specified` | Specify the option that you want to use for this display type in this competition. Don't specify it, if you don't want this display type in this competition. See all [display type options](#display-type-options). |
+| `standings` | `Not specified` | Specify the option that you want to use for this display type in this competition. Don't specify it, if you don't want this display type in this competition. See all [display type options](#display-type-options). Cup competitions only show the group phase standings. |
 | `schedules` | `Not specified` | Specify the option that you want to use for this display type in this competition. Don't specify it, if you don't want this display type in this competition. See all [display type options](#display-type-options). |
 | `scorers` | `Not specified` | Specify the option that you want to use for this display type in this competition. Don't specify it, if you don't want this display type in this competition. See all [display type options](#display-type-options). |
 
