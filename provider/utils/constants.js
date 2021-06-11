@@ -12,9 +12,9 @@ const SUPPORTED_COMPETITIONS = {
     PPL: {},
     DED: {},
     BSA: {},
+    ELC: {},
     CL: {type: 'cup'},
     EC: {type: 'cup', team: 'country'},
-    ELC: {type: 'cup'},
     WC: {type: 'cup', team: 'country'}
 };
 
