@@ -1,15 +1,21 @@
 <header class="space-between">
-    <span>{{ competition | translate }}</span>&nbsp;
-    <span>{{ type | translate }}</span>
+    <span>{{ competition | prefixTranslate("competition") }}</span>&nbsp;<span><i class="fa {{ type | icon }}"></i></span>
 </header>
 <table class="xsmall table">
     <thead>
+        {% if details.matchDay %}
+            <tr class="row">
+                <th colspan="{{ 4 if config.logos else 3 }}" class="align-right">
+                    {{ "MATCHDAY" | translate({matchDayNumber: details.matchDay}) }}
+                </th>
+            </tr>
+        {% endif %}
         <tr class="row">
             <th class="centered"><i class="fa fa-hashtag"/></th>
             {% if config.logos %}
                 <th></th>
             {% endif %}
-            <th class="name">{{ "NAME" | translate }}</th>
+            <th class="align-left">{{ "NAME" | translate }}</th>
             <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
         </tr>
     </thead>
@@ -20,9 +26,11 @@
                 {% if config.logos %}
                     <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{ list[index].logo }}"/></td>
                 {% endif %}
-                <td class="name">{{ list[index].name }}</td>
+                <td class="align-left">{{ list[index].name }}</td>
                 <td class="centered">{{ list[index].value }}</td>
             </tr>
+        {% else %}
+            <tr><td colspan="{{ 4 if config.logos else 3 }}" class="centered">{{ "NO_DATA_AVAILABLE" | translate }}</td></tr>
         {% endfor %}
     </tbody>
 </table>

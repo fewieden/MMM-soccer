@@ -2,12 +2,12 @@ const _ = require('lodash');
 const fetch = require('node-fetch');
 
 const {registerProvider} = require('../provider');
-const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, FETCHING_SCORERS, API_LIMIT_REACHED, API_KEY_REQUIRED, computeGroupStandings, isCompetitionTypeCup} = require('../utils');
+const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, FETCHING_SCORERS, FETCHING_SCHEDULES, API_LIMIT_REACHED, API_KEY_REQUIRED, computeGroupStandings, isCompetitionTypeCup, getTeamType} = require('../utils');
 
 const {getTeamCode, getTeamLogo} = require('./teams');
 const {BASE_URL, PROVIDER_NAME, COMPETITIONS} = require('./constants');
 
-let apiKey;
+let config;
 
 function getCompetitionId(competition) {
     const competitionId = COMPETITIONS[competition];
@@ -20,11 +20,11 @@ function getCompetitionId(competition) {
 }
 
 function getRequestOptions() {
-    if (!apiKey) {
+    if (!config?.apiKey) {
         throw new SoccerError(API_KEY_REQUIRED, {provider: PROVIDER_NAME});
     }
 
-    return {headers: {'X-Auth-Token': apiKey}};
+    return {headers: {'X-Auth-Token': config.apiKey}};
 }
 
 function mapStandingEntry(entry = {}) {
@@ -42,7 +42,9 @@ function mapMatchEntry(entry = {}) {
     return {
         stage: entry.stage,
         group: entry.group?.replace('Group ', ''),
+        matchDay: entry.matchday,
         status: entry.status,
+        timestamp: entry.utcDate,
         homeLogo: getTeamLogo(entry.homeTeam),
         homeTeam: getTeamCode(entry.homeTeam),
         homeScore: entry.score?.fullTime?.homeTeam || 0,
@@ -54,11 +56,20 @@ function mapMatchEntry(entry = {}) {
 
 async function fetchStandings(competition) {
     const isCup = isCompetitionTypeCup(competition);
+
+    if (isCup) {
+        const {matches, matchDay, stage} = await fetchMatches(competition, FETCHING_STANDINGS);
+
+        return {
+            code: competition,
+            details: {isCup, matchDay, stage, team: getTeamType(competition)},
+            groups: computeGroupStandings(matches)
+        };
+    }
+
     const competitionId = getCompetitionId(competition);
 
-    const endPoint = isCup ? 'matches' : 'standings';
-
-    const response = await fetch(`${BASE_URL}/competitions/${competitionId}/${endPoint}`, getRequestOptions());
+    const response = await fetch(`${BASE_URL}/competitions/${competitionId}/standings`, getRequestOptions());
 
     if (!response.ok) {
         const reason = response.status === 429 ? API_LIMIT_REACHED : FETCHING_STANDINGS;
@@ -68,21 +79,12 @@ async function fetchStandings(competition) {
 
     const parsedResponse = await response.json();
 
-    if (isCup) {
-        const matches = _.map(parsedResponse.matches, mapMatchEntry);
-
-        return {
-            code: competition,
-            details: {isCup},
-            groups: computeGroupStandings(matches)
-        };
-    }
-
     const standings = _.get(parsedResponse, ['standings', 0, 'table']);
+    const matchDay = _.get(parsedResponse, ['season', 'currentMatchday']);
 
     return {
         code: competition,
-        details: {isCup},
+        details: {isCup, matchDay, team: getTeamType(competition)},
         list: _.map(standings, mapStandingEntry)
     };
 }
@@ -90,7 +92,7 @@ async function fetchStandings(competition) {
 async function fetchScorers(competition) {
     const competitionId = getCompetitionId(competition);
 
-    const response = await fetch(`${BASE_URL}/competitions/${competitionId}/scorers?limit=50`, getRequestOptions());
+    const response = await fetch(`${BASE_URL}/competitions/${competitionId}/scorers?limit=100`, getRequestOptions());
 
     if (!response.ok) {
         const reason = response.status === 429 ? API_LIMIT_REACHED : FETCHING_SCORERS;
@@ -114,13 +116,45 @@ async function fetchScorers(competition) {
 
     return {
         code: competition,
-        details: {isCup: isCompetitionTypeCup(competition)},
+        details: {isCup: isCompetitionTypeCup(competition), team: getTeamType(competition)},
         list: scorers
     };
 }
 
-function init(config) {
-    apiKey = config.api_key;
+async function fetchMatches(competition, errorReason = FETCHING_SCHEDULES) {
+    const competitionId = getCompetitionId(competition);
+
+    const response = await fetch(`${BASE_URL}/competitions/${competitionId}/matches`, getRequestOptions());
+
+    if (!response.ok) {
+        const reason = response.status === 429 ? API_LIMIT_REACHED : errorReason;
+
+        throw new SoccerError(reason, {competition, provider: PROVIDER_NAME});
+    }
+
+    const {matches: rawMatches = []} = await response.json();
+
+    const matchDay = _.get(rawMatches, [0, 'season', 'currentMatchday'], 1);
+    const matches = _.map(rawMatches, mapMatchEntry);
+    const {stage} = _.find(matches, {matchDay}) || {};
+
+    return {matches, matchDay, stage};
 }
 
-registerProvider(PROVIDER_NAME, {init, fetchStandings, fetchScorers});
+async function fetchSchedules(competition) {
+    const {matches, matchDay, stage} = await fetchMatches(competition, FETCHING_SCHEDULES);
+
+    const isCup = isCompetitionTypeCup(competition);
+
+    return {
+        code: competition,
+        details: {isCup, matchDay, stage, team: getTeamType(competition)},
+        list: matches
+    };
+}
+
+function init(providerConfig) {
+    config = providerConfig;
+}
+
+registerProvider(PROVIDER_NAME, {init, fetchStandings, fetchScorers, fetchSchedules});

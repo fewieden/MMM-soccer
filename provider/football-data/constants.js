@@ -13,7 +13,10 @@ const COMPETITIONS = {
     PPL: 'PPL',
     DED: 'DED',
     BSA: 'BSA',
-    CL: 'CL'
+    CL: 'CL',
+    EC: 'EC',
+    ELC: 'ELC',
+    WC: 'WC'
 };
 
 module.exports = {BASE_URL, PROVIDER_NAME, COMPETITIONS, POINT_RELATED_STATUSES};

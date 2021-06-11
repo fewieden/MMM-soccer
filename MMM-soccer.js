@@ -42,55 +42,18 @@ Module.register('MMM-soccer', {
      * @property {Object} leagues - Hash of country name -> league id.
      */
     defaults: {
-        api_key: false,
         colored: false,
         logos: false,
         rotationInterval: 15 * 1000,
-        competitions: [
-            {
-                code: 'BL1',
-                standings: {
-                    provider: 'football-data',
-                    focusOn: 'SCF',
-                    maxEntries: 5
-                },
-                scorers: {
-                    provider: 'football-data',
-                    focusOn: 'SCF',
-                    maxEntries: 5
-                }
-            },
-            {
-                code: 'CL',
-                standings: {
-                    provider: 'football-data',
-                    focusOn: 'LIV',
-                    maxEntries: 7
-                }
-            }
-        ]
-    },
-
-    /**
-     * @member {Object} voice - Defines the default mode and commands of this module.
-     * @property {string} mode - Voice mode of this module.
-     * @property {string[]} sentences - List of voice commands of this module.
-     */
-    voice: {
-        mode: 'SOCCER',
-        sentences: [
-            'OPEN HELP',
-            'CLOSE HELP',
-            'SHOW STANDINGS OF COUNTRY NAME',
-            'EXPAND VIEW',
-            'COLLAPSE VIEW'
-        ]
+        provider: {},
+        competitions: []
     },
 
     standings: {},
     scorers: {},
+    schedules: {},
 
-    types: ['standings', 'scorers'],
+    types: ['standings', 'schedules', 'scorers'],
 
     competitionIndex: 0,
     typeIndex: 0,
@@ -105,6 +68,7 @@ Module.register('MMM-soccer', {
     start() {
         Log.info(`Starting module: ${this.name}`);
         this.addFilters();
+        this.typeIndex = this.getNextTypeIndex(false);
         this.scheduleCarousel();
         this.sendSocketNotification('CONFIG', this.config);
     },
@@ -124,30 +88,6 @@ Module.register('MMM-soccer', {
 
         if (notification === this.getCurrentType()) {
             this.updateDom(0);
-        }
-    },
-
-    /**
-     * @function notificationReceived
-     * @description Handles incoming broadcasts from other modules or the MagicMirror² core.
-     * @override
-     *
-     * @param {string} notification - Notification name
-     * @param {*} payload - Detailed payload of the notification.
-     * @param {Object} sender - Module that sent the notification or undefined for MagicMirror² core.
-     */
-    notificationReceived(notification, payload, sender) {
-        if (notification === 'ALL_MODULES_STARTED') {
-            const competitions = this.config.competitions.map(competition => competition.code).join(' ');
-            this.sendNotification('REGISTER_VOICE_MODULE', {
-                mode: this.voice.mode,
-                sentences: [...this.voice.sentences, competitions]
-            });
-        } else if (notification === 'VOICE_SOCCER' && sender.name === 'MMM-voice') {
-            this.executeVoiceCommands(payload);
-        } else if (notification === 'VOICE_MODE_CHANGED' && sender.name === 'MMM-voice'
-            && payload.old === this.voice.mode) {
-            this.sendNotification('CLOSE_MODAL');
         }
     },
 
@@ -190,10 +130,12 @@ Module.register('MMM-soccer', {
         const {code} = this.config.competitions[this.competitionIndex];
         const type = this.getCurrentType();
 
-        let templateName = 'MMM-soccer';
+        let templateName = 'Standings';
 
-        if (this.getCurrentType() === 'scorers') {
+        if (type === 'scorers') {
             templateName = 'TopList';
+        } else if (type === 'schedules') {
+            templateName = 'Schedules';
         } else if (this[type][code]?.details?.isCup) {
             templateName = 'CupStandings';
         }
@@ -226,103 +168,8 @@ Module.register('MMM-soccer', {
         };
     },
 
-    /**
-     * @function handleHelpModal
-     * @description Opens/closes help modal based on voice commands.
-     *
-     * @param {string} data - Text with commands.
-     *
-     * @returns {void}
-     */
-    handleHelpModal(data) {
-        if (/(CLOSE)/g.test(data) && !/(OPEN)/g.test(data)) {
-            this.sendNotification('CLOSE_MODAL');
-        } else if (/(OPEN)/g.test(data) && !/(CLOSE)/g.test(data)) {
-            this.sendNotification('OPEN_MODAL', {
-                template: 'templates/HelpModal.njk',
-                data: {
-                    ...this.voice,
-                    fns: {
-                        translate: this.translate.bind(this)
-                    }
-                }
-            });
-        }
-    },
-
-    /**
-     * @function handleStandingsModal
-     * @description Opens/closes standing modal based on voice commands.
-     *
-     * @param {string} data - Text with commands.
-     *
-     * @returns {void}
-     */
-    handleStandingsModal(data) {
-        if (/(COLLAPSE)/g.test(data) && !/(EXPAND)/g.test(data)) {
-            this.sendNotification('CLOSE_MODAL');
-        } else if (/(EXPAND)/g.test(data) && !/(COLLAPSE)/g.test(data)) {
-            this.sendNotification('OPEN_MODAL', {
-                template: 'templates/StandingsModal.njk',
-                data: {
-                    ...this.getTemplateData(),
-                    fns: {
-                        translate: this.translate.bind(this)
-                    }
-                }
-            });
-        }
-    },
-
-    /**
-     * @function handleLeagueSwitch
-     * @description Sitches the soccer league based on voice commands.
-     *
-     * @param {string} data - Text with commands.
-     *
-     * @returns {void}
-     */
-    handleLeagueSwitch(data) {
-        const countries = Object.keys(this.config.leagues);
-
-        for (const country of countries) {
-            const regexp = new RegExp(country, 'g');
-
-            if (regexp.test(data)) {
-                this.sendNotification('CLOSE_MODAL');
-
-                if (this.currentLeague !== this.config.leagues[country]) {
-                    this.currentLeague = this.config.leagues[country];
-                    this.getData();
-                }
-
-                break;
-            }
-        }
-
-        this.updateDom(300);
-    },
-
-    /**
-     * @function executeVoiceCommands
-     * @description Executes the voice commands.
-     *
-     * @param {string} data - Text with commands.
-     *
-     * @returns {void}
-     */
-    executeVoiceCommands(data) {
-        if (/(HELP)/g.test(data)) {
-            this.handleHelpModal(data);
-        } else if (/(VIEW)/g.test(data)) {
-            this.handleStandingsModal(data);
-        } else if (/(STANDINGS)/g.test(data)) {
-            this.handleLeagueSwitch(data);
-        }
-    },
-
     getFocusEntryIndex(list = [], focusOn) {
-        return list.findIndex(entry => entry.team === focusOn);
+        return list.findIndex(entry => entry.team === focusOn || entry.homeTeam === focusOn || entry.awayTeam === focusOn);
     },
 
     /**
@@ -338,13 +185,13 @@ Module.register('MMM-soccer', {
 
         const data = this[type][code];
         const isCup = data?.details?.isCup;
-        const lists = isCup ? data?.groups : [data];
+        const lists = isCup && type === 'standings' ? data?.groups : [data];
 
         let focusEntryIndex = -1;
         let focusGroupIndex = 0;
 
         for (let i = 0; i < lists.length; i++) {
-            focusEntryIndex = this.getFocusEntryIndex(lists[i]?.list, competition.focusOn);
+            focusEntryIndex = this.getFocusEntryIndex(lists[i]?.list, competition?.focusOn);
 
             if (focusEntryIndex !== -1) {
                 focusGroupIndex = i;
@@ -373,7 +220,7 @@ Module.register('MMM-soccer', {
 
         const competition = this.getCurrentCompetitionConfig();
 
-        if (competition.maxEntries) {
+        if (competition?.maxEntries) {
             const before = parseInt(competition.maxEntries / 2);
             const indexDiff = competition.maxEntries - 1;
             firstEntry = Math.max(focusEntryIndex - before, 0);
@@ -396,6 +243,10 @@ Module.register('MMM-soccer', {
     },
 
     getNextTypeIndex(shift) {
+        if (this.config.competitions.length === 0) {
+            throw new Error(`${this.name}: Invalid config!`);
+        }
+
         const currentIndex = this.typeIndex + (shift ? 1 : 0);
 
         for (let i = currentIndex; i <= this.types.length; i++) {
@@ -447,6 +298,41 @@ Module.register('MMM-soccer', {
             }
 
             return '';
+        });
+        this.nunjucksEnvironment().addFilter('formatMatchStart', (timestamp) => {
+            const matchStart = new Date(timestamp);
+            const oneDay = 1000 * 60 * 60 * 24;
+            const remainingTime = matchStart.getTime() - Date.now();
+
+            let options = {month: '2-digit', day: '2-digit'};
+
+            if (remainingTime < oneDay) {
+                options = {timeStyle: 'short'};
+            } else if (remainingTime < oneDay * 7) {
+                options = {weekday: 'short'};
+            }
+
+            return new Intl.DateTimeFormat(config.locale, options).format(matchStart);
+        });
+        this.nunjucksEnvironment().addFilter('prefixTranslate', (text, type) => {
+            if (this.config.shortNames) {
+                return text;
+            }
+
+            const label = `${type.toUpperCase()}_${text}`;
+
+            const translation = this.translate(label);
+
+            return translation !== label ? translation : text;
+        });
+        this.nunjucksEnvironment().addFilter('icon', (icon) => {
+            const iconMapping = {
+                standings: 'fa-list-ol',
+                schedules: 'fa-calendar-alt',
+                scorers: 'fa-soccer-ball-o',
+            };
+
+            return iconMapping[icon] || 'fa-question-circle';
         });
     }
 });

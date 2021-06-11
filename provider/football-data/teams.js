@@ -170,6 +170,32 @@ const mapping = {
     285: 'ELC',
     263: 'ALV',
     278: 'EIB',
+
+    // COUNTRIES
+    803: 'TUR',
+    784: 'ITA',
+    833: 'WAL',
+    788: 'SUI',
+    782: 'DEN',
+    1976: 'FIN',
+    805: 'BEL',
+    808: 'RUS',
+    770: 'ENG',
+    799: 'CRO',
+    816: 'AUT',
+    1977: 'MKD',
+    8601: 'NED',
+    790: 'UKR',
+    8873: 'SCO',
+    798: 'CZE',
+    794: 'POL',
+    768: 'SVK',
+    760: 'ESP',
+    792: 'SWE',
+    827: 'HUN',
+    765: 'POR',
+    773: 'FRA',
+    759: 'GER',
 };
 
 function getTeamCode(team = {}) {

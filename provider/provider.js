@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const {SoccerError, PROVIDER_ALREADY_REGISTERED, METHOD_NOT_IMPLEMENTED, INVALID_PROVIDER} = require('./utils');
 
 const provider = {};
@@ -15,6 +17,9 @@ function registerProvider(name, implementation) {
         fetchScorers(competition) {
             throw new SoccerError(METHOD_NOT_IMPLEMENTED, {competition, provider: name});
         },
+        fetchSchedules(competition) {
+            throw new SoccerError(METHOD_NOT_IMPLEMENTED, {competition, provider: name});
+        },
         ...implementation
     };
 }
@@ -29,7 +34,8 @@ function getProvider(name) {
 
 async function initProvider(config) {
     for (const name in provider) {
-        await getProvider(name).init(config);
+        const providerConfig = _.get(config, ['provider', name], {});
+        await getProvider(name).init(providerConfig);
     }
 }
 

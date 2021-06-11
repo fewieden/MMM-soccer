@@ -233,8 +233,4 @@ function computeGroupStandings(matches) {
     return getStandingsWithPositions(statsByGroup, matchesByGroup);
 }
 
-function isCompetitionTypeCup(competition) {
-    return _.get(SUPPORTED_COMPETITIONS, [competition, 'type']) === 'cup';
-}
-
-module.exports = {computeGroupStandings, isCompetitionTypeCup};
+module.exports = {computeGroupStandings};

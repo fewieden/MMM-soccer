@@ -7,10 +7,6 @@
     -webkit-filter: grayscale(100%);
 }
 
-.MMM-soccer .name {
-    text-align: left;
-}
-
 .MMM-soccer .table {
     border-spacing: 2px;
 }
@@ -22,6 +18,14 @@
 .MMM-soccer .space-between {
     display: flex;
     justify-content: space-between;
+}
+
+.MMM-soccer .align-left {
+    text-align: left;
+}
+
+.MMM-soccer .align-right {
+    text-align: right;
 }
 
 .MMM-soccer .centered {
