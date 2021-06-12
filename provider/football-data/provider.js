@@ -156,10 +156,12 @@ async function fetchSchedules(competition) {
 
     const isCup = isCompetitionTypeCup(competition);
 
+    const matchesOfCurrentMatchDay = _.filter(matches, {matchDay});
+
     return {
         code: competition,
         details: {isCup, matchDay, stage, team: getTeamType(competition)},
-        list: matches
+        list: matchesOfCurrentMatchDay
     };
 }
 
