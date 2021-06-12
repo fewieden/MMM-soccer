@@ -33,7 +33,7 @@
                 </td>
                 <td class="centered">{{ list[index].playedGames }}</td>
                 <td class="centered">{{ list[index].points }}</td>
-                <td class="centered">{{ list[index].goalsScored - list[index].goalsAgainst }}</td>
+                <td class="centered">{{ list[index].goalDifference }}</td>
             </tr>
         {% else %}
             <tr><td colspan="{{ 6 if config.logos else 5 }}" class="centered">{{ "NO_DATA_AVAILABLE" | translate }}</td></tr>

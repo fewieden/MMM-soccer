@@ -2,7 +2,7 @@ const _ = require('lodash');
 const fetch = require('node-fetch');
 
 const {registerProvider} = require('../provider');
-const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, FETCHING_SCORERS, FETCHING_SCHEDULES, API_LIMIT_REACHED, API_KEY_REQUIRED, computeGroupStandings, isCompetitionTypeCup, getTeamType} = require('../utils');
+const {SoccerError, COMPETITION_NOT_SUPPORTED, FETCHING_STANDINGS, FETCHING_SCORERS, FETCHING_SCHEDULES, API_LIMIT_REACHED, API_KEY_REQUIRED, isCompetitionTypeCup, getTeamType} = require('../utils');
 
 const {getTeamCode, getTeamLogo} = require('./teams');
 const {BASE_URL, PROVIDER_NAME, COMPETITIONS} = require('./constants');
@@ -54,18 +54,17 @@ function mapMatchEntry(entry = {}) {
     };
 }
 
+function mapGroupEntry(entry = {}) {
+    return {
+        details: {
+            group: entry.group?.replace('GROUP_', '')
+        },
+        list: _.map(entry.table, mapStandingEntry)
+    };
+}
+
 async function fetchStandings(competition) {
     const isCup = isCompetitionTypeCup(competition);
-
-    if (isCup) {
-        const {matches, matchDay, stage} = await fetchMatches(competition, FETCHING_STANDINGS);
-
-        return {
-            code: competition,
-            details: {isCup, matchDay, stage, team: getTeamType(competition)},
-            groups: computeGroupStandings(matches)
-        };
-    }
 
     const competitionId = getCompetitionId(competition);
 
@@ -79,8 +78,19 @@ async function fetchStandings(competition) {
 
     const parsedResponse = await response.json();
 
-    const standings = _.get(parsedResponse, ['standings', 0, 'table']);
     const matchDay = _.get(parsedResponse, ['season', 'currentMatchday']);
+
+    if (isCup) {
+        const stage = _.get(parsedResponse, ['standings', 0, 'stage'], '').replace('_STAGE', '');
+
+        return {
+            code: competition,
+            details: {isCup, matchDay, stage, team: getTeamType(competition)},
+            groups: _.map(parsedResponse?.standings, mapGroupEntry)
+        };
+    }
+
+    const standings = _.get(parsedResponse, ['standings', 0, 'table']);
 
     return {
         code: competition,
