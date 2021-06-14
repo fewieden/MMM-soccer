@@ -169,7 +169,15 @@ Module.register('MMM-soccer', {
     },
 
     getFocusEntryIndex(list = [], focusOn) {
+        if (!focusOn) {
+            return -1;
+        }
+
         return list.findIndex(entry => entry.team === focusOn || entry.homeTeam === focusOn || entry.awayTeam === focusOn);
+    },
+
+    getFirstScheduledEntryIndex(list = []) {
+        return list.findIndex(entry => !['FINISHED', 'AWARDED'].includes(entry.status));
     },
 
     /**
@@ -199,8 +207,16 @@ Module.register('MMM-soccer', {
             }
         }
 
+        if (focusEntryIndex === -1 && type === 'schedules') {
+            focusEntryIndex = this.getFirstScheduledEntryIndex(lists[focusGroupIndex]?.list);
+        }
+
         if (focusEntryIndex === -1) {
-            focusEntryIndex = 0;
+            if (type === 'schedules') {
+                focusEntryIndex = lists[focusGroupIndex]?.list?.length - 1;
+            } else {
+                focusEntryIndex = 0;
+            }
         }
 
         const details = {...data?.details, ...lists[focusGroupIndex]?.details, };
