@@ -1,0 +1,39 @@
+<header class="space-between">
+    <span>{{ competition | prefixTranslate("competition") }}</span>&nbsp;<span><i class="fa {{ type | icon }}"></i></span>
+</header>
+<table class="xsmall table">
+    <thead>
+        {% if details.matchDay %}
+            <tr class="row">
+                <th colspan="{{ 6 if config.logos else 5 }}" class="align-right">
+                    {{ "MATCHDAY" | translate({matchDayNumber: details.matchDay}) }}
+                </th>
+            </tr>
+        {% endif %}
+        <tr class="row">
+            <th class="centered"><i class="fa fa-hashtag"/></th>
+            <th class="align-left" colspan="{{ 2 if config.logos else 1 }}">{{ "TEAM" | translate }}</th>
+            <th class="centered"><i class="fa fa-calendar-check"/></th>
+            <th class="centered"><i class="fa fa-line-chart"/></th>
+            <th class="centered"><i class="fa fa-soccer-ball-o"/></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for index in range(boundaries.firstEntry, boundaries.lastEntry + 1) %}
+            <tr class="centered-row {% if index === boundaries.focusEntryIndex %}bright{% endif %}" style="{{ index | fade(boundaries.focusEntryIndex) }}">
+                <td class="centered">{{ list[index].position }}</td>
+                {% if config.logos %}
+                    <td><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{ list[index].logo }}"/></td>
+                {% endif %}
+                <td class="align-left">
+                    {{ list[index].team | prefixTranslate(details.team) }}
+                </td>
+                <td class="centered">{{ list[index].playedGames }}</td>
+                <td class="centered">{{ list[index].points }}</td>
+                <td class="centered">{{ list[index].goalDifference }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="{{ 6 if config.logos else 5 }}" class="centered">{{ "NO_DATA_AVAILABLE" | translate }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>

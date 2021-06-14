@@ -4,64 +4,177 @@ European Soccer Standings Module for MagicMirror²
 
 ## Example
 
-![](.github/regular.png) ![](.github/modal.png)
+![](.github/standings.png) ![](.github/schedules.png) ![](.github/scorers.png)
 
 ## Dependencies
 
 * An installation of [MagicMirror²](https://github.com/MichMich/MagicMirror)
-* OPTIONAL: [Voice Control](https://github.com/fewieden/MMM-voice) and [MMM-Modal](https://github.com/fewieden/MMM-Modal)
 * npm
 * [node-fetch](https://www.npmjs.com/package/node-fetch)
+* [lodash](https://www.npmjs.com/package/lodash)
 
 ## Installation
 
 * Clone this repo into `~/MagicMirror/modules` directory.
-* Configure your `~/MagicMirror/config/config.js`:
-
-```js
-{
-    module: 'MMM-soccer',
-    position: 'bottom_right',
-    config: {
-        // add your config options here
-    }
-}
-```
-
 * Run command `npm i --production` in `~/MagicMirror/modules/MMM-soccer` directory.
-* Optional: Get a free api key [here](http://api.football-data.org/register)
+* Configure your `~/MagicMirror/config/config.js` file. The config of this module can be complex for beginners. You can take a look at a [full example](#full-example) as reference.
+
+## Slow mode
+
+To not exceed the limit of your API this module is using a slow mode during the start.
+
+This means you can see the following data points `X` mins after starting your mirror:
+- Standings (immediately)
+- Schedules (1 minute)
+- Scorers (2 minutes)
+
+## Global config
+
+| **Option** | **Default** | **Description** |
+| --- | --- | --- |
+| `locale` | `undefined` | By default it is using your system settings. You can specify the locale in the global MagicMirror config. Possible values are for e.g.: `'en-US'` or `'de-DE'`. |
+
+To set a global config you have to set the value in your config.js file inside the MagicMirror project.
+
+![](.github/global.png)
 
 ## Config Options
 
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
-| `api_key` | false | Either false (limited to 50 requests a day) or an API Key obtained from <http://api.football-data.org/register> (limited to 50 requests a minute) . |
-| `colored` | false | Boolean to show club logos in color or not. |
-| `show` | 'GERMANY' | Which league should be displayed  'GERMANY', 'FRANCE', 'ENGLAND', 'SPAIN' or 'ITALY' |
-| `focus_on` | false | Which team should the standings focus on per league e.g. {"GERMANY": "FC Bayern München", "FRANCE": "Olympique Lyonnais"}. Omit this option or set to false to show the full league table. |
-| `max_teams` | false | How many teams should be displayed. Omit this option or set to false to show the full league table. |
-| `leagues` | `{"GERMANY": "BL1", "FRANCE": "FL1", "ENGLAND": "PL", "SPAIN": "PD", "ITALY": "SA"}` | A collection of leagues obtained from <http://api.football-data.org/v2/competitions> |
+| `colored` | `false` | Boolean to show club logos in color or not. |
 | `logos` | `false` | Boolean to show club logos or not. |
+| `rotationInterval` | `15000` (15 seconds) | How fast should the module rotate between the display types (standings, schedules and scorers). |
+| `provider` | `{}` | Define the specific properties for each data provider that you want to use, see all [options](#provider). |
+| `competitions` | `[]` | Define the competition list that you want to see on your mirror, see all [options](#competition-options). |
 
-## OPTIONAL: Voice Control and Modal
+### Competition options
 
-This module supports voice control by [MMM-voice](https://github.com/fewieden/MMM-voice) and [MMM-Modal](https://github.com/fewieden/MMM-Modal).
-In order to use this feature, it's required to install the voice and modal modules. There are no extra config options for voice control and modals needed.
+For each competition you have the following options.
 
-### Mode
+| **Option** | **Default** | **Description** |
+| --- | --- | --- |
+| `code` | **`REQUIRED`** | Specify which competition it is, see all [supported competition codes](#competition-codes). |
+| `standings` | `Not specified` | Specify the option that you want to use for this display type in this competition. Don't specify it, if you don't want this display type in this competition. See all [display type options](#display-type-options). Cup competitions only show the group phase standings. |
+| `schedules` | `Not specified` | Specify the option that you want to use for this display type in this competition. Don't specify it, if you don't want this display type in this competition. See all [display type options](#display-type-options). |
+| `scorers` | `Not specified` | Specify the option that you want to use for this display type in this competition. Don't specify it, if you don't want this display type in this competition. See all [display type options](#display-type-options). |
 
-The voice control mode for this module is `SOCCER`
+#### Display type options
 
-### List of all Voice Commands
+For each display type you have the following options.
 
-* OPEN HELP -> Shows the information from the readme here with mode and all commands.
-* CLOSE HELP -> Hides the help information.
-* SHOW STANDINGS OF COUNTRY NAME -> Switch standings to specific league.
-  Valid country names are (Default: GERMANY, FRANCE, ENGLAND, SPAIN or ITALY)
-  set in config. (Effect stays until your mirror restarts, for permanent change
-  you have to edit the config)
-* EXPAND VIEW -> Expands the standings table and shows all teams.
-* COLLAPSE VIEW -> Collapse the expanded view.
+| **Option** | **Default** | **Description** |
+| --- | --- | --- |
+| `provider` | **`REQUIRED`** | You have to specify which data provider you want to use for this display type in this competition, see all [supported provider](#provider). |
+| `focusOn` | `Not specified` | Which team would you like to highlight? If no team is specified, it will show the top of the list. See all [possible team codes](#team-codes). |
+| `maxEntries` | `Not specified` | How many entries should be displayed? It is recommended to specify a number to save space on your mirror. Omit this option to show the full list. |
+
+### Competition codes
+
+The list of currently available competitions and their codes.
+
+| **Competition** | **Country** | **Code** |
+| --- | --- | --- |
+|1st Bundesliga|Germany|`BL1`|
+|Premier League|England|`PL`|
+|Serie A|Italy|`SA`|
+|Ligue 1|France|`FL1`|
+|La Liga|Spain|`PD`|
+|Primeira Liga|Portugal|`PPL`|
+|Eredivisie|Netherlands|`DED`|
+|Serie A|Brazil|`BSA`|
+|Championship|England|`ELC`|
+|Champions League|International|`CL`|
+|European Championship|International|`EC`|
+|World Cup|International|`WC`|
+
+### Team codes
+
+The team codes are taken from two different sources. Make sure you pick the correct one for the team type of your competition.
+
+#### Clubs
+
+Find the list of team codes for clubs at [Reuters](https://liaison.reuters.com/tools/sports-team-codes)
+
+#### Countries
+
+Find the list of team codes for countries at [FIFA country code list](https://simple.wikipedia.org/wiki/List_of_FIFA_country_codes)
+
+### Provider
+
+The following data provider are integrated into the module:
+- `football-data`
+
+See their config options below.
+
+
+#### football-data
+
+| **Option** | **Default** | **Description** |
+| --- | --- | --- |
+| `apiKey` | **`REQUIRED`** | In order to use this data provider you have to obtain an API key. You can get them for free [here](http://api.football-data.org/register). |
+
+### Full example
+
+Don't forget to also configure the [global config object](#global-config).
+
+```js
+{
+    module: 'MMM-soccer',
+    position: 'top_right',
+    config: {
+        colored: true,
+        logos: true,
+        rotationInterval: 20 * 1000, // 20 seconds instead of 15 (default)
+        provider: {
+            'football-data': {
+                apiKey: 'XXX' // Replace with your API key
+            }
+        },
+        competitions: [
+            {
+                code: 'BL1', // 1st Bundesliga
+                standings: {
+                    provider: 'football-data', // Data provider to use
+                    focusOn: 'SCF', // SC Freiburg
+                    maxEntries: 5 // Display a maximum of 5 teams
+                },
+                scorers: {
+                    provider: 'football-data',
+                    focusOn: 'SCF',
+                    maxEntries: 5
+                }
+            },
+            {
+                code: 'CL', // Champions league
+                standings: {
+                    provider: 'football-data',
+                    focusOn: 'LIV', // Liverpool FC
+                    maxEntries: 7
+                },
+                scorers: {
+                    provider: 'football-data',
+                    focusOn: 'BAY', // FC Bayern Munich
+                    maxEntries: 5
+                },
+            },
+            {
+                code: 'EC', // European championship
+                standings: {
+                    provider: 'football-data',
+                    focusOn: 'GER', // Germany
+                    maxEntries: 5
+                },
+                schedules: {
+                    provider: 'football-data',
+                    focusOn: 'GER',
+                    maxEntries: 5
+                }
+            },
+        ]
+    }
+}
+```
 
 ## Developer
 

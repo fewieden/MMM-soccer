@@ -10,17 +10,17 @@
 /* eslint-env node */
 /* eslint-disable no-console */
 
-/**
- * @external node-fetch
- * @see https://www.npmjs.com/package/node-fetch
- */
-const fetch = require('node-fetch');
+const _ = require('lodash');
 
 /**
  * @external node_helper
  * @see https://github.com/MichMich/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
  */
 const NodeHelper = require('node_helper');
+
+const {handleError, initProvider, getProvider, DATA_TYPES} = require('./provider');
+
+const MINUTE_IN_MILLISECONDS = 60 * 1000;
 
 /**
  * @module node_helper
@@ -40,40 +40,62 @@ module.exports = NodeHelper.create({
      *
      * @returns {void}
      */
-    socketNotificationReceived(notification, payload) {
-        if (notification === 'GET_DATA') {
-            const url = `http://api.football-data.org/v2/competitions/${payload.league}/standings`;
-            const options = {};
+    async socketNotificationReceived(notification, payload) {
+        if (notification === 'CONFIG') {
+            await initProvider(payload);
 
-            if (payload.api_key) {
-                options.headers = {'X-Auth-Token': payload.api_key};
-            }
-
-            this.getData(url, options);
+            this.scheduleRequests(payload);
         }
     },
 
-    /**
-     * @function getData
-     * @description Request data from the supplied URL and broadcast it to the MagicMirror module if it's received.
-     * @async
-     *
-     * @param {string} url - URL to fetch data from.
-     * @param {Object} options - Request options containing the api key if provided as header.
-     *
-     * @returns {void}
-     */
-    async getData(url, options) {
-        const response = await fetch(url, options);
+    transformCompetitions(config) {
+        const grouped = _.transform(config.competitions, (competitions, competition) => {
+            _.set(competitions, [competition.code, 'code'], competition.code);
 
-        if (!response.ok) {
-            console.error(`Getting league table: ${response.status} ${response.statusText}`);
+            for (const type of DATA_TYPES) {
+                _.set(competitions, [competition.code, type], _.get(competition, [type, 'provider']));
+            }
 
+            return competitions;
+        }, {});
+
+        return _.values(grouped);
+    },
+
+    scheduleRequests(config) {
+        const compactCompetitions = this.transformCompetitions(config);
+
+        for (const [index, type] of DATA_TYPES.entries()) {
+            setTimeout(() => {
+                setInterval(() => this.makeRequests(compactCompetitions, type), (10 + DATA_TYPES.length) * MINUTE_IN_MILLISECONDS);
+                this.makeRequests(compactCompetitions, type);
+            }, index * MINUTE_IN_MILLISECONDS);
+        }
+    },
+
+    async createSingleRequest(competition, type) {
+        const provider = _.get(competition, type);
+
+        if (!provider) {
             return;
         }
 
-        const parsedResponse = await response.json();
+        const method = `fetch${_.upperFirst(type)}`;
 
-        this.sendSocketNotification('DATA', parsedResponse);
+        try {
+            const response = await getProvider(provider)[method](competition.code);
+
+            return response;
+        } catch (error) {
+            handleError(error);
+        }
+    },
+
+    async makeRequests(competitions, type) {
+        const requests = _.map(competitions, competition => this.createSingleRequest(competition, type));
+
+        const responses = await Promise.all(requests);
+
+        this.sendSocketNotification(type, _.keyBy(responses, 'code'));
     }
 });
