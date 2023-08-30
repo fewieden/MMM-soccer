@@ -228,6 +228,7 @@ Module.register('MMM-soccer', {
             this.showTable = (!isNaN(this.matchDay));
     	    returnedMatches.push({
                 competition: (Object.keys(this.tables).length > 0) ? this.tables[this.competition].competition.name : "",
+                emblem: (Object.keys(this.tables).length > 0) ? this.tables[this.competition].competition.emblem : "",
                 season: (Object.keys(this.tables).length > 0) ? `${this.translate('MATCHDAY')}: ${this.translate(this.matchDay)}` : this.translate('LOADING'),
                 matches: matches.filter(match => {
                     return match.matchday == this.matchDay;
@@ -291,10 +292,10 @@ Module.register('MMM-soccer', {
                 if (this.config.matchType == "league" || this.config.matchType == "daily") {
                     match.focused = (match.homeTeam.name === focusTeam) ? true : (match.awayTeam.name === focusTeam) ? true : false;
                 }
-                if (match.status == "SCHEDULED" || match.status == "POSTPONED") {
-                    match.state = (moment(match.utcDate).diff(moment(), 'days') > 7) ? moment(match.utcDate).format("D.MM.") : (moment(match.utcDate).startOf('day') > moment()) ? moment(match.utcDate).format("dd") : moment(match.utcDate).format("LT");
+                if (match.status == "TIMED" || match.status == "SCHEDULED" || match.status == "POSTPONED") {
+                    match.state = (moment(match.utcDate).diff(moment(), 'days') > 7) ? moment(match.utcDate).format("D.MM.") : (moment(match.utcDate).startOf('day') > moment()) ? moment(match.utcDate).format("dd HH:mm") : moment(match.utcDate).format("LT");
                } else {
-                    match.state = match.score.fullTime.homeTeam + " - " + match.score.fullTime.awayTeam;
+                    match.state = match.score.fullTime.home + " - " + match.score.fullTime.away;
                     if (match.score.winner == "HOME_TEAM") {
                         match.homeTeam["status"] = "winner"
                     } else if (match.score.winner == "AWAY_TEAM") {

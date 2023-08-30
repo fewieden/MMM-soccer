@@ -8,22 +8,30 @@
 		<div class="xsmall">
 			{% if comps.length %}
 				{% for i in range(0, comps.length) %}
+                <table class="games">
+                  <tbody>
+                    <tr class="small matchDay bold centered-row">
+                      <td rowspan="2" style="text-align: right; vertical-align: middle; padding-right: 15px; width: 50%;">
+                        <img class="big-icon {% if not config.colored %}no-color{% endif %}" src="{{comps[i].emblem}}"></img>
+                      </td>
+                      <td style="text-align: left">{{ comps[i].competition }}</td>
+                    </tr>
+                    <tr class="small matchDay bold centered-row"><td style="text-align: left">{{ comps[i].season }}</td></tr>                
+                  </tbody>
+                </table>
 				<table class="games">
 					<tbody>
-						<tr class="small matchDay bold">{{ comps[i].competition }}</div></tr>
-						<tr class="small matchDay bold">{{ comps[i].season }}</div></tr>
 						{% for m in range(0, comps[i].matches.length) %}					
 							<tr class="centered-row {% if comps[i].matches[m].focused %}bright{% endif %}">
 							<td class="name matchName homeTeam {{comps[i].matches[m].status}} {{comps[i].matches[m].homeTeam.status}}">{{comps[i].matches[m].homeTeam.name | replace}}</td>
 							{% if config.logos %}
 								<td class="logo">
-									<!--<svg class="logo-svg" width="100%" height="100%">{{ teams[comps[i].matches[m].homeTeam.id].crestUrl }}</svg>-->
-									<img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[comps[i].matches[m].homeTeam.id].crestUrl}}"/>
+									<img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[comps[i].matches[m].homeTeam.id].crest}}"/>
 								</td>
 							{% endif %}
 							<td class="status bold {{comps[i].matches[m].status}}">{{ comps[i].matches[m].state }}</td>
 							{% if config.logos %}
-								<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[comps[i].matches[m].awayTeam.id].crestUrl}}"/></td>
+								<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{teams[comps[i].matches[m].awayTeam.id].crest}}"/></td>
 							{% endif %}
 							<td class="name matchName awayTeam {{comps[i].matches[m].status}} {{comps[i].matches[m].awayTeam.status}}">{{comps[i].matches[m].awayTeam.name | replace}}</td>
 							</tr>
@@ -59,7 +67,7 @@
 					<tr class="centered-row {% if i === boundaries.focusTeamIndex %}bright{% endif %}" style="{{i | fade(boundaries.focusTeamIndex)}}">
 						<td>{{table[i].position}}</td>
 						{% if config.logos %}
-							<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{table[i].team.crestUrl}}"/></td>
+							<td class="logo"><img class="icon {% if not config.colored %}no-color{% endif %}" src="{{table[i].team.crest}}"/></td>
 						{% endif %}
 						<td class="name">{{table[i].team.name | replace}}</td>
 						<td class="centered">{{table[i].playedGames}}</td>
