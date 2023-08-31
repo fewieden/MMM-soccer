@@ -1,0 +1,17 @@
+{
+  "LOADING": "Chargement...",
+  "NO_DATA_AVAILABLE": "Aucune donnée disponible !",
+  "NO_MATCHES": "Aucune correspondance",
+  "TODAYS_MATCHES": "Aujourd'hui",
+  "NEXT_MATCHES": "Prochains matchs",
+  "MATCHDAY": "Jour de match",
+  "TEAM": "Équipe",
+  "COMMAND_LIST": "Liste de toutes les commandes vocales",
+  "MODE": "Mode",
+  "VOICE_COMMANDS": "Commandes vocales",
+  "PLAY_OFF_ROUND": "Tour de barrages",
+  "ROUND_OF_16": "Huitièmes de finale",
+  "ROUND_OF_8": "Quarts de finale",
+  "ROUND_OF_4": "Demi-finales",
+  "FINAL": "Finales"
+}
