@@ -166,7 +166,8 @@ Module.register('MMM-soccer', {
             en: 'translations/en.json',
             de: 'translations/de.json',
             id: 'translations/id.json',
-            sv: 'translations/sv.json'
+            sv: 'translations/sv.json',
+            fr: 'translations/fr.json'
         };
     },
 
