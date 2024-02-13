@@ -11,12 +11,6 @@
 /* eslint-disable no-console */
 
 /**
- * @external node-fetch
- * @see https://www.npmjs.com/package/node-fetch
- */
-const fetch = require('node-fetch');
-
-/**
  * @external node_helper
  * @see https://github.com/MichMich/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
  */
@@ -26,7 +20,6 @@ const NodeHelper = require('node_helper');
  * @module node_helper
  * @description Backend for the module to query data from the API provider.
  *
- * @requires external:node-fetch
  * @requires external:node_helper
  */
 module.exports = NodeHelper.create({

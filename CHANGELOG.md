@@ -2,15 +2,19 @@
 
 ## [Unreleased]
 
+**Requires version >= 18 of NodeJS!**
+
 ### Fixed
 
-- [Switching to v4 due to empty tables in v2 of the API](https://github.com/fewieden/MMM-soccer/issues/70)
+* [Switching to v4 due to empty tables in v2 of the API](https://github.com/fewieden/MMM-soccer/issues/70)
 
 ### Added
 
 ### Changed
 
 ### Removed
+
+* Dependency [node-fetch](https://www.npmjs.com/package/node-fetch)
 
 ## [2.2.1]
 
