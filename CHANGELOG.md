@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- [Switching to v4 due to empty tables in v2 of the API](https://github.com/fewieden/MMM-soccer/issues/70)
+
 ### Added
 
 ### Changed

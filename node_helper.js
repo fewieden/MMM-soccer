@@ -42,7 +42,7 @@ module.exports = NodeHelper.create({
      */
     socketNotificationReceived(notification, payload) {
         if (notification === 'GET_DATA') {
-            const url = `http://api.football-data.org/v2/competitions/${payload.league}/standings`;
+            const url = `http://api.football-data.org/v4/competitions/${payload.league}/standings`;
             const options = {};
 
             if (payload.api_key) {
