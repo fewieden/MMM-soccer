@@ -20,14 +20,14 @@ describe('node_helper', () => {
     test('triggers data fetch without api_key if notification is GET_DATA', () => {
         helper.socketNotificationReceived('GET_DATA', {league: 'BL1'});
 
-        expect(fetchMock).toHaveBeenNthCalledWith(1, 'http://api.football-data.org/v2/competitions/BL1/standings', {});
+        expect(fetchMock).toHaveBeenNthCalledWith(1, 'http://api.football-data.org/v4/competitions/BL1/standings', {});
     });
 
     test('triggers data fetch with api key if notification is GET_DATA', () => {
         const apiKey = 'TEST_API_KEY';
         helper.socketNotificationReceived('GET_DATA', {league: 'BL1', api_key: apiKey});
 
-        expect(fetchMock).toHaveBeenNthCalledWith(1, 'http://api.football-data.org/v2/competitions/BL1/standings', {
+        expect(fetchMock).toHaveBeenNthCalledWith(1, 'http://api.football-data.org/v4/competitions/BL1/standings', {
             headers: {
                 'X-Auth-Token': apiKey
             }
