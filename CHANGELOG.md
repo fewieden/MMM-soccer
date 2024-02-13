@@ -15,6 +15,7 @@
 ### Removed
 
 * Dependency [node-fetch](https://www.npmjs.com/package/node-fetch)
+* TravisCI configuration
 
 ## [2.2.1]
 
