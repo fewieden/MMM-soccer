@@ -12,6 +12,8 @@
 
 ### Changed
 
+* Updated dependencies
+
 ### Removed
 
 * Dependency [node-fetch](https://www.npmjs.com/package/node-fetch)

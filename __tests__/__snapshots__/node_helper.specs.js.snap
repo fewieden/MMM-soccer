@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`node_helper data fetching sends response via socket to module on success 1`] = `
-Object {
-  "competition": Object {
-    "area": Object {
+{
+  "competition": {
+    "area": {
       "id": 2088,
       "name": "Germany",
     },
@@ -13,17 +13,17 @@ Object {
     "name": "Bundesliga",
     "plan": "TIER_ONE",
   },
-  "season": Object {
+  "season": {
     "currentMatchday": 14,
     "endDate": "2021-05-15",
     "id": 599,
     "startDate": "2020-09-18",
   },
-  "standings": Array [
-    Object {
+  "standings": [
+    {
       "stage": "REGULAR_SEASON",
-      "table": Array [
-        Object {
+      "table": [
+        {
           "draw": 4,
           "form": "W,D,W,W,D",
           "goalDifference": 16,
@@ -33,14 +33,14 @@ Object {
           "playedGames": 14,
           "points": 31,
           "position": 1,
-          "team": Object {
+          "team": {
             "crestUrl": "https://crests.football-data.org/721.svg",
             "id": 721,
             "name": "RB Leipzig",
           },
           "won": 9,
         },
-        Object {
+        {
           "draw": 3,
           "form": "W,W,D,D,W",
           "goalDifference": 20,
@@ -50,14 +50,14 @@ Object {
           "playedGames": 13,
           "points": 30,
           "position": 2,
-          "team": Object {
+          "team": {
             "crestUrl": "https://crests.football-data.org/5.svg",
             "id": 5,
             "name": "FC Bayern München",
           },
           "won": 9,
         },
-        Object {
+        {
           "draw": 4,
           "form": "L,L,W,W,W",
           "goalDifference": 15,
@@ -67,7 +67,7 @@ Object {
           "playedGames": 14,
           "points": 28,
           "position": 3,
-          "team": Object {
+          "team": {
             "crestUrl": "https://crests.football-data.org/3.svg",
             "id": 3,
             "name": "Bayer 04 Leverkusen",
