@@ -10,6 +10,8 @@
 
 ### Added
 
+* 100% test coverage requirement
+
 ### Changed
 
 * Updated dependencies

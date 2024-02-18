@@ -1,11 +1,9 @@
 const {generateResponse} = require('../__mocks__/mockResponse');
 
+const helper = require('../node_helper');
+
 describe('node_helper', () => {
-    let helper;
-
     beforeEach(() => {
-        helper = require('../node_helper');
-
         helper.setName('MMM-soccer');
 
         fetchMock.mockResponseOnce(JSON.stringify(generateResponse()), {status: 200});

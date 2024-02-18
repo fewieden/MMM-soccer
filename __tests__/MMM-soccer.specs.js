@@ -1,16 +1,19 @@
-describe('MMM-soccer', () => {
-    beforeAll(() => {
-        require('../__mocks__/Logger');
-        require('../__mocks__/Module');
-    });
+const {readdirSync} = require('node:fs');
+const {join} = require('node:path');
 
+require('../__mocks__/Logger');
+require('../__mocks__/Module');
+const {generateResponse} = require('../__mocks__/mockResponse');
+
+describe('MMM-soccer', () => {
     const name = 'MMM-soccer';
 
     let MMMsoccer;
 
     beforeEach(() => {
-        jest.resetModules();
-        require('../MMM-soccer');
+        jest.isolateModules(() => {
+            require('../MMM-soccer');
+        });
 
         MMMsoccer = global.Module.create(name);
         MMMsoccer.setData({name, identifier: `Module_1_${name}`});
@@ -33,14 +36,12 @@ describe('MMM-soccer', () => {
     });
 
     describe('start', () => {
-        const originalInterval = setInterval;
-
         beforeEach(() => {
-            global.setInterval = jest.fn();
+            jest.useFakeTimers();
         });
 
         afterEach(() => {
-            global.setInterval = originalInterval;
+            jest.useRealTimers();
         });
 
         test('logs start of module', () => {
@@ -74,7 +75,7 @@ describe('MMM-soccer', () => {
         test('interval requests data from node_helper', () => {
             MMMsoccer.start();
 
-            global.setInterval.mock.calls[0][0]();
+            jest.runOnlyPendingTimers();
 
             expect(MMMsoccer.sendSocketNotification).toHaveBeenCalledTimes(2);
             expect(MMMsoccer.sendSocketNotification).toHaveBeenNthCalledWith(2, 'GET_DATA', {
@@ -83,23 +84,29 @@ describe('MMM-soccer', () => {
         });
 
         test('inits interval correctly for usage with api_key', () => {
+            const intervalSpy = jest.spyOn(global, 'setInterval');
+
             MMMsoccer.start();
 
-            expect(global.setInterval).toHaveBeenNthCalledWith(1, expect.any(Function), 1800000);
+            expect(intervalSpy).toHaveBeenNthCalledWith(1, expect.any(Function), 1800000);
+
+            intervalSpy.mockRestore();
         });
 
         test('inits interval correctly for usage without api_key', () => {
+            const intervalSpy = jest.spyOn(global, 'setInterval');
+
             MMMsoccer.setConfig({api_key: 'TEST_API_KEY'});
 
             MMMsoccer.start();
 
-            expect(global.setInterval).toHaveBeenNthCalledWith(1, expect.any(Function), 300000);
+            expect(intervalSpy).toHaveBeenNthCalledWith(1, expect.any(Function), 300000);
+
+            intervalSpy.mockRestore();
         });
     });
 
     describe('socketNotificationReceived', () => {
-        const {generateResponse} = require('../__mocks__/mockResponse');
-
         const payload = generateResponse();
 
         test('sets loading to false after receiving data', () => {
@@ -162,8 +169,6 @@ describe('MMM-soccer', () => {
     test('translations are matching translation files', () => {
         const translations = MMMsoccer.getTranslations();
 
-        const {readdirSync} = require('fs');
-        const {join} = require('path');
         const translationFiles = readdirSync(join(__dirname, '..', 'translations'));
 
         expect(Object.keys(translations).length).toBe(5);
@@ -389,33 +394,34 @@ describe('MMM-soccer', () => {
         });
 
         describe('fade', () => {
+            let fadeFilter;
+
+            beforeEach(() => {
+                fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
+            });
+
             test('adds fade filters', () => {
                 expect(addFilter).toHaveBeenNthCalledWith(1, 'fade', expect.any(Function));
             });
 
             test('returns opacity style', () => {
                 MMMsoccer.setConfig({max_teams: 7});
-                const fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
 
                 expect(fadeFilter(1, 3)).toBe('opacity: 0.71');
             });
 
             test('returns empty string if max_teams is NOT set', () => {
-                const fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
-
                 expect(fadeFilter(3, -1)).toBe('');
             });
 
             test('returns empty string if focus team NOT found', () => {
                 MMMsoccer.setConfig({max_teams: 7});
-                const fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
 
                 expect(fadeFilter(3, -1)).toBe('');
             });
 
             test('returns empty string if focus === index', () => {
                 MMMsoccer.setConfig({max_teams: 7});
-                const fadeFilter = MMMsoccer.nunjucksEnvironment().addFilter.mock.calls[0][1];
 
                 expect(fadeFilter(3, 3)).toBe('');
             });
