@@ -1,7 +1,7 @@
 const {readdirSync} = require('node:fs');
 const {join} = require('node:path');
 
-require('../__mocks__/Logger');
+require('../__mocks__/logger');
 require('../__mocks__/Module');
 const {generateResponse} = require('../__mocks__/mockResponse');
 

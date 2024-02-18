@@ -11,6 +11,12 @@
 /* eslint-disable no-console */
 
 /**
+ * @external logger
+ * @see https://github.com/MichMich/MagicMirror/blob/master/js/logger.js
+ */
+const logger = require('logger');
+
+/**
  * @external node_helper
  * @see https://github.com/MichMich/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
  */
@@ -20,6 +26,7 @@ const NodeHelper = require('node_helper');
  * @module node_helper
  * @description Backend for the module to query data from the API provider.
  *
+ * @requires external:logger
  * @requires external:node_helper
  */
 module.exports = NodeHelper.create({
@@ -60,7 +67,7 @@ module.exports = NodeHelper.create({
         const response = await fetch(url, options);
 
         if (!response.ok) {
-            console.error(`Getting league table: ${response.status} ${response.statusText}`);
+            logger.error(`Getting league table: ${response.status} ${response.statusText}`);
 
             return;
         }

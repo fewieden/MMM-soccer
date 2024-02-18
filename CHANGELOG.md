@@ -14,6 +14,7 @@
 
 ### Changed
 
+* Use `logger` instead of `console`
 * Updated dependencies
 
 ### Removed

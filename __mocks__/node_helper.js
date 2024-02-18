@@ -1,25 +1,27 @@
+const Log = require("logger");
+
 module.exports = {
     create(overrides) {
         const base = {
             init() {
-                console.log('Initializing new module helper ...');
+                Log.log("Initializing new module helper ...");
             },
 
             loaded(callback) {
-                console.log(`Module helper loaded: ${this.name}`);
+                Log.log(`Module helper loaded: ${this.name}`);
                 callback();
             },
 
             start() {
-                console.log(`Starting module helper: ${this.name}`);
+                Log.log(`Starting module helper: ${this.name}`);
             },
 
             stop() {
-                console.log(`Stopping module helper: ${this.name}`);
+                Log.log(`Stopping module helper: ${this.name}`);
             },
 
             socketNotificationReceived(notification, payload) {
-                console.log(`${this.name} received a socket notification: ${notification} Payload: ${payload}`);
+                Log.log(`${this.name} received a socket notification: ${notification} - Payload: ${payload}`);
             },
 
             setName(name) {

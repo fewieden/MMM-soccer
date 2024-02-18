@@ -1,3 +1,4 @@
+const Log = require('../__mocks__/logger');
 const {generateResponse} = require('../__mocks__/mockResponse');
 
 const helper = require('../node_helper');
@@ -12,7 +13,7 @@ describe('node_helper', () => {
     test('start prints module name', () => {
         helper.start();
 
-        expect(console.log).toHaveBeenCalledWith('Starting module helper: MMM-soccer');
+        expect(Log.log).toHaveBeenCalledWith('Starting module helper: MMM-soccer');
     });
 
     test('triggers data fetch without api_key if notification is GET_DATA', () => {
@@ -49,7 +50,7 @@ describe('node_helper', () => {
 
         await waitForAsync();
 
-        expect(console.error).toHaveBeenCalledWith('Getting league table: 403 Forbidden');
+        expect(Log.error).toHaveBeenCalledWith('Getting league table: 403 Forbidden');
         expect(helper.sendSocketNotification).not.toHaveBeenCalled();
     });
 
