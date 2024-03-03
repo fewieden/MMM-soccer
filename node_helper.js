@@ -11,14 +11,14 @@
 /* eslint-disable no-console */
 
 /**
- * @external node-fetch
- * @see https://www.npmjs.com/package/node-fetch
+ * @external logger
+ * @see https://github.com/MagicMirrorOrg/MagicMirror/blob/master/js/logger.js
  */
-const fetch = require('node-fetch');
+const logger = require('logger');
 
 /**
  * @external node_helper
- * @see https://github.com/MichMich/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
+ * @see https://github.com/MagicMirrorOrg/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
  */
 const NodeHelper = require('node_helper');
 
@@ -26,7 +26,7 @@ const NodeHelper = require('node_helper');
  * @module node_helper
  * @description Backend for the module to query data from the API provider.
  *
- * @requires external:node-fetch
+ * @requires external:logger
  * @requires external:node_helper
  */
 module.exports = NodeHelper.create({
@@ -42,7 +42,7 @@ module.exports = NodeHelper.create({
      */
     socketNotificationReceived(notification, payload) {
         if (notification === 'GET_DATA') {
-            const url = `http://api.football-data.org/v2/competitions/${payload.league}/standings`;
+            const url = `http://api.football-data.org/v4/competitions/${payload.league}/standings`;
             const options = {};
 
             if (payload.api_key) {
@@ -67,7 +67,7 @@ module.exports = NodeHelper.create({
         const response = await fetch(url, options);
 
         if (!response.ok) {
-            console.error(`Getting league table: ${response.status} ${response.statusText}`);
+            logger.error(`Getting league table: ${response.status} ${response.statusText}`);
 
             return;
         }

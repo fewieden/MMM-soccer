@@ -11,5 +11,12 @@ module.exports = {
     collectCoverageFrom: [
         'MMM-soccer.js',
         'node_helper.js'
-    ]
+    ],
+    coverageThreshold: {
+        global: {
+            branches: 100,
+            functions: 100,
+            statements: 100
+        }
+    }
 };

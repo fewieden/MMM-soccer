@@ -1,14 +1,23 @@
 {
   "name": "mmm-soccer",
   "version": "2.2.1",
-  "description": "European Soccer Standings Module for MagicMirror2",
+  "description": "Soccer/football standings module for MagicMirror²",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fewieden/MMM-soccer.git"
   },
   "keywords": [
-    "MagicMirror",
-    "soccer standings"
+    "MagicMirror²",
+    "soccer standings",
+    "football standings",
+    "bundesliga",
+    "premier league",
+    "serie a",
+    "la liga",
+    "ligue 1",
+    "eredivisie",
+    "primeira liga",
+    "sport"
   ],
   "author": "fewieden",
   "license": "MIT",
@@ -17,18 +26,16 @@
   },
   "homepage": "https://github.com/fewieden/MMM-soccer#readme",
   "scripts": {
-    "docs": "jsdoc -c jsdoc.json .",
-    "lint": "eslint . && stylelint **/*.css",
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "eslint .",
+    "lint:css": "stylelint **/*.css",
     "test": "jest",
     "test:coverage": "jest --coverage"
-  },
-  "dependencies": {
-    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-config-recommended": "^4.1.0",
-    "jest": "^26.6.3",
+    "jest": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "jsdoc": "^3.6.6",
     "stylelint": "^13.8.0",

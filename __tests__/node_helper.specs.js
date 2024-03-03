@@ -1,11 +1,10 @@
+const Log = require('../__mocks__/logger');
 const {generateResponse} = require('../__mocks__/mockResponse');
 
+const helper = require('../node_helper');
+
 describe('node_helper', () => {
-    let helper;
-
     beforeEach(() => {
-        helper = require('../node_helper');
-
         helper.setName('MMM-soccer');
 
         fetchMock.mockResponseOnce(JSON.stringify(generateResponse()), {status: 200});
@@ -14,20 +13,20 @@ describe('node_helper', () => {
     test('start prints module name', () => {
         helper.start();
 
-        expect(console.log).toHaveBeenCalledWith('Starting module helper: MMM-soccer');
+        expect(Log.log).toHaveBeenCalledWith('Starting module helper: MMM-soccer');
     });
 
     test('triggers data fetch without api_key if notification is GET_DATA', () => {
         helper.socketNotificationReceived('GET_DATA', {league: 'BL1'});
 
-        expect(fetchMock).toHaveBeenNthCalledWith(1, 'http://api.football-data.org/v2/competitions/BL1/standings', {});
+        expect(fetchMock).toHaveBeenNthCalledWith(1, 'http://api.football-data.org/v4/competitions/BL1/standings', {});
     });
 
     test('triggers data fetch with api key if notification is GET_DATA', () => {
         const apiKey = 'TEST_API_KEY';
         helper.socketNotificationReceived('GET_DATA', {league: 'BL1', api_key: apiKey});
 
-        expect(fetchMock).toHaveBeenNthCalledWith(1, 'http://api.football-data.org/v2/competitions/BL1/standings', {
+        expect(fetchMock).toHaveBeenNthCalledWith(1, 'http://api.football-data.org/v4/competitions/BL1/standings', {
             headers: {
                 'X-Auth-Token': apiKey
             }
@@ -51,7 +50,7 @@ describe('node_helper', () => {
 
         await waitForAsync();
 
-        expect(console.error).toHaveBeenCalledWith('Getting league table: 403 Forbidden');
+        expect(Log.error).toHaveBeenCalledWith('Getting league table: 403 Forbidden');
         expect(helper.sendSocketNotification).not.toHaveBeenCalled();
     });
 

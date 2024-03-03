@@ -1,5 +1,29 @@
 # MMM-soccer Changelog
 
+## [Unreleased]
+
+**Requires version >= 18 of NodeJS!**
+
+### Fixed
+
+* [Switching to v4 due to empty tables in v2 of the API](https://github.com/fewieden/MMM-soccer/issues/70)
+
+### Added
+
+* 100% test coverage requirement
+* Category sport for [3rd party module list](https://kristjanesperanto.github.io/MagicMirror-3rd-Party-Modules/)
+
+### Changed
+
+* Use `logger` instead of `console`
+* Updated dependencies
+* Updated reference to new GitHub repository of MagicMirror² project
+
+### Removed
+
+* Dependency [node-fetch](https://www.npmjs.com/package/node-fetch)
+* TravisCI configuration
+
 ## [2.2.1]
 
 ### Fixed

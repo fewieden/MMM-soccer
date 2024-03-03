@@ -8,10 +8,8 @@ European Soccer Standings Module for MagicMirror²
 
 ## Dependencies
 
-* An installation of [MagicMirror²](https://github.com/MichMich/MagicMirror)
+* An installation of [MagicMirror²](https://github.com/MagicMirrorOrg/MagicMirror)
 * OPTIONAL: [Voice Control](https://github.com/fewieden/MMM-voice) and [MMM-Modal](https://github.com/fewieden/MMM-Modal)
-* npm
-* [node-fetch](https://www.npmjs.com/package/node-fetch)
 
 ## Installation
 
