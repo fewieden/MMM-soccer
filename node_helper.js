@@ -12,13 +12,13 @@
 
 /**
  * @external logger
- * @see https://github.com/MichMich/MagicMirror/blob/master/js/logger.js
+ * @see https://github.com/MagicMirrorOrg/MagicMirror/blob/master/js/logger.js
  */
 const logger = require('logger');
 
 /**
  * @external node_helper
- * @see https://github.com/MichMich/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
+ * @see https://github.com/MagicMirrorOrg/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
  */
 const NodeHelper = require('node_helper');
 

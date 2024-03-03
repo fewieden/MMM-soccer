@@ -9,12 +9,12 @@
 
 /**
  * @external Module
- * @see https://github.com/MichMich/MagicMirror/blob/master/js/module.js
+ * @see https://github.com/MagicMirrorOrg/MagicMirror/blob/master/js/module.js
  */
 
 /**
  * @external Log
- * @see https://github.com/MichMich/MagicMirror/blob/master/js/logger.js
+ * @see https://github.com/MagicMirrorOrg/MagicMirror/blob/master/js/logger.js
  */
 
 /**

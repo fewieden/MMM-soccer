@@ -16,6 +16,7 @@
 
 * Use `logger` instead of `console`
 * Updated dependencies
+* Updated reference to new GitHub repository of MagicMirror² project
 
 ### Removed
 
