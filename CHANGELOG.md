@@ -11,6 +11,7 @@
 ### Added
 
 * 100% test coverage requirement
+* Category sport for [3rd party module list](https://kristjanesperanto.github.io/MagicMirror-3rd-Party-Modules/)
 
 ### Changed
 
